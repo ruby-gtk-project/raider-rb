@@ -102,6 +102,20 @@ RSpec.describe App do
       expect(shared.windows.map(&:window)).to all(be_a(Adwaita::ApplicationWindow))
     end
 
+    it "drops a window that has been closed, so a stale one is never polled" do
+      opened = windows
+
+      expect(shared.windows).to include(*opened)
+
+      opened.last.window.close
+      GtkSupport.pump_until { !shared.windows.include?(opened.last) }
+
+      # GTK4 removed GtkWidget::destroy, so there is no signal to hang the
+      # removal on: the list is pruned against gtk_application_get_windows.
+      expect(shared.windows).not_to include(opened.last)
+      expect(shared.windows).to include(opened.first)
+    end
+
     it "quits when no window is shredding" do
       expect(shared.app).to receive(:quit)
 

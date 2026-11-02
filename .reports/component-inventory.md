@@ -12,7 +12,7 @@ then the scan as a cross-check.
 | Port | `ruby` @ `b359bb1682451fda8da6cf6219a9403092ae0102` |
 | Symbol table | `.claude/skills/component-identification/scripts/symbols.tsv`, 1301 rows |
 | Upstream UI source | 4 blueprints, 1 GResource manifest, no GSettings schema |
-| Catalogues | `po/LINGUAS` = 36 languages; port's `po/*.po` is byte-identical in membership |
+| Catalogues | `po/LINGUAS` = 34 languages over 35 `po/*.po`; the port's `LINGUAS` is byte-identical to upstream's and its `po/*.po` membership is identical |
 
 ## Unit map
 
@@ -207,7 +207,7 @@ is resolved from the application.
 | `po/meson.build` + `src/main.c` gettext calls | `lib/translation.rb` | yes | one `raider` domain bound on a module |
 | `data/meson.build` | `lib/data_files.rb` | yes | desktop (`msgfmt --desktop`), metainfo (`msgfmt --xml`), service (`configure_file`) |
 | `data/icons/**` | `data/icons/**` | yes | all three SVGs present on `ruby` |
-| `po/*.po`, `LINGUAS`, `POTFILES` | `po/**` | yes | 36 catalogues, membership identical to upstream |
+| `po/*.po`, `LINGUAS`, `POTFILES` | `po/**` | yes | 35 catalogues (34 listed in `LINGUAS`), membership identical to upstream |
 
 ---
 

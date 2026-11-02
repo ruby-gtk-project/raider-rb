@@ -102,7 +102,18 @@ class App
   # already answers gtk_application_get_windows with the Adwaita windows; this
   # is the same list in terms of the objects that built them, which is what
   # app.quit asks for when it polls every window for shredding.
-  def windows = @windows.dup
+  #
+  # A closed window is recognised the way upstream recognises it: as one
+  # GApplication no longer lists. GTK4 removed GtkWidget::destroy, so there is
+  # no signal to hang a removal on — connecting to it silently never fires,
+  # and the list would grow for the life of the process and go on offering
+  # destroyed windows to action_quit, which asks every one of them whether it
+  # is shredding.
+  def windows
+    app.windows.then do |live|
+      @windows.keep_if { |win| live.any? { |window| window == win.window } }.dup
+    end
+  end
 
   def about_dialog
     Adwaita::AboutDialog.new.tap do |about|
@@ -153,11 +164,18 @@ class App
     end
 
     # Upstream's activate: present the window there is, or make one.
+    #
+    # GTK only calls a window active once something has focused it, so the
+    # port falls back to the oldest window it holds before concluding there is
+    # none — upstream's `window == NULL` is about there being no window at
+    # all, not about nothing having the focus.
     def on_activate
-      if @windows.empty?
-        open_window([])
-      else
-        app.active_window.present
+      (app.active_window || windows.first&.window).then do |window|
+        if window
+          window.present
+        else
+          open_window([])
+        end
       end
     end
 
@@ -170,7 +188,6 @@ class App
       Window.new(app).tap do |win|
         win.build
         @windows << win
-        win.window.signal_connect('destroy') { @windows.delete(win) }
         win.open_files(files)
         win.present
       end
@@ -223,7 +240,7 @@ class App
     # Upstream's try_exit: every window is asked, and the application quits
     # only when none of them is shredding.
     def action_quit
-      @windows.dup.map(&:request_exit).any?.then do |shredding|
+      windows.map(&:request_exit).any?.then do |shredding|
         unless shredding
           app.quit
         end
@@ -258,7 +275,7 @@ class App
     # by matching that.
     def active_port_window
       app.active_window.then do |active|
-        @windows.find { |win| win.window == active } || @windows.first
+        windows.then { |live| live.find { |win| win.window == active } || live.first }
       end
     end
 end

@@ -197,20 +197,46 @@ module GtkDriver
     # a texture that knows how to write a PNG.
       def render(widget, path)
         settle
+        node_for(widget).then do |node|
+          if node.nil?
+            raise 'widget produced no render node (not realised yet?)'
+          end
+
+          write_png(node, path)
+        end
+      end
+
+    # A widget that changed on this turn of the loop can still snapshot to
+    # nothing after one settle — a stack mid-crossfade hands back no node at
+    # all — so the snapshot is retried rather than the picture being lost.
+      def node_for(widget, attempts: SETTLE_ROUNDS)
+        (1..attempts).reduce(nil) do |found, _|
+          if found
+            found
+          else
+            snapshot_once(widget).then do |node|
+              if node.nil?
+                settle
+              end
+              node
+            end
+          end
+        end
+      end
+
+      def snapshot_once(widget)
+        Gtk::Snapshot.new.then do |snapshot|
+          Gtk::WidgetPaintable.new(widget).snapshot(snapshot, widget.width, widget.height)
+          snapshot.to_node
+        end
+      end
+
+      def write_png(node, path)
         Gsk::CairoRenderer.new.tap do |renderer|
           renderer.realize(nil)
 
           begin
-            Gtk::Snapshot.new.then do |snapshot|
-              Gtk::WidgetPaintable.new(widget).snapshot(snapshot, widget.width, widget.height)
-              snapshot.to_node.then do |node|
-                if node.nil?
-                  raise 'widget produced no render node (not realised yet?)'
-                end
-
-                renderer.render_texture(node, nil).save_to_png(path)
-              end
-            end
+            renderer.render_texture(node, nil).save_to_png(path)
           ensure
             renderer.unrealize
           end
