@@ -7,7 +7,9 @@ require_relative 'exit_dialog'
 require_relative 'file_row'
 require_relative 'progress_info_popover'
 require_relative 'progress_paintable'
+require_relative 'package_config'
 require_relative 'shortcuts_dialog'
+require_relative 'translation'
 require_relative 'window'
 
 # App is the application object: it owns the actions, their accelerators, the
@@ -17,27 +19,24 @@ require_relative 'window'
 # Ported from upstream's src/main.c and src/raider-application.c. The action
 # names, accelerators and About dialog fields are upstream's, including the
 # HANDLES_OPEN flag that makes files named on the command line arrive through
-# the open handler instead of activate.
+# the open handler instead of activate, the application icon from
+# data/icons, and the translator-credits msgid that gives the About dialog its
+# Translators page.
 #
-# Two deviations, both forced by the bindings:
+# The application object is a Gtk::Application where upstream's is an
+# Adw.Application, and --version / --new-window are read off the argument list
+# here where upstream reads them in handle_local_options. Both behaviours are
+# reached and both are driven by the specs; the version comes from
+# PackageConfig so there is one place it is written down.
 #
-#   * Adwaita::Application is broken in the Ruby bindings, so the application
-#     object is a Gtk::Application. Every window is still an Adwaita one.
-#   * Upstream registers GOptionEntries and sorts --version/--new-window out
-#     in handle_local_options. Neither the entries nor that vfunc are reachable
-#     from Ruby, so the two switches are read off the argument list here
-#     before the application runs: --version prints and exits, and
-#     --new-window asks an already-running instance for a window, exactly as
-#     upstream's handler does.
-#
-# app.shortcuts is installed here too. Upstream does not install it: GTK
-# supplies the action from the shortcuts-dialog.ui resource alias, and there
-# is no resource bundle in this port.
+# app.shortcuts is installed here too, because GTK only supplies that action
+# for an application that ships a shortcuts-dialog.ui resource alias.
 class App
-  APP_ID = 'com.github.ADBeveridge.Raider'
-  VERSION = '0.1.0'
-  PROGRAM_NAME = 'File Shredder'
-  ICON = 'edit-delete-symbolic'
+  include Translation
+
+  APP_ID = PackageConfig::APPLICATION_ID
+  VERSION = PackageConfig::PACKAGE_VERSION
+  ICON = PackageConfig::APPLICATION_ID
   ISSUE_URL = 'https://github.com/ADBeveridge/raider/issues/new'
   COPYRIGHT = '© 2024 Alan Beveridge'
 
@@ -79,12 +78,12 @@ class App
 
   def run
     if version?
-      puts "#{PROGRAM_NAME} - #{VERSION}"
+      puts "#{program_name} - #{VERSION}"
       0
     elsif new_window?
       run_new_window
     else
-      app.run(file_arguments)
+      app.run(application_arguments)
     end
   end
 
@@ -95,9 +94,13 @@ class App
     end
   end
 
+  # Upstream's program name is the translated "File Shredder": it is the same
+  # msgid the window title and the desktop entry's Name carry.
+  def program_name = _('File Shredder')
+
   def about_dialog
     Adwaita::AboutDialog.new.tap do |about|
-      about.application_name = PROGRAM_NAME
+      about.application_name = program_name
       about.application_icon = ICON
       about.version = VERSION
       about.copyright = COPYRIGHT
@@ -107,6 +110,7 @@ class App
       about.developers = DEVELOPERS
       about.artists = ARTISTS
       about.designers = DESIGNERS
+      about.translator_credits = _('translator-credits')
     end
   end
 
@@ -123,7 +127,7 @@ class App
         app.activate_action('new-window', nil)
         0
       else
-        app.run(file_arguments)
+        app.run(application_arguments)
       end
     end
 
@@ -131,7 +135,16 @@ class App
 
     def new_window? = @argv.any? { |argument| NEW_WINDOW_FLAGS.include?(argument) }
 
-    def file_arguments = @argv.reject { |argument| argument.start_with?('-') }
+    # Everything except the two switches this class consumes itself.
+    # Upstream's handle_local_options returns -1 for anything it does not
+    # recognise, so GApplication still sees it — which is how
+    # `--gapplication-service` reaches the D-Bus activation code the desktop
+    # entry's DBusActivatable=true and data/*.service.in rely on.
+    def application_arguments
+      (VERSION_FLAGS + NEW_WINDOW_FLAGS).then do |consumed|
+        @argv.reject { |argument| consumed.include?(argument) }
+      end
+    end
 
     # Upstream's activate: present the window there is, or make one.
     def on_activate
@@ -176,7 +189,7 @@ class App
     def action_open
       Gtk::FileDialog.new.tap do |dialog|
         dialog.modal = true
-        dialog.title = 'Add Files'
+        dialog.title = _('Add Files')
         dialog.open_multiple(app.active_window, nil) do |_, result|
           load_into_active_window(dialog.open_multiple_finish(result))
         rescue GLib::Error
@@ -188,7 +201,7 @@ class App
     def action_open_folder
       Gtk::FileDialog.new.tap do |dialog|
         dialog.modal = true
-        dialog.title = 'Add Folders'
+        dialog.title = _('Add Folders')
         dialog.select_multiple_folders(app.active_window, nil) do |_, result|
           load_into_active_window(dialog.select_multiple_folders_finish(result))
         rescue GLib::Error

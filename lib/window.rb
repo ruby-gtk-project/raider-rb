@@ -4,6 +4,8 @@ require 'adwaita'
 
 require_relative 'exit_dialog'
 require_relative 'file_row'
+require_relative 'package_config'
+require_relative 'translation'
 
 # Window is the app's one window: a header bar with an "Add" split button, an
 # empty state inviting a drop, and — once files are loaded — a boxed list of
@@ -17,10 +19,15 @@ require_relative 'file_row'
 #
 # The rows are kept in an array rather than read back out of the list box with
 # gtk_list_box_get_row_at_index, so the window always hands the shredding code
-# the FileRow objects it created.
+# the FileRow objects it created. `close_file` checks that the row it is given
+# was one of them, which is upstream's `removed == FALSE` branch.
+#
+# Starting and aborting are both asynchronous, as upstream's two GTasks are:
+# the transient "Starting Shredding…" and "Aborting…" labels are set on this
+# main-loop turn and the work is launched from another, so both are painted
+# before the labels are put back in the completion callback.
 class Window
-  TITLE = 'File Shredder'
-  ICON = 'edit-delete-symbolic'
+  include Translation
 
   DEFAULT_WIDTH = 800
   DEFAULT_HEIGHT = 600
@@ -31,13 +38,15 @@ class Window
   EMPTY_PAGE = 'empty_page'
   LIST_PAGE = 'list_page'
 
-  ALREADY_ADDED = 'This file was already added'
-  DID_NOT_EXIST = 'Some files did not exist'
-  TOO_MANY = 'Cannot load more files'
-  FINISHED = 'Finished shredding files'
+  # Upstream's icon-name on both the window and the empty state: the
+  # application icon from data/icons, not a symbolic glyph.
+  ICON = PackageConfig::APPLICATION_ID
 
-  EMPTY_DESCRIPTION = 'Shredding is the obfuscation of a file with random ' \
-                      'data so the previous contents cannot be recovered.'
+  # Upstream's g_error in raider_window_close_file, which aborts the process.
+  # A raise is the Ruby equivalent: a row whose path the window never held
+  # means the window's bookkeeping and its list box have drifted apart, and
+  # carrying on past that quietly is what hides the drift.
+  class UnknownRow < StandardError; end
 
   attr_writer :show_notification
 
@@ -121,6 +130,8 @@ class Window
 
   def shredding? = @shredding
 
+  def rows = @rows.dup
+
   # Upstream's raider_window_open_files. Loading stops at the first file that
   # reports the window is full.
   def open_files(files)
@@ -138,16 +149,16 @@ class Window
   # false only when no further file can be loaded at all.
   def open_file(path)
     if filenames.include?(path)
-      show_toast(ALREADY_ADDED)
+      show_toast(_('This file was already added'))
       true
     elsif !File.exist?(path)
-      show_toast(DID_NOT_EXIST)
+      show_toast(_('Some files did not exist'))
       true
     elsif !File.writable?(path)
-      show_toast(format('Cannot write to “%s”', path))
+      show_toast(format(_('Cannot write to “%s”'), path))
       true
     elsif @rows.length >= file_limit
-      show_toast(TOO_MANY)
+      show_toast(_('Cannot load more files'))
       false
     else
       add_row(path)
@@ -156,10 +167,14 @@ class Window
   end
 
   # Upstream's raider_window_close_file: the row is gone, and if it was the
-  # last one the window goes back to how it started.
+  # last one the window goes back to how it started. A row the window never
+  # held is upstream's fatal case.
   def close_file(row)
     tap do
-      @rows.delete(row)
+      unless @rows.delete(row)
+        raise UnknownRow, _('Could not remove filename from quick list. Please report this.')
+      end
+
       if @rows.empty?
         on_last_row_closed
       end
@@ -190,44 +205,40 @@ class Window
     end
   end
 
-  # Upstream's raider_window_start_shredding plus the finish callback that
-  # follows it: the open button hides, the buttons go dead while the rows are
-  # launched, and the view then swaps "Shred All" for "Abort All".
+  # Upstream's raider_window_start_shredding: the open button hides, the
+  # buttons go dead, the shred button says it is starting, and a GTask
+  # launches the rows. The labels come back in
+  # raider_window_shred_files_finish and not before, so the transient one is
+  # on screen for as long as the launching takes.
   def start_shredding
     tap do
       open_revealer.reveal_child = false
       clear_button.sensitive = false
       shred_button.sensitive = false
-      shred_button.label = 'Starting Shredding…'
+      shred_button.label = _('Starting Shredding…')
       @shredding = true
 
-      @rows.dup.each(&:launch_shredding)
-
-      shred_revealer.reveal_child = false
-      abort_revealer.reveal_child = true
-      clear_button.sensitive = true
-      shred_button.sensitive = true
-      clear_button.label = 'Clear All'
-      shred_button.label = 'Shred All'
+      launch_rows(@rows.dup)
     end
   end
 
   # Upstream's raider_window_abort_shredding. `exiting` is upstream's trick of
   # passing a NULL widget: an abort the exit dialog asked for destroys the
   # window instead of restoring it.
+  #
+  # Every row is cancelled here, on the main loop, and waited for off it:
+  # Corrupt#wait joins the worker thread, and joining it from the main thread
+  # is what used to freeze the window for the length of a write pass.
   def abort_shredding(exiting:)
     tap do
       abort_button.sensitive = false
       list_box.sensitive = false
-      abort_button.label = 'Aborting…'
+      abort_button.label = _('Aborting…')
       @show_notification = false
 
-      @rows.dup.each(&:shredding_abort)
-
-      if exiting
-        window.destroy
-      else
-        restore_after_abort
+      @rows.dup.tap do |rows|
+        rows.each(&:shredding_abort)
+        wait_for_rows(rows, exiting: exiting)
       end
     end
   end
@@ -237,7 +248,7 @@ class Window
   # the window a second close button.
   def window
     @window ||= Adwaita::ApplicationWindow.new(@app).tap do |win|
-      win.title = TITLE
+      win.title = _('File Shredder')
       win.icon_name = ICON
       win.set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
       win.set_size_request(MINIMUM_WIDTH, MINIMUM_HEIGHT)
@@ -256,7 +267,7 @@ class Window
     end
   end
 
-  def window_title = @window_title ||= Adwaita::WindowTitle.new(TITLE, '')
+  def window_title = @window_title ||= Adwaita::WindowTitle.new(_('File Shredder'), '')
 
   def open_revealer
     @open_revealer ||= Gtk::Revealer.new.tap do |revealer|
@@ -275,16 +286,16 @@ class Window
 
   def add_content
     @add_content ||= Adwaita::ButtonContent.new.tap do |content|
-      content.label = 'Add'
+      content.label = _('Add')
       content.icon_name = 'document-open-symbolic'
-      content.tooltip_text = 'Add Files'
+      content.tooltip_text = _('Add Files')
     end
   end
 
   def menu_button
     @menu_button ||= Gtk::MenuButton.new.tap do |button|
       button.icon_name = 'open-menu-symbolic'
-      button.tooltip_text = 'Main Menu'
+      button.tooltip_text = _('Main Menu')
       button.menu_model = primary_menu
       button.primary = true
     end
@@ -301,14 +312,14 @@ class Window
 
   def new_window_section
     @new_window_section ||= Gio::Menu.new.tap do |section|
-      section.append('New Window', 'app.new-window')
+      section.append(_('New Window'), 'app.new-window')
     end
   end
 
   def help_section
     @help_section ||= Gio::Menu.new.tap do |section|
-      section.append('Keyboard Shortcuts', 'app.shortcuts')
-      section.append('About File Shredder', 'app.about')
+      section.append(_('Keyboard Shortcuts'), 'app.shortcuts')
+      section.append(_('About File Shredder'), 'app.about')
     end
   end
 
@@ -321,7 +332,7 @@ class Window
 
   def open_folder_section
     @open_folder_section ||= Gio::Menu.new.tap do |section|
-      section.append('Open Folder', 'app.open-folder')
+      section.append(_('Open Folder'), 'app.open-folder')
     end
   end
 
@@ -342,9 +353,9 @@ class Window
 
   def empty_state
     @empty_state ||= Adwaita::StatusPage.new.tap do |page|
-      page.title = 'Add files or drop here'
+      page.title = _('Add files or drop here')
       page.icon_name = ICON
-      page.description = EMPTY_DESCRIPTION
+      page.description = _('Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered.')
       page.hexpand = true
     end
   end
@@ -379,14 +390,14 @@ class Window
 
   def clear_button
     @clear_button ||= Gtk::Button.new.tap do |button|
-      button.label = 'Clear'
+      button.label = _('Clear')
       button.add_css_class('pill')
     end
   end
 
   def shred_button
     @shred_button ||= Gtk::Button.new.tap do |button|
-      button.label = 'Shred All'
+      button.label = _('Shred All')
       button.margin_start = 10
       button.add_css_class('destructive-action')
       button.add_css_class('pill')
@@ -395,7 +406,7 @@ class Window
 
   def abort_button
     @abort_button ||= Gtk::Button.new.tap do |button|
-      button.label = 'Abort All'
+      button.label = _('Abort All')
       button.add_css_class('destructive-action')
       button.add_css_class('pill')
     end
@@ -440,6 +451,55 @@ class Window
       end
     end
 
+    # Upstream's raider_window_shred_files_thread: a worker turn that starts
+    # every row. Each start touches that row's widgets, so it is handed back
+    # to the main loop; the idle queue is first in first out, which is what
+    # makes the finish callback the last of them to run.
+    def launch_rows(rows)
+      Thread.new do
+        rows.each { |row| on_main_loop { row.launch_shredding } }
+        on_main_loop { shred_files_finish }
+      end
+    end
+
+    # Upstream's raider_window_shred_files_finish.
+    def shred_files_finish
+      shred_revealer.reveal_child = false
+      abort_revealer.reveal_child = true
+      clear_button.sensitive = true
+      shred_button.sensitive = true
+      clear_button.label = _('Clear All')
+      shred_button.label = _('Shred All')
+    end
+
+    # Upstream's raider_window_abort_files_thread, which is where its
+    # per-row mutex wait happens.
+    def wait_for_rows(rows, exiting:)
+      Thread.new do
+        rows.each(&:wait_for_abort)
+        on_main_loop { abort_files_finish(exiting: exiting) }
+      end
+    end
+
+    # Upstream's raider_window_abort_files_finish: the "exit" task data
+    # destroys the window, anything else restores the view.
+    def abort_files_finish(exiting:)
+      if exiting
+        window.destroy
+      else
+        restore_after_abort
+      end
+    end
+
+    # GLib's idle queue is the port's g_main_context_invoke: a worker thread
+    # hands widget work back to the thread that owns the widgets.
+    def on_main_loop(&block)
+      GLib::Idle.add do
+        block.call
+        false
+      end
+    end
+
     def on_last_row_closed
       window_stack.visible_child_name = EMPTY_PAGE
       @shredding = false
@@ -455,10 +515,12 @@ class Window
     # Upstream sends a desktop notification when the window is not the one the
     # user is looking at, and a toast when it is.
     def announce_finish
-      if window.active?
-        show_toast(FINISHED)
-      else
-        @app.send_notification(nil, Gio::Notification.new(FINISHED))
+      _('Finished shredding files').then do |message|
+        if window.active?
+          show_toast(message)
+        else
+          @app.send_notification(nil, Gio::Notification.new(message))
+        end
       end
     end
 
@@ -469,7 +531,7 @@ class Window
       @shredding = false
       abort_button.sensitive = true
       list_box.sensitive = true
-      abort_button.label = 'Abort All'
+      abort_button.label = _('Abort All')
     end
 
     # The drop hands over a GdkFileList, which is a boxed value holding the

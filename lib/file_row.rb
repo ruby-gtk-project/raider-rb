@@ -17,9 +17,11 @@ require_relative 'progress_paintable'
 #
 # Upstream parents a bare Gtk.Popover to the progress button by hand and pops
 # it up from the button's "clicked" handler. Here the progress button is a
-# Gtk::MenuButton holding the same popover: the bindings have no equivalent of
-# gtk_widget_set_parent for a popover, and a menu button owns its popover and
-# pops it up for free.
+# Gtk::MenuButton, which owns its popover and pops it up on a click.
+#
+# Neither button carries a style or a tooltip, because
+# src/raider-file-row.blp sets none: the remove button is a plain
+# Gtk::Button with an icon, so it reads as a button and not as a bare glyph.
 #
 # Progress arrives on the Corrupt worker thread, so every update is deferred
 # to the main loop before it reaches a widget — upstream's
@@ -77,8 +79,9 @@ class FileRow < Adwaita::ActionRow
     end
   end
 
-  # Upstream's raider_file_row_shredding_abort: flip the row back, cancel, and
-  # block until the worker has noticed.
+  # Upstream's raider_file_row_shredding_abort, first half: flip the row back
+  # and cancel. Cancelling only sets the flag the write loop polls, so this
+  # returns at once and is safe on the main loop, where the widgets live.
   def shredding_abort
     tap do
       self.activatable_widget = nil
@@ -86,6 +89,14 @@ class FileRow < Adwaita::ActionRow
       progress_revealer.reveal_child = false
       popover.visible = false
       @corrupt&.cancel
+    end
+  end
+
+  # The second half: the wait upstream does behind its per-row mutex. It
+  # joins the worker thread, so it must not run on the main loop — Window
+  # calls it from the thread it starts for aborting.
+  def wait_for_abort
+    tap do
       @corrupt&.wait
     end
   end
@@ -118,9 +129,7 @@ class FileRow < Adwaita::ActionRow
   def remove_button
     @remove_button ||= Gtk::Button.new.tap do |button|
       button.icon_name = REMOVE_ICON
-      button.tooltip_text = 'Remove'
       button.valign = :center
-      button.add_css_class('flat')
     end
   end
 
@@ -133,10 +142,8 @@ class FileRow < Adwaita::ActionRow
 
   def progress_button
     @progress_button ||= Gtk::MenuButton.new.tap do |button|
-      button.tooltip_text = 'Shredding Progress'
       button.valign = :center
       button.always_show_arrow = false
-      button.add_css_class('flat')
     end
   end
 

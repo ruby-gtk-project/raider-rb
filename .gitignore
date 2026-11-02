@@ -17,6 +17,12 @@ Gemfile.lock
 /gemfiles/.bundle/config
 /gemfiles/vendor/
 Appraisal.*.gemfile.lock
+# Compiled gettext catalogues (`rake gettext:mo`)
+/data/locale/
+# Merged desktop entry and metainfo (`msgfmt --desktop` / `--xml`)
+/data/com.github.ADBeveridge.Raider.desktop
+/data/com.github.ADBeveridge.Raider.metainfo.xml
+/data/com.github.ADBeveridge.Raider.service
 # Specs
 .rspec_status
 /coverage/

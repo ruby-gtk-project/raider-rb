@@ -2,97 +2,79 @@
 
 require 'adwaita'
 
-# ProgressPaintable is the 16px progress indicator on a file row's button: an
-# arc that fills clockwise as the file is shredded, cross-fading into a check
-# icon once it is done.
+# ProgressPaintable is the progress indicator on a file row's button: an arc
+# that fills clockwise as the file is shredded.
 #
-# Ported from upstream's src/raider-progress-paintable.c, which implements
-# GdkPaintable and GtkSymbolicPaintable and draws both the arc (Cairo) and the
-# check icon (a symbolic icon paintable) in one snapshot. GObject interfaces
-# cannot be implemented from Ruby, so the same picture is composed out of
-# widgets instead: a Gtk::DrawingArea draws the arc with the same Cairo calls
-# upstream makes, a Gtk::Image holds the check icon, and a Gtk::Overlay stacks
-# them. `check_progress` cross-fades between the two by opacity, where
-# upstream scales them around their centre.
+# Ported from upstream's src/raider-progress-paintable.c, a GObject
+# implementing GdkPaintable and GtkSymbolicPaintable. Here the picture is a
+# Gtk::DrawingArea making the same Cairo calls upstream's snapshot_symbolic
+# makes: the completed sweep from -π/2 in the widget's foreground colour, then
+# the remainder of the circle to 3π/2 at a quarter of that colour's alpha, both
+# stroked at radius `width / 2 + 1` — 9px, outside the 16px icon box.
 #
-# Upstream's arc is drawn in the symbolic colour handed to snapshot_symbolic;
-# here it comes from the drawing area's own style, which resolves to the same
-# foreground colour the button's icon would use.
+# The line width is Cairo's default 2.0, which is what upstream gets by never
+# calling cairo_set_line_width. The ring therefore reaches 10px from the
+# centre, which is why upstream hands its Cairo node a rectangle of
+# `width + 4`. A widget clips to its own content size, so the drawing area is
+# 20px and not 16 and the ring comes out whole.
+#
+# Upstream re-caches and calls gdk_paintable_invalidate_size when the widget's
+# `notify::scale-factor` fires; here the same signal redraws the arc. The
+# content size itself is in logical pixels and does not move with the scale
+# factor — a GdkPaintable's intrinsic size is in device pixels, which is why
+# upstream multiplies, and GTK already renders a drawing area's Cairo surface
+# at the display scale.
+#
+# Upstream's `icon-name` property is never set by any caller and its
+# `check_progress` is never written, so the cross-fade to a check icon in its
+# snapshot_symbolic is dead code upstream. Nothing here draws one.
 class ProgressPaintable
   SIZE = 16
-  CHECK_ICON = 'object-select-symbolic'
   LINE_WIDTH = 2.0
   TRACK_ALPHA = 0.25
-  FADE_INTERVAL = 40
-  FADE_STEP = 0.1
 
-  attr_reader :progress, :check_progress
+  # Upstream's `GRAPHENE_RECT_INIT(-2, -2, width + 4, width + 4)`.
+  OVERFLOW = 2
+  BOX = SIZE + (2 * OVERFLOW)
+
+  attr_reader :progress
 
   def initialize
     @progress = 0.0
-    @check_progress = 0.0
-    @fading = false
   end
 
   def build
-    overlay.tap do |ov|
-      ov.child = arc
-      ov.add_overlay(check)
-
-      arc.tap do |area|
-        area.set_draw_func { |_, context, width, height| draw(context, width, height) }
-      end
+    arc.tap do |area|
+      area.set_draw_func { |_, context, width, height| draw(context, width, height) }
+      area.signal_connect('notify::scale-factor') { follow_scale_factor }
     end
   end
 
-  # The arc redraws on every update, and reaching the end starts the fade to
-  # the check icon.
+  # The arc redraws on every update, which is upstream's
+  # gdk_paintable_invalidate_contents from its progress setter.
   def progress=(fraction)
     @progress = fraction.to_f.clamp(0.0, 1.0)
     arc.queue_draw
-    if @progress >= 1.0
-      start_fade
-    end
   end
-
-  def check_progress=(value)
-    @check_progress = value.to_f.clamp(0.0, 1.0)
-    arc.opacity = 1.0 - @check_progress
-    check.opacity = @check_progress
-  end
-
-  def overlay = @overlay ||= Gtk::Overlay.new
 
   def arc
     @arc ||= Gtk::DrawingArea.new.tap do |area|
-      area.content_width = SIZE
-      area.content_height = SIZE
+      area.content_width = BOX
+      area.content_height = BOX
       area.valign = :center
       area.halign = :center
     end
   end
 
-  def check
-    @check ||= Gtk::Image.new(icon_name: CHECK_ICON).tap do |image|
-      image.pixel_size = SIZE
-      image.opacity = 0.0
-    end
-  end
-
   private
 
-    def start_fade
-      unless @fading
-        @fading = true
-        GLib::Timeout.add(FADE_INTERVAL) do
-          self.check_progress = @check_progress + FADE_STEP
-          @check_progress < 1.0
-        end
-      end
+    # Upstream's scale_factor_changed_cb, whose two halves are a re-cache and
+    # a size invalidation; both come out here as a redraw.
+    def follow_scale_factor
+      arc.queue_draw
     end
 
-    # Upstream's snapshot_symbolic: the completed sweep in the symbolic
-    # colour, then the remainder of the circle at a quarter of its alpha.
+    # Upstream's snapshot_symbolic, minus the dead check-icon branches.
     def draw(context, width, height)
       stroke_color.then do |color|
         context.translate(width / 2.0, height / 2.0)
@@ -133,20 +115,12 @@ class ProgressPaintable
 
     def arc_end = (@progress * Math::PI * 2.0) - (Math::PI / 2.0)
 
-    def radius = (SIZE / 2.0) - (LINE_WIDTH / 2.0)
+    # Upstream's `width / 2.0 + 1`, where the width it is handed is SIZE.
+    def radius = (SIZE / 2.0) + 1
 
-    # The widget's foreground colour, which is what the symbolic icon beside
-    # it is drawn in. A theme that cannot be queried yet (before the drawing
-    # area is realized) falls back to plain white, which is legible on the
-    # dark button the row shows while shredding.
-    def stroke_color
-      arc.style_context.color
-    rescue StandardError
-      Gdk::RGBA.new(
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-      )
-    end
+    # Upstream's arc is drawn in the first of the symbolic colours
+    # snapshot_symbolic is handed, which for an icon inside a button is the
+    # button's foreground colour. The drawing area resolves the same colour
+    # from its own style context.
+    def stroke_color = arc.style_context.color
 end

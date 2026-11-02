@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.github.ADBeveridge.Raider</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>File Shredder</name>
+  <summary>Permanently delete your files</summary>
+  <description>
+    <p>File Shredder is a file deletion program designed to permanently
+      remove sensitive files from your computer, enhancing data privacy.
+		</p>
+		<p>Within a certain limit, it is effective. However, modern SSDs use certain technologies
+		  to extend its lifetime, which has the side effect of ensuring that shredding is never
+		  perfect, and no software can fix that. But shredding significantly increases the
+		  difficulty of data recovery since it requires specialized software and hardware.
+		</p>
+  </description>
+  <launchable type="desktop-id">com.github.ADBeveridge.Raider.desktop</launchable>
+  <url type="homepage">https://apps.gnome.org/Raider</url>
+  <url type="bugtracker">https://github.com/ADBeveridge/raider/issues</url>
+  <url type="vcs-browser">https://github.com/ADBeveridge/raider</url>
+  <url type="translate">https://l10n.gnome.org/module/raider/</url>
+  <update_contact>adgbeveridge@proton.me</update_contact>
+  <developer id="io.github.adbeveridge">
+    <name translate="no">Alan Beveridge</name>
+  </developer>
+    <kudos>
+    <kudo>ModernToolkit</kudo>
+    <kudo>HiDpiIcon</kudo>
+  </kudos>
+  <requires>
+    <display_length compare="ge">270</display_length>
+  </requires>
+  <recommends>
+    <display_length compare="ge">360</display_length>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </recommends>
+  <content_rating type="oars-1.1"/>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <translation type="gettext">raider</translation>
+  <branding>
+    <color type="primary" scheme_preference="light">#ad002b</color>
+    <color type="primary" scheme_preference="dark">#5c0012</color>
+  </branding>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/ADBeveridge/raider/main/data/raider-screenshot1.png</image>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="3.1.0" date="2025-05-18">
+      <description translate="no">
+        <p>GNOME 48 Update</p>
+        <ul>
+          <li>Modernize circular progress indicator</li>
+          <li>Fix various small memory leaks</li>
+          <li>Support launching from DBus</li>
+        </ul>
+      </description>
+    </release>
+    <release version="3.0.2" date="2024-12-20">
+      <description translate="no">
+        <p>Update for GNOME 47</p>
+        <ul>
+          <li>Includes new file picker</li>
+          <li>Halve shredding time by using more sensible iteration count</li>
+          <li>Update Occitan, Slovenian and Italian translations</li>
+        </ul>
+      </description>
+    </release>
+    <release version="3.0.1" date="2024-07-24">
+      <description translate="no">
+        <p>Improve icons and branding</p>
+        <ul>
+          <li>Include branding colors</li>
+          <li>Update icon for more legibility</li>
+          <li>Update Hindi, Slovenian and Italian translations</li>
+        </ul>
+      </description>
+    </release>
+    <release version="3.0.0" date="2024-05-02">
+      <description translate="no">
+        <p>Add folder shredding</p>
+        <ul>
+          <li>Update to GNOME 46 SDK</li>
+        </ul>
+      </description>
+    </release>
+		<release version="2.1.0" date="2023-12-01">
+      <description translate="no">
+        <p>Update visuals for GNOME 45</p>
+        <ul>
+          <li>Use a flat headerbar</li>
+          <li>Fix security vulernability CWE-134</li>
+        </ul>
+      </description>
+    </release>
+    <release version="2.0.0" date="2023-08-15">
+      <description translate="no">
+        <p>Use custom code for shredding files</p>
+        <ul>
+          <li>Use custom code in Raider for shredding a file</li>
+          <li>Remove preferences</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.3.1" date="2022-10-13">
+      <description translate="no">
+        <p>Fix UI bug when shredding is aborted</p>
+      </description>
+    </release>
+    <release version="1.3.0" date="2022-09-20">
+      <description translate="no">
+        <p>Updates to help and application</p>
+        <ul>
+          <li>Add keyboard shortcuts to common actions</li>
+          <li>Fix memory leaks</li>
+          <li>Fix crash when backend failed to start</li>
+          <li>Fix application crash when closing window during shredding</li>
+          <li>Remove typo in Shred All button</li>
+          <li>Update Turkish translation</li>
+          <li>Add more categories to desktop file</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.2.2" date="2022-08-19">
+      <description translate="no">
+        <p>Bug fixes and translation updates</p>
+        <ul>
+          <li>Add Chinese, Turkish, Occitan and Brazilian Portuguese translations</li>
+          <li>Fix in-app notification crash</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.2.1" date="2022-08-10">
+      <description translate="no">
+        <p>User interface fixes</p>
+        <ul>
+          <li>Add explanatory message and changed initial view's icon</li>
+          <li>Add icon to add button in headerbar</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.2.0" date="2022-08-06">
+      <description translate="no">
+        <p>User interface fixes</p>
+        <ul>
+          <li>Fix cropping of keyboard focus ring on shred button</li>
+          <li>Update preferences to be more concise and explanatory</li>
+          <li>Add icon to open button in headerbar</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.1" date="2022-08-03">
+      <description translate="no">
+        <p>Bug fixes and translation updates</p>
+        <ul>
+          <li>Add the French translation</li>
+          <li>Add the Portuguese translation</li>
+          <li>Update the Russian translation</li>
+          <li>Fix progress retrieval bug</li>
+          <li>Fix display problems</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.0" date="2022-07-28">
+      <description translate="no">
+        <p>Minor fixes, including:</p>
+        <ul>
+          <li>Move the Shred button to the bottom of the window</li>
+          <li>Support for mobile devices added</li>
+          <li>Re-theme the file rows to standard look</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0.0.alpha1" date="2022-06-30">
+      <description translate="no">
+        <p>A significant rewite of File Shredder, with a few UI changes changes:</p>
+        <ul>
+          <li>Add checking so a file cannot be loaded twice</li>
+          <li>Smooth progress tracking</li>
+          <li>Write using GTK4 and Adwaita</li>
+          <li>Show desktop notifications if the window is not focused</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.1.0" date="2021-12-30">
+      <description translate="no">
+        <p>The very first release of File Shredder. It supports progress tracking, and
+	      has a GNOME compliant interface.</p>
+      </description>
+    </release>
+  </releases>
+</component>
+

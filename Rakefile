@@ -170,3 +170,75 @@ rescue LoadError
     warn("NOTE: stone_checksums isn't installed, or is disabled for #{RUBY_VERSION} in the current environment")
   end
 end
+
+### TRANSLATION TASKS
+# Ported from upstream's po/meson.build — `i18n.gettext('raider', preset:
+# 'glib')` — which compiles po/<lang>.po into <lang>/LC_MESSAGES/raider.mo and
+# installs them under the prefix's localedir, and from the `msgfmt -c` check
+# upstream gets from meson's gettext preset.
+#
+# The domain is upstream's `raider`, never `raider-rb`: a .mo is found at
+# <path>/<lang>/LC_MESSAGES/<domain>.mo, so the domain is the filename, and
+# renaming it orphans all 34 catalogues.
+#
+# po/*.po are donated work. Nothing here rewrites them: `gettext:po:update`
+# only merges a changed message set into them, and it is not part of any
+# default task.
+require "gettext/tools/task"
+
+GETTEXT_DOMAIN = "raider"
+GETTEXT_LOCALE_DIRECTORY = "data/locale"
+
+GetText::Tools::Task.define do |task|
+  task.domain = GETTEXT_DOMAIN
+  task.package_name = GETTEXT_DOMAIN
+  task.package_version = "3.1.0"
+  task.files = Dir.glob("lib/**/*.rb") + Dir.glob("exe/*")
+  task.po_base_directory = "po"
+  task.mo_base_directory = GETTEXT_LOCALE_DIRECTORY
+  task.locales = File.read("po/LINGUAS").split
+  task.xgettext_options = ["--add-comments=TRANSLATORS"]
+end
+
+desc "Compile po/*.po into #{GETTEXT_LOCALE_DIRECTORY}/<lang>/LC_MESSAGES/#{GETTEXT_DOMAIN}.mo"
+task "gettext:mo" => "gettext:mo:update"
+
+desc "Check every catalogue with GNU msgfmt -c --check-format"
+task "gettext:check" do
+  msgfmt = ENV.fetch("MSGFMT", "msgfmt")
+  failed = File.read("po/LINGUAS").split.reject do |locale|
+    system(
+      msgfmt,
+      "-c",
+      "--check-format",
+      "-o",
+      File::NULL,
+      "po/#{locale}.po",
+    )
+  end
+  unless failed.empty?
+    raise "msgfmt -c failed for: #{failed.join(", ")}"
+  end
+end
+
+desc "Install the compiled catalogues under DESTDIR/PREFIX/share/locale"
+task "gettext:install" => "gettext:mo" do
+  require "fileutils"
+  destination = File.join(
+    ENV.fetch("DESTDIR", ""),
+    ENV.fetch("PREFIX", "/usr/local"),
+    "share",
+    "locale",
+  )
+  File.read("po/LINGUAS").split.each do |locale|
+    source = File.join(
+      GETTEXT_LOCALE_DIRECTORY,
+      locale,
+      "LC_MESSAGES",
+      "#{GETTEXT_DOMAIN}.mo",
+    )
+    target = File.join(destination, locale, "LC_MESSAGES")
+    FileUtils.mkdir_p(target)
+    FileUtils.install(source, target, mode: 0o644)
+  end
+end

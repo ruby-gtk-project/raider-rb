@@ -16,7 +16,9 @@ begin
   end
 rescue LoadError => error
   # check the error message and re-raise when unexpected
-  raise error unless error.message.include?("kettle")
+  unless error.message.include?("kettle")
+    raise error
+  end
 end
 
 # External RSpec & related config
@@ -25,6 +27,12 @@ require "kettle/test/rspec"
 
 # This library
 require "raider/rb"
+
+# The port's widgets, plus the main-loop pump every widget spec needs.
+# Requiring this initialises GTK, which needs a display: run the suite inside
+# the devshell (`direnv allow` or `nix develop`) as README and CLAUDE.md
+# describe.
+require_relative "support/gtk"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -35,5 +43,13 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  # GTK's work happens between callbacks, and the port's shredding is
+  # asynchronous: a worker a spec started can still hand widget work back
+  # through the idle queue after the example ends. Drain it here so that
+  # happens inside the example that caused it.
+  config.after do
+    GtkSupport.drain
   end
 end

@@ -120,7 +120,7 @@
       {
         packages.default = pkgs.stdenv.mkDerivation {
           pname = "raider";
-          version = "0.1.0";
+          version = "3.1.0";
           src = ./.;
 
           # Deliberately no wrapGAppsHook4: glib's setup hook relocates
@@ -128,7 +128,11 @@
           # computed its wrapper arguments, so a schema would end up somewhere
           # the wrapper never looks. The wrapper below is built by hand and
           # points at both the pre- and post-move paths.
-          nativeBuildInputs = [ pkgs.makeWrapper ];
+          # gettext is here and not in buildInputs on purpose: msgfmt compiles
+          # the catalogues and merges the desktop entry and the metainfo at
+          # build time, exactly as upstream's po/meson.build and
+          # data/meson.build do, and none of it is needed at runtime.
+          nativeBuildInputs = [ pkgs.makeWrapper pkgs.gettext ];
           buildInputs = [ gems ] ++ gtkStack;
 
           dontBuild = true;
@@ -145,6 +149,43 @@
             # resolves against the copied tree.
             install -Dm755 exe/${launcher} $out/share/raider/exe/${launcher}
 
+            # Translations: upstream's po/meson.build. LINGUAS is the list of
+            # languages, not the directory, so a .po that is not listed is not
+            # installed.
+            if [ -f po/LINGUAS ]; then
+              while read -r lang; do
+                [ -n "$lang" ] || continue
+                install -d "$out/share/locale/$lang/LC_MESSAGES"
+                msgfmt "po/$lang.po" -o "$out/share/locale/$lang/LC_MESSAGES/raider.mo"
+              done < po/LINGUAS
+            fi
+
+            # The installable data files: upstream's data/meson.build. The two
+            # merges are the msgfmt modes meson's i18n.merge_file runs, and the
+            # service file is its configure_file with @bindir@ filled in.
+            if [ -f data/com.github.ADBeveridge.Raider.desktop.in.in ]; then
+              install -d $out/share/applications $out/share/metainfo $out/share/dbus-1/services
+              msgfmt --desktop \
+                --template=data/com.github.ADBeveridge.Raider.desktop.in.in \
+                -d po \
+                -o $out/share/applications/com.github.ADBeveridge.Raider.desktop
+              msgfmt --xml \
+                --template=data/com.github.ADBeveridge.Raider.metainfo.xml.in.in \
+                -d po \
+                -o $out/share/metainfo/com.github.ADBeveridge.Raider.metainfo.xml
+              sed "s|@bindir@|$out/bin|" data/com.github.ADBeveridge.Raider.service.in \
+                > $out/share/dbus-1/services/com.github.ADBeveridge.Raider.service
+            fi
+
+            # The application icon, which is what the window, the empty state
+            # and the About dialog ask for by its application id.
+            if [ -d data/icons/hicolor ]; then
+              install -Dm644 -t $out/share/icons/hicolor/scalable/apps \
+                data/icons/hicolor/scalable/apps/*.svg
+              install -Dm644 -t $out/share/icons/hicolor/symbolic/apps \
+                data/icons/hicolor/symbolic/apps/*.svg
+            fi
+
             # Compile any GSettings schema the port ships.
             if [ -d data/schemas ]; then
               mkdir -p $out/share/glib-2.0/schemas
@@ -160,8 +201,9 @@
               --add-flags "-I$out/share/raider/lib" \
               --add-flags "$out/share/raider/exe/${launcher}" \
               --set GI_TYPELIB_PATH "${typelibPath}" \
+              --set RAIDER_LOCALEDIR "$out/share/locale" \
               --prefix XDG_DATA_DIRS : "$out/share" \
-              --prefix XDG_DATA_DIRS : "$out/share/gsettings-schemas/raider-0.1.0" \
+              --prefix XDG_DATA_DIRS : "$out/share/gsettings-schemas/raider-3.1.0" \
               --prefix XDG_DATA_DIRS : "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}" \
               --prefix XDG_DATA_DIRS : "${pkgs.gtk4}/share/gsettings-schemas/${pkgs.gtk4.name}" \
               --prefix XDG_DATA_DIRS : "${pkgs.adwaita-icon-theme}/share"

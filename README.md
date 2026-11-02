@@ -120,6 +120,37 @@ gem install raider-rb
 
 ## 🔧 Basic Usage
 
+```console
+raider [-w|--new-window] [-v|--version] [FILE|FOLDER]...
+```
+
+Files and folders can also be added with the Add button, the Open Folder menu
+item, or by dropping them on the window.
+
+## 🌍 Translations
+
+The port reuses upstream's catalogues unchanged: `po/` holds upstream's 35
+`.po` files and its `LINGUAS`, and the gettext domain is upstream's `raider`,
+not `raider-rb`, because a `.mo` is found at
+`<path>/<lang>/LC_MESSAGES/<domain>.mo` and renaming it would orphan all 34
+shipped languages.
+
+```console
+rake gettext:mo       # compile po/*.po into data/locale/<lang>/LC_MESSAGES/raider.mo
+rake gettext:check    # msgfmt -c --check-format on every catalogue
+rake gettext:install  # install them under DESTDIR/PREFIX/share/locale
+```
+
+`data/locale/` is build output and is not committed. At runtime the catalogues
+are looked for in `$RAIDER_LOCALEDIR`, then `data/locale/`, then
+`/usr/share/locale`; the Nix package compiles them into its own prefix and
+sets `RAIDER_LOCALEDIR`.
+
+The desktop entry and the metainfo are built from their templates in `data/`
+and the same catalogues, with `msgfmt --desktop` and `msgfmt --xml` — the two
+`i18n.merge_file` steps upstream's `data/meson.build` runs. GNU gettext is
+needed for that, at build time only.
+
 ## 🤝 Contributing
 
 If you need some ideas of where to help, you could work on adding more code coverage,

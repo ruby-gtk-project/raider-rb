@@ -2,6 +2,8 @@
 
 require 'adwaita'
 
+require_relative 'translation'
+
 # ProgressInfoPopover shows how far along one file's shredding is.
 #
 # Ported from upstream's src/raider-progress-info-popover.blp and
@@ -14,11 +16,9 @@ require 'adwaita'
 #   100%            "Finishing up…"  bar pulsing
 #   #pulse          "Estimating…"    bar pulsing
 class ProgressInfoPopover < Gtk::Popover
-  PULSE_STEP = 0.02
+  include Translation
 
-  STARTING = 'Starting…'
-  FINISHING = 'Finishing up…'
-  ESTIMATING = 'Estimating…'
+  PULSE_STEP = 0.02
 
   def build
     tap do |popover|
@@ -46,7 +46,7 @@ class ProgressInfoPopover < Gtk::Popover
   # is no fraction to show yet.
   def pulse
     tap do
-      progress_bar.text = ESTIMATING
+      progress_bar.text = _('Estimating…')
       progress_bar.pulse
     end
   end
@@ -64,7 +64,7 @@ class ProgressInfoPopover < Gtk::Popover
   private
 
     def show_starting
-      progress_bar.text = STARTING
+      progress_bar.text = _('Starting…')
       progress_bar.fraction = 1
     end
 
@@ -74,7 +74,7 @@ class ProgressInfoPopover < Gtk::Popover
     end
 
     def show_finishing
-      progress_bar.text = FINISHING
+      progress_bar.text = _('Finishing up…')
       progress_bar.pulse
     end
 end

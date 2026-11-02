@@ -1,0 +1,210 @@
+# German translation for the raider's package
+# Copyright (C) YEAR THE raider'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the raider package.
+# gregorni <mail.gregorni@proton.me>, 2022.
+# Christian Kirbach <christian.kirbach@gmail.com>, 2026
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: raider\n"
+"Report-Msgid-Bugs-To: https://github.com/ADBeveridge/raider/issues\n"
+"POT-Creation-Date: 2026-02-06 18:27+0000\n"
+"PO-Revision-Date: 2026-04-06 12:00+0200\n"
+"Last-Translator: gregorni <mail.gregorni@proton.me>\n"
+"Language-Team: German <gnome-de@gnome.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:3
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
+#: src/raider-application.c:167 src/raider-application.c:223
+#: src/raider-window.blp:9 src/raider-window.blp:37
+msgid "File Shredder"
+msgstr "Aktenvernichter"
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:4
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
+msgid "Permanently delete your files"
+msgstr "Dateien dauerhaft löschen"
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:9
+msgid "delete;remove;permanently;files;shred;data;"
+msgstr "löschen;entfernen;dauerhaft;Dateien;vernichten;Daten;"
+
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
+msgid ""
+"File Shredder is a file deletion program designed to permanently remove "
+"sensitive files from your computer, enhancing data privacy."
+msgstr ""
+"Aktenvernichter ist ein Programm zum dauerhaften Entfernen vertraulicher "
+"Dateien von Ihrem Computer und erhöht damit den Datenschutz."
+
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
+msgid ""
+"Within a certain limit, it is effective. However, modern SSDs use certain "
+"technologies to extend its lifetime, which has the side effect of ensuring "
+"that shredding is never perfect, and no software can fix that. But shredding "
+"significantly increases the difficulty of data recovery since it requires "
+"specialized software and hardware."
+msgstr ""
+"Bis zu einem gewissen Grad ist das Verfahren wirksam. Allerdings nutzen "
+"moderne SSDs bestimmte Technologien zur Lebensdauerverlängerung, die als "
+"Nebeneffekt dafür sorgen, dass eine vollständige Vernichtung nie garantiert "
+"werden kann – das lässt sich durch keine Software beheben. Dennoch erschwert "
+"das Vernichten die Datenwiederherstellung erheblich, da hierfür spezialisierte "
+"Software und Hardware erforderlich sind."
+
+#: src/raider-application.c:83 src/raider-shortcuts.blp:9
+#: src/raider-window.blp:28
+msgid "Add Files"
+msgstr "Dateien hinzufügen"
+
+#: src/raider-application.c:93
+msgid "Add Folders"
+msgstr "Ordner hinzufügen"
+
+#: src/raider-application.c:180
+msgid "translator-credits"
+msgstr "gregorni <mail.gregorni@proton.me>"
+
+#: src/raider-progress-info-popover.c:55
+msgid "Starting…"
+msgstr "Wird gestartet…"
+
+#: src/raider-progress-info-popover.c:67
+msgid "Finishing up…"
+msgstr "Wird abgeschlossen…"
+
+#: src/raider-progress-info-popover.c:75
+msgid "Estimating…"
+msgstr "Wird berechnet…"
+
+#: src/raider-shortcuts.blp:6
+msgid "General"
+msgstr "Allgemein"
+
+#: src/raider-shortcuts.blp:13 src/raider-window.blp:137
+msgid "New Window"
+msgstr "Neues Fenster"
+
+#: src/raider-shortcuts.blp:17 src/raider-window.blp:143
+msgid "Keyboard Shortcuts"
+msgstr "Tastaturkürzel"
+
+#: src/raider-shortcuts.blp:21
+msgid "Close Window"
+msgstr "Fenster schließen"
+
+#: src/raider-shortcuts.blp:25
+msgid "Quit"
+msgstr "Beenden"
+
+#: src/raider-window.blp:26
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: src/raider-window.blp:43
+msgid "Main Menu"
+msgstr "Hauptmenü"
+
+#: src/raider-window.blp:58
+msgid "Add files or drop here"
+msgstr "Dateien hinzufügen oder hier ablegen"
+
+#: src/raider-window.blp:60
+msgid ""
+"Shredding is the obfuscation of a file with random data so the previous "
+"contents cannot be recovered."
+msgstr ""
+"Bei der Vernichtung wird eine Datei mit zufälligen Daten überschrieben, "
+"damit der ursprüngliche Inhalt nicht wiederhergestellt werden kann."
+
+#: src/raider-window.blp:96
+msgid "Clear"
+msgstr "Leeren"
+
+#: src/raider-window.blp:101 src/raider-window.c:388
+msgid "Shred All"
+msgstr "Alle vernichten"
+
+#: src/raider-window.blp:120 src/raider-window.c:441
+msgid "Abort All"
+msgstr "Alle abbrechen"
+
+#: src/raider-window.blp:147
+msgid "About File Shredder"
+msgstr "Über Aktenvernichter"
+
+#: src/raider-window.blp:156
+msgid "Open Folder"
+msgstr "Ordner öffnen"
+
+#: src/raider-window.c:177
+msgid "Stop Shredding?"
+msgstr "Vernichten abbrechen?"
+
+#: src/raider-window.c:177
+msgid "Are you sure that you want to exit?"
+msgstr "Möchten Sie wirklich beenden?"
+
+#: src/raider-window.c:180
+msgid "_Cancel"
+msgstr "_Abbrechen"
+
+#: src/raider-window.c:180
+msgid "_Exit"
+msgstr "_Beenden"
+
+#: src/raider-window.c:229
+msgid "Could not remove filename from quick list. Please report this."
+msgstr ""
+"Dateiname konnte nicht von der Liste entfernt werden. Bitte melden sie "
+"diesen Vorfall."
+
+#: src/raider-window.c:239
+msgid "Finished shredding files"
+msgstr "Vernichten beendet"
+
+#: src/raider-window.c:311
+#, c-format
+msgid "This file was already added"
+msgstr "Diese Datei wurde bereits hinzugefügt"
+
+#: src/raider-window.c:325
+msgid "Some files did not exist"
+msgstr "Einige Dateien waren nicht vorhanden"
+
+#: src/raider-window.c:337
+#, c-format
+msgid "Cannot write to “%s”"
+msgstr "Kann nicht als »%s« schreiben"
+
+#: src/raider-window.c:349
+msgid "Cannot load more files"
+msgstr "Es können keine weiteren Dateien geladen werden"
+
+#: src/raider-window.c:387
+msgid "Clear All"
+msgstr "Alles leeren"
+
+#: src/raider-window.c:411
+msgid "Starting Shredding…"
+msgstr "Vernichten wird gestartet…"
+
+#: src/raider-window.c:463
+msgid "Aborting…"
+msgstr "Vorgang wird abgebrochen…"
+
+#~ msgid ""
+#~ "File Shredder is a GNOME application used for securely deleting your "
+#~ "files that you do not want to be recovered."
+#~ msgstr ""
+#~ "Aktenvernichter ist eine App zum einfachen Löschen von Dateien, die nicht "
+#~ "wiederhergestellt werden sollen. Aktenvernichter hat eine umfassende "
+#~ "Reihe an Einstellungen und Fortschrittverfolgung für jede Datei."
+
+#~ msgid "Directories are not supported"
+#~ msgstr "Verzeichnisse werden nicht unterstützt"

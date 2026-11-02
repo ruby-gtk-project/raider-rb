@@ -2,10 +2,10 @@
 
 Upstream: `origin/main`, C + GTK4 + libadwaita + blueprint, app id
 `com.github.ADBeveridge.Raider`, 7 `.c` files and 4 `.blp` files under `src/`.
-Port: the `ruby` branch, 3 `.rb` files — `lib/raider.rb`,
-`lib/raider/application.rb` (the generated skeleton: a blank Adwaita window
-with a "port has not been written yet" status page) and
-`lib/raider/rb/version.rb`. **No user-facing component is ported yet.**
+Port: the `ruby` branch — `lib/` holds one file per upstream source, plus
+`lib/package_config.rb` for `meson.build`'s `config_h`, `lib/translation.rb`
+for the gettext setup in `src/main.c`, and `lib/data_files.rb` for
+`data/meson.build`'s merge steps. `data/` and `po/` are upstream's.
 
 The app: add files or folders (button, menu, `--`/`open` handler, or drag and
 drop), see them as a boxed list of rows, shred them all with a multi-pass
@@ -13,8 +13,12 @@ overwrite, watch per-file progress in a popover, abort mid-run, get a toast or
 a desktop notification when done.
 
 No GSettings schema exists upstream — the app keeps no settings and has no
-preferences dialog. Translations: `po/` has 33 catalogues and a 36-message
-`.pot`; every string in the inventory below is one of them.
+preferences dialog. Translations: `po/LINGUAS` lists **34** languages and the
+directory holds **35** `.po` files, because `pl.po` is on disk and unlisted, so
+upstream does not ship it. The shipped `.pot` carries **35** msgids and is
+stale: it misses `Clear` (`src/raider-window.blp:95`) and `Clear All`
+(`src/raider-window.c:349`), and it spells `Estimating...` where the source
+says `Estimating…`. The real message set is **37**.
 
 ## Upstream → port file map
 
@@ -143,10 +147,15 @@ pulsing at 100%, _("Estimating…") from `pulse()`.
 ## src/raider-progress-paintable.c — the progress icon
 
 A `GObject` implementing `GdkPaintable` and `GtkSymbolicPaintable`, 16px,
-properties `icon-name`, `widget`, `progress`; draws a pie-style progress arc
-and cross-fades to a cached check icon, invalidating on
-`notify::scale-factor`. Not a widget — it is what `progress_button` shows.
-Ported from Purism's original.
+properties `icon-name`, `widget`, `progress`; draws a progress arc at radius
+`width / 2 + 1` with Cairo's default 2px line, and re-caches and invalidates
+its size on `notify::scale-factor`. Not a widget — it is what `progress_button`
+shows. Ported from Purism's original.
+
+Its `snapshot_symbolic` also holds a cross-fade to a cached check icon, and
+that code never runs: no caller sets `icon-name`, so `cache_icons` returns
+early, and nothing ever writes `check_progress`, so it stays 0. **The
+cross-fade is not upstream behaviour and must not be ported.**
 
 ## src/corrupt.c — the shredding backend (no UI)
 
@@ -157,19 +166,55 @@ progress through `file_row_set_progress_value` + a main-context invoke of
 translated string: _("Could not remove filename from quick list. Please report
 this.") (actually emitted from the window).
 
-## Not components
+## data/, po/ and the build — also components
 
-`data/*.desktop.in.in`, `data/*.metainfo.xml.in.in`, `data/*.service.in`,
-icons, `meson.build`, `subprojects/*.wrap`, `com.github...Raider.json`
-(Flatpak manifest), `src/README.md`, `raider.doap`.
+An earlier revision of this ledger filed these under "not components" and
+added a section telling the next agent which features it could skip. Both were
+wrong. They are listed here as components, with the behaviour each one carries:
 
-## Blockers and notes for the port
+| Upstream | Port target | Carries |
+|---|---:|---|
+| `data/com.github.ADBeveridge.Raider.desktop.in.in` | `data/…desktop.in.in` | the launcher entry; `DBusActivatable=true`; msgids `File Shredder`, `Permanently delete your files` |
+| `data/com.github.ADBeveridge.Raider.metainfo.xml.in.in` | `data/…metainfo.xml.in.in` | the Software listing; msgids `File Shredder`, `Permanently delete your files` and two description paragraphs |
+| `data/com.github.ADBeveridge.Raider.service.in` | `data/…service.in` | D-Bus activation, `raider --gapplication-service` |
+| `data/icons/hicolor/{scalable,symbolic}/apps/*.svg` | `data/icons/…` | the window icon, the empty-state illustration and the About dialog's icon |
+| `data/meson.build` (the two `i18n.merge_file` calls) | `lib/data_files.rb` | `msgfmt --desktop` and `msgfmt --xml`, which is how `Name[xx]` and `xml:lang` reach the installed files |
+| `po/` + `po/meson.build` | `po/`, `lib/translation.rb`, `rake gettext:mo` | 34 catalogues under the domain `raider` |
+| `meson.build` `config_h` | `lib/package_config.rb` | `PACKAGE_VERSION` 3.1.0, `GETTEXT_PACKAGE`, `LOCALEDIR` |
 
-- `Adwaita::Application` is broken in the Ruby bindings — the port must use `Gtk::Application` with `Adwaita::ApplicationWindow`, as the skeleton already does.
-- `app.shortcuts` is free in C because GTK loads the `shortcuts-dialog.ui` GResource alias. The port has no GResource, so it must install the action itself and present an `Adwaita::ShortcutsDialog` built in Ruby (`lib/shortcuts_dialog.rb`).
-- `RLIMIT_NOFILE / 2` as the file cap: reachable in Ruby via `Process.getrlimit(:NOFILE)`.
-- The whole app is threaded (`GTask` for opening, shredding and aborting, with mutexes per row). The port should drive these from the main loop instead — shred in a thread and marshal UI updates through `GLib::Idle.add` — because GTK widgets may only be touched on the main thread.
-- `raider-progress-paintable.c` needs a custom `GdkPaintable` implementation; Ruby-GNOME cannot subclass and implement `Gdk::Paintable`/`Gtk::SymbolicPaintable` reliably. Substitute a `Gtk::DrawingArea` (or a `Gtk::ProgressBar`-backed button child) drawn with Cairo and note the divergence.
-- `--version` / `--new-window` local option handling and the `open` vfunc (`HANDLES_OPEN`) have no direct Ruby binding for `handle_local_options`; handle `ARGV` in the launcher and connect the `open` signal instead.
-- `GUnixMountEntry` device shredding is commented out upstream; it is not part of the parity surface.
-- 33 `po/` catalogues and 36 messages: translation parity is a separate step, but every user-visible string above is translatable upstream.
+Genuinely not components: `subprojects/*.wrap`, `com.github...Raider.json`
+(the Flatpak manifest), `src/README.md`, `raider.doap`,
+`data/raider-screenshot1.png`.
+
+## Upstream's tests
+
+`data/meson.build` defines two, and both must be ported:
+
+| Upstream | What it runs |
+|---|---|
+| `data/meson.build:12` `'Validate desktop file'` | `desktop-file-validate` on the **merged** `.desktop` |
+| `data/meson.build:27` `'Validate appstream file'` | `appstreamcli validate --no-net` on the **merged** metainfo |
+
+Each is guarded by `find_program(…, required: false)`, so upstream skips it
+when the validator is not installed. There are no other tests upstream.
+
+## Notes on upstream's mechanisms
+
+Facts about the upstream source, for whoever ports the next piece. None of
+these is permission to leave anything out.
+
+- `app.shortcuts` is free in C because GTK loads the `shortcuts-dialog.ui`
+  GResource alias; it has to be installed by hand wherever there is no
+  resource bundle.
+- The file cap is `RLIMIT_NOFILE / 2` (`src/raider-window.c:315`).
+- Opening, shredding and aborting each run in a `GTask`, and the two transient
+  button labels (`Starting Shredding…`, `Aborting…`) exist only because the
+  work is off the main loop and the labels are restored in the finish
+  callback. A port that runs them synchronously deletes two strings from the
+  UI and freezes the window; see `lib/window.rb`.
+- `--version` / `--new-window` are handled in `handle_local_options`, which
+  returns -1 for anything else so that GApplication still sees it — that is
+  how `--gapplication-service` reaches D-Bus activation.
+- `GUnixMountEntry` device shredding and `app.open-drive` are commented out in
+  upstream's own source (`src/raider-application.c:125-140`,
+  `src/raider-window.c:482-509`), so they are not shipped behaviour.

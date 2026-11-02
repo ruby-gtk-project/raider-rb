@@ -1,0 +1,8 @@
+data/com.github.ADBeveridge.Raider.desktop.in.in
+data/com.github.ADBeveridge.Raider.metainfo.xml.in.in
+
+lib/exit_dialog.rb
+lib/main.rb
+lib/progress_info_popover.rb
+lib/shortcuts_dialog.rb
+lib/window.rb

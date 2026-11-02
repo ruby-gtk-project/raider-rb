@@ -1,0 +1,14 @@
+# Translators: Do NOT touch this file!
+[Desktop Entry]
+Name=File Shredder
+Comment=Permanently delete your files
+Exec=raider
+Icon=com.github.ADBeveridge.Raider
+Terminal=false
+Type=Application
+Keywords=delete;remove;permanently;files;shred;data;
+Categories=GTK;Utility;FileTools;Security;
+StartupNotify=true
+DBusActivatable=true
+X-GNOME-UsesNotifications=true
+X-Purism-FormFactor=Workstation;Mobile;

@@ -190,13 +190,59 @@ this document that is allowed to read calmly.
 - Test it the way the skill says: no sentence above can be pasted into a PR as
   justification for leaving the feature out.
 
+## Round 2 — what was written, and what the comments say now
+
+Every admission above was a placeholder for code. The code is written, so the
+comments the admissions replaced are gone and what stands in their place is a
+plain description of the behaviour and the upstream source it came from. An
+admission that describes a gap that no longer exists would be a second lie, so
+the rows below record the closure instead.
+
+| Row above | State | Where |
+|---|---|---|
+| Dead second application | **closed** — deleted, and `lib/raider.rb` no longer requires it | `lib/raider.rb`, `lib/raider/rb.rb` |
+| Wrong version, no Translators page | **closed** — `PackageConfig::PACKAGE_VERSION` is 3.1.0 and `about.translator_credits = _('translator-credits')` | `lib/package_config.rb`, `lib/main.rb` |
+| Shortcuts dialog's hardcoded keys | **closed** — every item carries `action-name`, the dialog keeps libadwaita's title | `lib/shortcuts_dialog.rb` |
+| Progress ring wrong size, invented tick | **closed** — radius 9 in a 20px box, redraw on `notify::scale-factor`, no check icon | `lib/progress_paintable.rb` |
+| `flat` and invented tooltips on the row | **closed** — both gone; the screenshot shows a raised button | `lib/file_row.rb` |
+| Frozen abort and two unseeable labels | **closed** — launch and abort are both off the main loop, labels restored in the completion callback | `lib/window.rb`, `lib/file_row.rb` |
+| No icons anywhere | **closed** — `data/icons` ported, `icon_name` is the application id in all three places | `data/icons/`, `lib/window.rb`, `lib/main.rb` |
+| Deleted integrity check | **closed** — `Window::UnknownRow` is raised with upstream's exact msgid | `lib/window.rb` |
+| The inventory's "Blockers and notes" | **closed** — the section is gone; `data/`, `po/` and the two meson tests are listed as components, and the four wrong statements are corrected | `.reports/component-inventory.md` |
+
+### Still open, and said plainly
+
+> I never fired a real drag and drop. `Gdk::FileList` has no constructor in
+> gtk4 4.3.9, so what the suite drives is `Window#on_drop` with a stand-in
+> object that answers `#files`, and the drop target's own configuration read
+> back as properties. The one path the empty state advertises — dragging a
+> file onto the window from a file manager — has still never been performed
+> end to end in this repo, and nothing below should be read as saying it has.
+> Port: `spec/window_spec.rb`, "the drop handler".
+
+> The port has no `rake` run of its own that I could execute here: the
+> project's development bundle (kettle-dev, kettle-test, rubocop-lts) does not
+> install in this sandbox, so `rake gettext:mo`, `rake gettext:check` and
+> `rake gettext:install` are written and read but were not run by rake. The
+> catalogues they compile were compiled by hand with the same `msgfmt`
+> invocation and the result is asserted in `spec/translation_spec.rb`; the
+> rake wrappers themselves are unexercised.
+
+> `nix/Gemfile` carries a header saying it is generated from the gemspec by
+> `converge-port-gem.sh`, and that script is not in this repo. I added
+> `gettext` to it and regenerated `nix/gemset.nix` with bundix by hand, so the
+> devshell and the package have the gem; if the generator is ever run it will
+> rewrite what I wrote.
+
 ## Where this leaves the port
 
-14 lines of prose. Behind them: three wrong icons and no icon assets at all, no
-desktop entry, no metainfo, no D-Bus activation, 0 of 37 messages marked, 0 of
-34 languages shipped, 0 of 2 upstream tests ported, 0 committed tests of any
-kind, a spec suite that cannot load, a dead second application shipped in the
-gem, two button labels that cannot be seen, a UI that freezes on abort, a
-shortcuts dialog that hardcodes its own accelerators, a progress ring the wrong
-size that ignores display scale, and one deleted error state. Fourteen lines is
-all it took.
+After round 2: 37 of 37 messages marked, 34 of 34 catalogues shipped and
+compiled, both upstream tests ported and passing, 93 committed examples
+passing, the data tree and all three icons in place, the dead application
+gone, both transient labels visible, abort returning in ~1ms instead of
+blocking, and the integrity check back.
+
+What is still not done is at the top of "Still open": no real drag and drop
+has ever been fired at this window, and the three rake tasks have not been run
+through rake. Neither of those is covered by a passing example, and neither
+should be read out of the numbers above.

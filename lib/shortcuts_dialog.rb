@@ -2,32 +2,37 @@
 
 require 'adwaita'
 
+require_relative 'translation'
+
 # ShortcutsDialog lists the keyboard shortcuts.
 #
 # A direct port of upstream's src/raider-shortcuts.blp: an Adw.ShortcutsDialog
-# with one "General" section holding the five items below. Upstream names an
-# action per item and lets GTK look its accelerator up; the bindings have no
-# way to resolve that, so each item carries the accelerator this port binds in
-# lib/main.rb.
+# with one "General" section holding five items, each naming the action it
+# documents rather than the keys that action happens to be bound to. GTK looks
+# the accelerator up on the application, so rebinding an accelerator in
+# lib/main.rb changes what this dialog shows.
+#
+# The dialog's own title is libadwaita's translated default and is deliberately
+# not set here; upstream's blueprint does not set one either.
 class ShortcutsDialog < Adwaita::ShortcutsDialog
-  SECTIONS = {
-    'General' => [
-      ['Add Files', '<Ctrl>o'],
-      ['New Window', '<Ctrl>n'],
-      ['Keyboard Shortcuts', '<Ctrl>question'],
-      ['Close Window', '<Ctrl>w'],
-      ['Quit', '<Ctrl>q'],
-    ],
-  }.freeze
+  include Translation
 
-  def initialize
-    super()
-    self.title = 'Keyboard Shortcuts'
+  # Upstream's section, as title => [[item title, action name], …].
+  def sections
+    {
+      _('General') => [
+        [_('Add Files'), 'app.open'],
+        [_('New Window'), 'app.new-window'],
+        [_('Keyboard Shortcuts'), 'app.shortcuts'],
+        [_('Close Window'), 'app.close'],
+        [_('Quit'), 'app.quit'],
+      ],
+    }
   end
 
   def build
     tap do |dialog|
-      SECTIONS.each do |title, items|
+      sections.each do |title, items|
         dialog.add(section(title, items))
       end
     end
@@ -38,11 +43,18 @@ class ShortcutsDialog < Adwaita::ShortcutsDialog
     def section(title, items)
       Adwaita::ShortcutsSection.new.tap do |section|
         section.title = title
-        items.each { |label, accelerator| section.add(item(label, accelerator)) }
+        items.each { |item_title, action_name| section.add(item(item_title, action_name)) }
       end
     end
 
-    # Positional, not keyword, arguments — even though the error a no-argument
-    # new raises advertises the signatures as "title: utf8, accelerator: utf8".
-    def item(label, accelerator) = Adwaita::ShortcutsItem.new(label, accelerator)
+    # Adwaita::ShortcutsItem advertises two constructors — (title,
+    # accelerator) and (title, action_name) — and only the first is reachable,
+    # so the item is made with an empty accelerator and the action is set
+    # afterwards. With action-name set, libadwaita resolves the accelerator
+    # from the application and ignores the empty one.
+    def item(title, action_name)
+      Adwaita::ShortcutsItem.new(title, '').tap do |shortcut|
+        shortcut.action_name = action_name
+      end
+    end
 end
