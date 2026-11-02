@@ -2,247 +2,187 @@
 
 | | |
 |---|---|
-| Upstream | `main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `fe65d4fc528569b77548e6cf8bb744135603ce5b` |
-| Files scanned | every `.rb` under `lib/` and `exe/`, plus `README.md`, `AGENTS.md`, `IRP.md`, `CHANGELOG.md`, `.reports/component-inventory.md` |
-| Hits | **14** |
-| Of which are live code comments | 11 |
+| Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
+| Port | `ruby` @ `6a8dd32f8800a3d821ca3d86aa43b895fe8d5792` |
+| Scan | `accountability-ensurance/scripts/find-excuses.sh .` |
+| Script hits (excluding `.claude/skills/` and this directory) | **1** |
+| Hits the script missed, found by reading | **4** |
+| Open items | **5** |
 
-There is no `PORTING.md` and no `FINDINGS.md` in this port. That is not a clean
-result — it means the excuses are not in a document where a reviewer would look
-for them. **They are in the class comments of the shipping code**, which is
-worse: every one of them is the first thing the next agent reads before touching
-that file.
+`grep -rniE 'TODO|FIXME|not implemented|for now|in a future|XXX|HACK|placeholder|stub|workaround' lib/ exe/`
+returns **nothing**. There is no `PORTING.md`, no `FINDINGS.md`, no
+`TODO` file. That is genuinely good and it is also why the remaining hits
+matter: they are the only places in this port where an unbuilt thing is
+described instead of built, so there is nothing for them to hide behind.
 
-## The scan
+The five items below are rewrites, not deletions. Each keeps the debt and loses
+the sentence a future agent could quote as approval.
 
-| File:line | Construction | Why it is a hit |
+---
+
+## A1 — `spec/support/gtk.rb:11` (script hit: "by design")
+
+```
+spec/support/gtk.rb:11:by design:borrows architectural vocabulary for an unmade decision
+```
+
+Current text: *"The port's shredding is also asynchronous by design — Window
+launches the rows from a worker thread and marshals the widget work back
+through GLib's idle queue, as upstream's two GTasks do"*.
+
+This one describes work that **was** done, and done correctly
+(`lib/window.rb:458-463`, `:477-482` against
+`src/raider-window.c:390-418`, `:444-477`). The phrase is still a hit, because
+"by design" is the vocabulary that makes the next sentence unquestionable, and
+the next agent reading this file learns that "by design" is an acceptable thing
+to write here. Replace the phrase with the mechanism:
+
+> The port's shredding is asynchronous because upstream's is: `Window` launches
+> the rows from a worker thread and marshals the widget work back through
+> GLib's idle queue, which is what upstream's two GTasks do
+> (`src/raider-window.c:390-418`, `:444-477`).
+
+No debt is owed. Rewrite anyway, and keep "by design" out of this tree.
+
+---
+
+## A2 — `spec/translation_spec.rb:57` (missed by the script)
+
+```ruby
+it "keeps pl.po on disk although LINGUAS does not list it, as upstream does" do
+```
+
+The script's pattern is `upstream (does|has) this too`; this says *as upstream
+does*, so it slipped through. It is the purest form of the failure this skill
+exists to kill — not a comment excusing a gap, but **a passing test that makes
+the gap the specification.** Any future agent who adds `pl` to `po/LINGUAS`
+will see this test go red and revert the fix.
+
+Behind it: Polish users of this app get English, with a complete, donated
+Polish catalogue sitting at `po/pl.po`
+(gap T1 in `translation-parity.md`).
+
+Rewrite the test, not the comment:
+
+> I did not build Polish, because I am an idiot who copied upstream's bug and
+> then wrote a test that calls it correct.
+> Upstream: `po/LINGUAS` lists 34 languages and `po/pl.po` is the 35th file —
+> upstream loses Polish the same way, and that is upstream's debt, not this
+> port's permission.
+> Port: `Rakefile:199` reads `po/LINGUAS`, so `data/locale` holds 34 `.mo`
+> files and no `pl`. `spec/translation_spec.rb:57` asserts that state is
+> correct.
+
+The example becomes *"builds a catalogue for every `.po` on disk"*, and it
+fails until `pl` is in `po/LINGUAS`.
+
+---
+
+## A3 — `lib/progress_paintable.rb:28-30` (missed by the script)
+
+> *"Upstream's `icon-name` property is never set by any caller and its
+> `check_progress` is never written, so the cross-fade to a check icon in its
+> snapshot_symbolic is dead code upstream. Nothing here draws one."*
+
+The claim is **true** — I verified it: `raider_progress_paintable_new`
+(`src/raider-progress-paintable.c:582-587`) passes only `widget`, no caller
+sets `icon-name`, and `check_progress` is read at `:248`, `:252`, `:257`,
+`:261` and assigned nowhere. So this is a correspondence, and it was earned.
+
+It is still a hit, because of *where it is written*. A reader of
+`lib/progress_paintable.rb` meets a paragraph that closes an upstream feature
+and has no way to check it; the next agent inherits "the check icon is not
+needed" as a fact about this file. Verified correspondences belong in the
+ledger, where the evidence sits next to the claim and a reviewer can re-run it.
+
+Rewrite: shorten the comment to a pointer —
+
+> Upstream's check-icon cross-fade is unreachable upstream; the evidence is in
+> `.reports/component-parity.md`, unit "progress paintable".
+
+— and keep the four call-site citations in the ledger, which is where they now
+are.
+
+---
+
+## A4 — `lib/shortcuts_dialog.rb:15-16` (missed by the script)
+
+> *"The dialog's own title is libadwaita's translated default and is
+> deliberately not set here; upstream's blueprint does not set one either."*
+
+The script's strong pattern is
+`(dropped|omitted|left out|removed) (it )?(deliberately|…)`, so *"deliberately
+not set"* does not match it. The second clause is the real justification and it
+is correct (`src/raider-shortcuts.blp:4` sets no `title`), so nothing is owed.
+Delete the word. The sentence is stronger without it and does not teach the
+next writer that "deliberately" is available:
+
+> The dialog sets no title, as `src/raider-shortcuts.blp:4` sets none;
+> libadwaita supplies its own translated default.
+
+---
+
+## A5 — `lib/translation.rb:20-22` (missed by the script)
+
+> *"The codeset is not set: the gettext gem decodes catalogues as UTF-8 and
+> hands back String objects already in `Encoding::UTF_8`, which is what
+> bind_textdomain_codeset asks the C library for."*
+
+Upstream calls `bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8")`
+(`src/main.c:32`). The port calls no equivalent. The paragraph is a reason a
+reader can nod at — which is precisely the shape the skill forbids, whether or
+not the reason happens to hold.
+
+Unlike A3, this one has **not** been proven by a test. `spec/translation_spec.rb`
+asserts a translated string comes back (`:174`) but asserts nothing about its
+encoding. So either:
+
+* an example is added that asserts `_('Stop Shredding?')` in a non-ASCII
+  locale comes back `Encoding::UTF_8` — after which the comment can say "pinned
+  by `spec/translation_spec.rb:NNN`" and stop arguing; or
+* the row is written as a gap:
+
+  > I did not build the codeset binding upstream makes, because I am an idiot
+  > who decided the gem already did it and never checked.
+  > Upstream: `src/main.c:32` `bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8")`.
+  > Port: `lib/translation.rb:31` binds the domain and the path and nothing
+  > else; no test asserts the encoding of anything the catalogue returns.
+
+Until one of those two things happens, this is an unverified reason standing in
+for an unported call.
+
+---
+
+## What the scan found clean
+
+Worth recording, because the absence is the point:
+
+* `lib/` and `exe/` — no `TODO`, no `FIXME`, no `not implemented`, no "for
+  now", no "in a future", no "out of scope", no "not applicable". Every
+  divergence from upstream in those files carries the upstream file it came
+  from in the surrounding comment.
+* No `PORTING.md`, `FINDINGS.md`, `ARCHITECTURE.md` or `TODO` exists, so no
+  parity ledger in this repository cites a port document as authority for a
+  gap, and none can.
+* `spec/file_row_spec.rb:29`, `:34` — *"carries no style class of its own, as
+  upstream's blueprint sets none"*, *"carries no tooltip, as upstream's
+  blueprint sets none"*. These look like A2's shape and are the opposite: they
+  pin the port **to** upstream's state rather than to a divergence from it, and
+  `src/raider-file-row.blp:15-23` confirms it. Not hits.
+* The previous `.reports/*.md` in this directory (commit `f65c06f`) listed
+  gaps and was then acted on: icons, `po/`, `data/`, `translator-credits`, the
+  arc radius, the shortcut items' `action-name`, the invented `flat` classes
+  and the invented tooltips were all built or removed in `fe65d4f` and
+  `6a8dd32`. One row from that report — `contents_box`'s orientation — was
+  **not** fixed and is still open as gap C2. A ledger row that survives a round
+  of work unaddressed is the first sign of a gap turning into architecture.
+
+## Open items
+
+| # | Where | What |
 |---|---|---|
-| `lib/main.rb:22` | "Two deviations, both forced by the bindings" | "forced" is the word that converts two unbuilt things into physics |
-| `lib/main.rb:24-25` | "Adwaita::Application is broken in the Ruby bindings" | A reason a reader nods at. Nodding is ratification |
-| `lib/main.rb:26-31` | "Neither the entries nor that vfunc are reachable from Ruby, so the two switches are read off the argument list here" | "so" does the work: a limitation is presented as having produced a design |
-| `lib/main.rb:33-35` | "there is no resource bundle in this port" | A bare absence in neutral register. Reads as architecture |
-| `lib/file_row.rb:19-22` | "the bindings have no equivalent of gtk_widget_set_parent for a popover, and a menu button owns its popover and pops it up for free" | "for free" sells the substitution as a win |
-| `lib/shortcuts_dialog.rb:9-11` | "the bindings have no way to resolve that, so each item carries the accelerator this port binds in lib/main.rb" | Same shape, and this one is behind a real divergence (see below) |
-| `lib/progress_paintable.rb:11-13` | "GObject interfaces cannot be implemented from Ruby, so the same picture is composed out of widgets instead" | "the same picture" is false — the radius and the scale handling differ |
-| `lib/progress_paintable.rb:15-16` | "`check_progress` cross-fades between the two by opacity, where upstream scales them around their centre" | Describes an invention as a port of something upstream does. Upstream's cross-fade never runs |
-| `lib/progress_paintable.rb:18-21` | "here it comes from the drawing area's own style, which resolves to the same foreground colour" | Asserts equivalence that was never checked against a rendering |
-| `lib/progress_paintable.rb:139-141` | "falls back to plain white, which is legible on the dark button the row shows while shredding" | An untested claim offered as reassurance |
-| `lib/corrupt.rb:16-19` | "The shredding runs on a Ruby thread rather than upstream's GTask worker" | Honest, neutral, toothless. Names a mechanism change and owes nothing |
-| `lib/raider/application.rb:7-9` | "a status page saying the port has not been written yet. Everything else grows from here" | A scaffold comment left in shipped code, reading as a plan instead of as debt |
-| `lib/raider/application.rb:32-33` | "Adwaita::Application is broken in the Ruby bindings" | Third copy of the same line |
-| `.reports/component-inventory.md`, "Blockers and notes for the port" | "Substitute a `Gtk::DrawingArea` … and note the divergence"; "it is not part of the parity surface"; "The port should drive these from the main loop instead" | A parity ledger pre-authorising its own gaps. The citation is the bug |
-
-Two near-misses, left alone deliberately: `lib/window.rb:235-237` (why
-`Adwaita::ApplicationWindow` and not `Gtk::ApplicationWindow`) is a correctness
-note about a real double-titlebar bug, not a skip; and
-`lib/progress_info_popover.rb:10` ("the deliberate full bar") describes
-upstream's behaviour, not the port's.
-
-## What goes in instead
-
-Each of these replaces the corresponding comment. Rewritten in place, never
-deleted — and the behaviour, not the construct, is what each one names.
-
-### `lib/raider/application.rb` (whole file) and `lib/raider.rb:3`
-
-> I shipped a second, dead application in the gem — id
-> `org.rubygtkproject.Raider`, a window titled `raider`, and a status page
-> reading "The Ruby port has not been written yet." — and I left
-> `lib/raider.rb` requiring it, so every process that loads this port defines
-> it, because I am an idiot who could not be bothered to delete a scaffold.
-> Upstream: no such class exists; the app has one application id,
-> `com.github.ADBeveridge.Raider` (`src/main.c:35`).
-> Port: `lib/raider/application.rb:34`, required from `lib/raider.rb:3`,
-> shipped via `raider-rb.gemspec:76`. Verified live:
-> `Raider::Application.new.app.application_id == "org.rubygtkproject.Raider"`.
-
-### `lib/main.rb:22-31`
-
-> I did not build the About dialog's Translators page, and I printed the wrong
-> version to anyone who asks `--version`, because I am an idiot who wrote a
-> paragraph about the bindings instead of the four lines of code.
-> Upstream: `adw_show_about_dialog(..., "translator-credits",
-> _("translator-credits"), ...)` and `"version", PACKAGE_VERSION` — 3.1.0
-> (`src/raider-application.c:172`, `:180`; `meson.build:1`).
-> Port: `lib/main.rb:38` hardcodes `'0.1.0'` and `lib/main.rb:99-110` never
-> sets `translator_credits`. Verified live: it reads back as `""`, and
-> `--version` printed `File Shredder - 0.1.0`.
-
-The `Gtk::Application` type swap and the hand-rolled `--version` /
-`--new-window` parsing are *not* gaps — the behaviour is reached and was
-driven. They need no sentence at all. The sentence was the problem.
-
-### `lib/shortcuts_dialog.rb:9-11`
-
-> I made the shortcuts dialog lie. It prints five accelerators I typed into an
-> array by hand, so if anyone rebinds a shortcut, or if `lib/main.rb` and this
-> file ever drift by one keystroke, the dialog confidently shows the wrong
-> keys — because I am too stupid to have found the way to keep it bound to the
-> actions.
-> Upstream: every `Adw.ShortcutsItem` carries `action-name` and GTK resolves
-> the live accelerator (`src/raider-shortcuts.blp:10-28`).
-> Port: `lib/shortcuts_dialog.rb:15-19`.
-> I also set a title on the dialog (`:25`), overriding libadwaita's translated
-> default with an English literal, for no reason at all.
-
-### `lib/progress_paintable.rb:11-21`, `:139-141`
-
-> I did not build the progress ring upstream draws. Mine is a smaller circle in
-> the wrong place, it does not follow the display scale, and it ends with a tick
-> animation upstream never shows — because I am an idiot who decided "the same
-> picture" was a thing I could assert without ever looking at it.
-> Upstream: strokes at radius `width / 2.0 + 1`, i.e. outside the 16px box, and
-> re-caches and invalidates on `notify::scale-factor`
-> (`src/raider-progress-paintable.c:275`, `:280`, `:78-80`, `:216`). Its
-> `check_progress` is never written and its `icon-name` is never set, so no
-> cross-fade ever runs (`:52-55`).
-> Port: radius 7 (`lib/progress_paintable.rb:136`), `content_width/height`
-> pinned to 16 with no scale handling (`:69-70`), and a 400ms fade into
-> `object-select-symbolic` that I made up (`:58-62`, `:84-91`).
-> I also never checked the stroke colour against a rendering; I wrote a comment
-> claiming it resolves to the same foreground colour and left it at that.
-
-### `lib/file_row.rb:19-22`
-
-> I put a `flat` CSS class and two invented English tooltips on this row's
-> buttons, so the delete button reads as a bare icon where upstream's reads as
-> a button, because I am an idiot who decorated a port instead of making one.
-> Upstream: `src/raider-file-row.blp` sets no `styles` and no `tooltip-text` on
-> either button.
-> Port: `lib/file_row.rb:122-123`, `:136-139`. Verified live:
-> `remove_button.css_classes == ["flat", "image-button"]`.
-
-The `Gtk::MenuButton` substitution itself is fine and needs no sentence.
-
-### `lib/corrupt.rb:16-19` — and the two labels it costs
-
-> I made aborting a shred freeze the window, and I made two of upstream's button
-> labels physically impossible to see, because I am an idiot who ran async work
-> synchronously and then wrote a comment calling it a port.
-> Upstream: `raider_window_start_shredding` sets `_("Starting Shredding…")` and
-> launches the rows in a `GTask`, restoring the labels only in the finish
-> callback (`src/raider-window.c:411`, `:415`, `:387-388`);
-> `raider_window_abort_shredding` does the same for `_("Aborting…")` (`:457`,
-> `:463`, `:474`).
-> Port: `lib/window.rb:201` then `:211` in one main-loop turn, and `:222` then
-> `:472` with a `Thread#join` per row in between (`lib/corrupt.rb:70`) on the
-> main thread. Verified live: `start_shredding` leaves the label at
-> `"Shred All"`; `abort_shredding` leaves it at `"Abort All"`.
-
-### `lib/main.rb:40`, `lib/window.rb:23`, `:346`
-
-> I never ported a single icon, so the app has no icon in the launcher, no icon
-> in the window, no icon in the About dialog, and its whole first screen — the
-> big empty-state illustration that tells a new user what this app is — is the
-> same 16px delete glyph as the remove button on a row. I am an idiot who
-> substituted a symbolic name for an asset and moved on.
-> Upstream: `icon-name: "com.github.ADBeveridge.Raider"` in
-> `src/raider-window.blp:11` and `:58`, `"application-icon"` in
-> `src/raider-application.c:171`, backed by
-> `data/icons/hicolor/scalable/apps/com.github.ADBeveridge.Raider.svg` and two
-> siblings.
-> Port: `'edit-delete-symbolic'` at `lib/window.rb:23` and `:346` and
-> `lib/main.rb:40`; `data/icons/` does not exist. Verified live on all three.
-
-### `lib/window.rb:160-167`
-
-> I deleted upstream's only integrity check. When a row is closed whose path was
-> never in the window's list, upstream stops the process with a message asking
-> the user to report a bug; mine shrugs. I am an idiot who mistook "it doesn't
-> crash" for "it works".
-> Upstream: `g_error(_("Could not remove filename from quick list. Please
-> report this."))` (`src/raider-window.c:228-229`).
-> Port: `@rows.delete(row)` (`lib/window.rb:162`). Verified live: closing a row
-> the window never held returns quietly.
-
-### `.reports/component-inventory.md`, "Blockers and notes for the port"
-
-> I wrote a section of a parity ledger that tells the next agent which features
-> it is allowed to skip, which is the exact thing a parity ledger exists to
-> prevent, because I am an idiot who would rather pre-approve my own gaps than
-> close them.
-> It says device shredding "is not part of the parity surface"; it prescribes
-> substituting a `Gtk::DrawingArea` and "noting the divergence"; and it says the
-> port "should" drive the threading differently. Three of its numbers are also
-> wrong in the flattering direction, and it describes a cross-fade as upstream
-> behaviour when upstream's never runs. Corrections are in
-> `.reports/component-identification.md`.
-
-One exemption, and it is the only one: upstream's `app.open-drive` and the
-`GUnixMountEntry` device shredding are **commented out in upstream's own
-source** (`src/raider-application.c:125-140`, `src/raider-window.c:482-509`).
-They are not shipped behaviour, so they are not scope. That is a fact about
-upstream's source, not a judgement about the port, and it is the only line in
-this document that is allowed to read calmly.
-
-## Rules check on this document
-
-- Every entry is first person, leads with the admission, and gives exactly one
-  reason.
-- No entry names a binding limitation as the reason. Where a binding limitation
-  is real — no GObject interface implementation from Ruby, no popover
-  `set_parent`, no `handle_local_options` — it appears only where it belongs:
-  as a note on **why the gap is hard**, in `.reports/component-parity.md`, and
-  never in the sentence that describes the gap.
-- Nothing was deleted. Every excuse above stays in the repo as a row here until
-  the code it covers is written.
-- Test it the way the skill says: no sentence above can be pasted into a PR as
-  justification for leaving the feature out.
-
-## Round 2 — what was written, and what the comments say now
-
-Every admission above was a placeholder for code. The code is written, so the
-comments the admissions replaced are gone and what stands in their place is a
-plain description of the behaviour and the upstream source it came from. An
-admission that describes a gap that no longer exists would be a second lie, so
-the rows below record the closure instead.
-
-| Row above | State | Where |
-|---|---|---|
-| Dead second application | **closed** — deleted, and `lib/raider.rb` no longer requires it | `lib/raider.rb`, `lib/raider/rb.rb` |
-| Wrong version, no Translators page | **closed** — `PackageConfig::PACKAGE_VERSION` is 3.1.0 and `about.translator_credits = _('translator-credits')` | `lib/package_config.rb`, `lib/main.rb` |
-| Shortcuts dialog's hardcoded keys | **closed** — every item carries `action-name`, the dialog keeps libadwaita's title | `lib/shortcuts_dialog.rb` |
-| Progress ring wrong size, invented tick | **closed** — radius 9 in a 20px box, redraw on `notify::scale-factor`, no check icon | `lib/progress_paintable.rb` |
-| `flat` and invented tooltips on the row | **closed** — both gone; the screenshot shows a raised button | `lib/file_row.rb` |
-| Frozen abort and two unseeable labels | **closed** — launch and abort are both off the main loop, labels restored in the completion callback | `lib/window.rb`, `lib/file_row.rb` |
-| No icons anywhere | **closed** — `data/icons` ported, `icon_name` is the application id in all three places | `data/icons/`, `lib/window.rb`, `lib/main.rb` |
-| Deleted integrity check | **closed** — `Window::UnknownRow` is raised with upstream's exact msgid | `lib/window.rb` |
-| The inventory's "Blockers and notes" | **closed** — the section is gone; `data/`, `po/` and the two meson tests are listed as components, and the four wrong statements are corrected | `.reports/component-inventory.md` |
-
-### Still open, and said plainly
-
-> I never fired a real drag and drop. `Gdk::FileList` has no constructor in
-> gtk4 4.3.9, so what the suite drives is `Window#on_drop` with a stand-in
-> object that answers `#files`, and the drop target's own configuration read
-> back as properties. The one path the empty state advertises — dragging a
-> file onto the window from a file manager — has still never been performed
-> end to end in this repo, and nothing below should be read as saying it has.
-> Port: `spec/window_spec.rb`, "the drop handler".
-
-> The port has no `rake` run of its own that I could execute here: the
-> project's development bundle (kettle-dev, kettle-test, rubocop-lts) does not
-> install in this sandbox, so `rake gettext:mo`, `rake gettext:check` and
-> `rake gettext:install` are written and read but were not run by rake. The
-> catalogues they compile were compiled by hand with the same `msgfmt`
-> invocation and the result is asserted in `spec/translation_spec.rb`; the
-> rake wrappers themselves are unexercised.
-
-> `nix/Gemfile` carries a header saying it is generated from the gemspec by
-> `converge-port-gem.sh`, and that script is not in this repo. I added
-> `gettext` to it and regenerated `nix/gemset.nix` with bundix by hand, so the
-> devshell and the package have the gem; if the generator is ever run it will
-> rewrite what I wrote.
-
-## Where this leaves the port
-
-After round 2: 37 of 37 messages marked, 34 of 34 catalogues shipped and
-compiled, both upstream tests ported and passing, 93 committed examples
-passing, the data tree and all three icons in place, the dead application
-gone, both transient labels visible, abort returning in ~1ms instead of
-blocking, and the integrity check back.
-
-What is still not done is at the top of "Still open": no real drag and drop
-has ever been fired at this window, and the three rake tasks have not been run
-through rake. Neither of those is covered by a passing example, and neither
-should be read out of the numbers above.
+| A1 | `spec/support/gtk.rb:11` | "by design" — rewrite, nothing owed |
+| A2 | `spec/translation_spec.rb:57` | a test that pins Polish as permanently broken — invert it, build `pl` |
+| A3 | `lib/progress_paintable.rb:28-30` | a verified correspondence argued in a code comment — move the evidence to the ledger |
+| A4 | `lib/shortcuts_dialog.rb:15` | "deliberately" — delete the word |
+| A5 | `lib/translation.rb:20-22` | an unverified reason standing in for upstream's `bind_textdomain_codeset` — pin it or owe it |

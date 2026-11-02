@@ -1,164 +1,199 @@
-# Component identification — raider-rb, port side
+# Component identification — raider-rb
 
 | | |
 |---|---|
-| Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` (2026-05-13) |
-| Port | `ruby` @ `fe65d4fc528569b77548e6cf8bb744135603ce5b` |
-| Upstream units | 7 (application, window, menus, shortcuts dialog, file row, popover, paintable) + 1 non-UI backend |
-| Port files | 9 under `lib/`, 1 under `exe/` |
+| Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
+| Port | `ruby` @ `6a8dd32f8800a3d821ca3d86aa43b895fe8d5792` |
+| Method | `component-identification/scripts/component-scan.sh` on both trees, symbol table present (1301 rows), then every file read |
 
-The upstream-side inventory is `.reports/component-inventory.md` (committed in
-`f8ecee6`). This document is the **port** side of Step 1, plus the corrections
-the upstream inventory needs.
+Upstream has four declarative files, so Step 1 of the skill gives the unit list
+for free:
 
-## Corrections to `.reports/component-inventory.md`
-
-That document is the baseline every other ledger joins against, and three of
-its numbers are wrong. They are wrong in the direction that makes the port look
-closer to done, so they are fixed here before anything is compared.
-
-| It says | Actually |
-|---|---|
-| "`po/` has 33 catalogues and a 36-message `.pot`" | 35 `.po` files, 34 of them listed in `LINGUAS` (`pl.po` exists and is **not** shipped), and the `.pot` carries **35** messages, not 36 — `grep -c '^msgid "'` counts the header entry |
-| "No GSettings schema exists upstream" | True, and still true. Kept |
-| "`src/raider-progress-paintable.c` … cross-fades to a cached check icon" | Upstream never sets `icon-name` and never writes `check_progress`, so `check_paintable` is always `NULL` and the cross-fade **never runs upstream**. The port's check-icon fade is an invention, not a port |
-| Nothing is said about upstream's two meson `test()` targets | `data/meson.build:12` and `:27` define `Validate desktop file` and `Validate appstream file`. Upstream is **not** a zero-test project — see `.reports/test-parity.md` |
-
-It also omits, entirely, the parts of upstream that are not `src/`: `data/`
-(desktop entry, metainfo, D-Bus service, three icons) and `po/`. Those carry
-four of the 35 msgids and both upstream tests, so leaving them in a "Not
-components" list is how 6 of 35 messages and 2 of 2 tests disappear.
-
-## Port file map, as built
-
-| Port file | Upstream it answers | Top-level thing |
+| Declarative file | Root | Unit |
 |---|---|---|
-| `lib/main.rb` | `src/main.c` + `src/raider-application.c` | `App` — actions, accels, About, CLI |
-| `lib/window.rb` | `src/raider-window.blp` + `src/raider-window.c` | `Window` + both `Gio::Menu` models |
-| `lib/file_row.rb` | `src/raider-file-row.blp` + `.c` | `FileRow < Adwaita::ActionRow` |
-| `lib/progress_info_popover.rb` | `src/raider-progress-info-popover.blp` + `.c` | `ProgressInfoPopover < Gtk::Popover` |
-| `lib/progress_paintable.rb` | `src/raider-progress-paintable.c` | `ProgressPaintable` — a plain object, not a widget |
-| `lib/shortcuts_dialog.rb` | `src/raider-shortcuts.blp` | `ShortcutsDialog < Adwaita::ShortcutsDialog` |
-| `lib/exit_dialog.rb` | `raider_window_exit` in `src/raider-window.c` | `ExitDialog < Adwaita::AlertDialog` |
-| `lib/corrupt.rb` | `src/corrupt.c` | `Corrupt` — no UI |
-| `lib/raider.rb` | — | requires `raider/application` **and** `main` |
-| `lib/raider/application.rb` | **nothing** | `Raider::Application` — the dead scaffold, still shipped |
-| `exe/raider` | `src/main.c` | launcher |
-| — | `data/*` (desktop, metainfo, service, 3 icons) | **no port file** |
-| — | `po/*` (35 `.po`, `LINGUAS`, `POTFILES`) | **no port file** |
+| `src/raider-window.blp` | `template $RaiderWindow : Adw.ApplicationWindow` | window |
+| `src/raider-file-row.blp` | `template $RaiderFileRow : Adw.ActionRow` | file row |
+| `src/raider-progress-info-popover.blp` | `template $RaiderProgressInfoPopover : Gtk.Popover` | progress popover |
+| `src/raider-shortcuts.blp` | `Adw.ShortcutsDialog shortcuts_dialog` (no template, no backing source) | shortcuts dialog |
 
-Two upstream trees map to nothing, and one port file maps to nothing upstream.
+Plus the three units no `.blp` owns: the application class
+(`src/main.c` + `src/raider-application.c`), the alert dialog
+`raider_window_exit` builds in source only, the progress paintable
+(`src/raider-progress-paintable.c`), the shredding backend
+(`src/corrupt.c`), and the installable data the build file produces
+(`data/meson.build`, `data/icons/meson.build`, `po/meson.build`).
 
-## lib/window.rb — the one window
+The port has **no** `.blp`/`.ui` files, as the house style intends; every
+widget is a memoized accessor.
+
+## File mapping (unioned before any comparison)
+
+```
+src/main.c + src/raider-application.c              -> lib/main.rb + exe/raider + lib/package_config.rb
+src/raider-window.blp + src/raider-window.c        -> lib/window.rb + lib/exit_dialog.rb
+src/raider-file-row.blp + src/raider-file-row.c    -> lib/file_row.rb
+src/raider-progress-info-popover.blp + .c          -> lib/progress_info_popover.rb
+src/raider-shortcuts.blp                           -> lib/shortcuts_dialog.rb
+src/raider-progress-paintable.c                    -> lib/progress_paintable.rb
+src/corrupt.c                                      -> lib/corrupt.rb
+data/meson.build + data/icons/meson.build          -> lib/data_files.rb + flake.nix installPhase
+po/meson.build + src/main.c gettext calls          -> lib/translation.rb + Rakefile gettext tasks
+```
+
+Corrections made by hand before trusting the union, per Step 2:
+
+* The template root is counted twice — `src/raider-window.c` declares
+  `AdwApplicationWindow parent_instance` and `src/raider-window.blp` declares
+  `template $RaiderWindow : Adw.ApplicationWindow`. Struck one.
+  Same for `Adw.ActionRow` (file row) and `Gtk.Popover` (popover).
+* `lib/exit_dialog.rb` has no upstream file of its own: it is the alert dialog
+  built inline at `src/raider-window.c:177-185`.
+* `lib/data_files.rb`, `lib/package_config.rb` and `lib/translation.rb` have no
+  upstream *source* file; they answer `data/meson.build`, the `config_h` block
+  in `meson.build` and `po/meson.build` respectively.
+
+## Whole-app totals
+
+| Axis | Upstream distinct | Port distinct |
+|---|---:|---:|
+| widget types | 20 | 20 |
+| controller types | 1 (`Gtk.DropTarget`) | 1 |
+| CSS classes | 3 (`boxed-list`, `destructive-action`, `pill`) | 3 |
+| signals | 11 | 10 + 1 extra (`destroy`) |
+| actions | 8 literals, 6 installed | 7 installed |
+
+Neither tree has a `.css` file and neither loads a `Gtk::CssProvider`
+(`grep -rn 'CssProvider\|load(data:' lib/` is empty). The three classes in play
+are all platform classes that GTK and libadwaita define, so the stylesheet half
+of the CSS axis is vacuous here — the whole CSS question is which classes the
+port *attaches*, which `component-parity.md` answers.
+
+## Inventories
+
+### `src/main.c` + `src/raider-application.c` → `lib/main.rb` — the application
+
+| Thing | × | CSS | Signals | Notes |
+|---|---:|---|---|---|
+| `Adw.Application` (`Gtk::Application` in the port) | 1 | — | `activate`, `open` vfuncs | `G_APPLICATION_HANDLES_OPEN`; port calls `Adwaita.init` itself (`lib/main.rb:92`) in place of `AdwApplication`'s own init |
+| `Adw.AboutDialog` | 1 | — | — | 11 fields set, including `translator-credits` |
+| `Gtk.FileDialog` | 2 | — | — | one per action: `open` (multiple files), `open-folder` (multiple folders) |
+| `Gio.SimpleAction` | 6 up / 7 port | — | `activate` ×6/×7 | see the action table |
+| `GOptionEntry` | 2 | — | — | `-w/--new-window`, `-v/--version`; **no counterpart in the port**, see gap A1 |
+
+Actions (the scan's least trustworthy stream, so read off every install site):
+
+| Action | Accel | Upstream install site | Port |
+|---|---|---|---|
+| `app.open` | `<Ctrl>o` | `raider-application.c:281-284` | `lib/main.rb:45` |
+| `app.open-folder` | — | `:286-288` | `:46` |
+| `app.new-window` | `<Ctrl>n` | `:276-279` | `:47` |
+| `app.close` | `<Ctrl>w` | `:267-270` | `:48` |
+| `app.quit` | `<Ctrl>q` | `:262-265` | `:49` |
+| `app.about` | — | `:272-274` | `:50` |
+| `app.shortcuts` | `<Ctrl>question` | **not installed upstream** — referenced from `raider-window.blp:144` and `raider-shortcuts.blp:16`, supplied by libadwaita because `src/raider.gresource.xml:7` aliases the dialog as `shortcuts-dialog.ui` | `:51`, installed by hand |
+| `app.open-drive` | — | commented out, `raider-application.c:125-139`, `:291-293` | absent on both sides |
+
+The `app.shortcuts` correspondence is verified, not asserted:
+`strings libadwaita-1.so.0` carries `shortcuts-dialog.ui`, `app.shortcuts` and
+`<Control>question` adjacently (libadwaita 1.9.3), which is where upstream's
+binding comes from and what the port reproduces by installing the action
+itself.
+
+### `src/raider-window.blp` + `src/raider-window.c` → `lib/window.rb` — the one window
 
 | Widget | × | CSS | Signals | Notes |
 |---|---:|---|---|---|
-| `Adwaita::ApplicationWindow` | 1 | — | `close-request` → `request_exit` | `icon_name = 'edit-delete-symbolic'`, not the app icon |
-| `Adwaita::ToolbarView` | 1 | — | — | `vexpand` |
-| `Adwaita::HeaderBar` | 1 | — | — | `centering_policy = :strict` |
-| `Gtk::Revealer` | 3 | — | — | `open_revealer` slide-right; `shred_revealer` / `abort_revealer` slide-up, `valign :end`, `halign :center`, `margin_bottom 20` |
-| `Adwaita::SplitButton` | 1 | — | `action_name 'app.open'` | `menu_model = open_menu` |
-| `Adwaita::ButtonContent` | 1 | — | — | 'Add' / `document-open-symbolic` / tooltip 'Add Files' |
-| `Adwaita::WindowTitle` | 1 | — | — | `('File Shredder', '')` |
-| `Gtk::MenuButton` | 1 | — | — | `open-menu-symbolic`, tooltip 'Main Menu', `primary` |
-| `Adwaita::ToastOverlay` | 1 | — | — | host for 5 toast texts |
-| `Gtk::Box` | 3 | — | — | `contents_box` (**`:vertical`**; upstream's is horizontal), `shred_box`, `abort_box` |
-| `Gtk::DropTarget` (controller) | 1 | — | `drop` → `on_drop` | `Gdk::FileList.gtype`, `:copy`, on `contents_box` |
-| `Gtk::Stack` | 1 | — | — | crossfade, `add_named` ×2 |
-| `Adwaita::StatusPage` | 1 | — | — | title 'Add files or drop here', **icon `edit-delete-symbolic`** |
-| `Gtk::Overlay` | 1 | — | — | scroller + 2 overlaid revealers |
-| `Gtk::ScrolledWindow` | 1 | — | — | |
-| `Adwaita::Clamp` | 1 | — | — | `maximum_size 700` |
-| `Gtk::ListBox` | 1 | `boxed-list` | — | 12px margins, `valign :start` |
-| `Gtk::Button` | 3 | `pill`; `destructive-action`+`pill` ×2 | `clicked` → `clear_files` / `start_shredding` / `abort_shredding` | labels 'Clear', 'Shred All', 'Abort All' |
-| `Gio::Menu` | 5 | — | — | `primary_menu` + 2 sections, `open_menu` + 1 section |
-| `Adwaita::Toast` | per message | — | — | 5 texts, all bare literals |
+| `Adw.ApplicationWindow` | 1 | — | `close-request` | 800×600, min 270×300, `icon-name` = app id, title `_("File Shredder")` |
+| `Adw.ToolbarView` | 1 | — | — | `vexpand` |
+| `Adw.HeaderBar` | 1 | — | — | `centering-policy: strict` |
+| `Gtk.Revealer` | 3 | — | — | `open_revealer` (slide_right, revealed), `shred_revealer` + `abort_revealer` (slide_up, hidden, valign end, halign center, margin-bottom 20). The port factors the latter two into one `floating_revealer` helper — a repeater, two call sites |
+| `Adw.SplitButton` | 1 | — | — | `action-name: app.open`, `menu-model: open_menu` |
+| `Adw.ButtonContent` | 1 | — | — | label `_("Add")`, icon `document-open-symbolic`, tooltip `_("Add Files")` |
+| `Adw.WindowTitle` | 1 | — | — | `_("File Shredder")` |
+| `Gtk.MenuButton` | 1 | — | — | `open-menu-symbolic`, tooltip `_("Main Menu")`, `primary: true`, `primary_menu` |
+| `Adw.ToastOverlay` | 1 | — | — | every error state in this app is a toast |
+| `Gtk.Box` | 3 | — | — | `contents_box` (**horizontal** upstream, `vexpand`, margin-top 24) + the two floating button boxes (horizontal, margin 5 all round) |
+| `Gtk.Stack` | 1 | — | — | `crossfade`; two named pages `empty_page`, `list_page` |
+| `Adw.StatusPage` | 1 | — | — | the empty state: title `_("Add files or drop here")`, app icon, the long `_("Shredding is the obfuscation…")` description, `hexpand` |
+| `Gtk.Overlay` | 1 | — | — | holds the scroller plus the two floating revealers |
+| `Gtk.ScrolledWindow` | 1 | — | — | |
+| `Adw.Clamp` | 1 | — | — | `maximum-size: 700` |
+| `Gtk.ListBox` | 1 | `boxed-list` | — | `valign: start`, 12px margins; made insensitive while aborting |
+| `Gtk.Button` | 3 | `pill` (clear); `destructive-action`+`pill` (shred, abort) | `clicked` ×3 | labels `_("Clear")`, `_("Shred All")` (margin-start 10), `_("Abort All")` |
+| `Adw.AlertDialog` | 1 | — | `response` | built in source, not the `.blp` → `lib/exit_dialog.rb` |
+| `Adw.Toast` (type, not widget) | 1 | — | — | five distinct toast messages |
+| `Gtk.DropTarget` (controller) | 1 | — | `drop` | `GdkFileList`, `GDK_ACTION_COPY`, installed on `contents_box` |
+| `GMenu` | 2 | — | — | `primary_menu` (2 sections, 3 items), `open_menu` (1 section, 1 item) |
+| `GVolumeMonitor` + 2 `GMenu`s | — | — | `mount-added`, `mount-changed`, `mount-removed` | **commented out upstream** (`raider-window.c:129-141`, `:480-509`); the only source of the msgid `Devices`, which appears in no catalogue |
 
-Repeater: one `FileRow` per accepted file, `@rows` array plus `list_box.append`.
-States: `empty_page` when `@rows.empty?`, `list_page` otherwise. Driven and
-confirmed: 3 rows → `list_page`, `clear_files` → 0 rows and `empty_page`.
+Repeaters: `FileRow`, one per loaded file, driven by the window's file list.
+Conditional: the `list_page` child only once a file loads; the three revealers
+are state, not conditionals.
 
-## lib/file_row.rb — one file in the list
+Dynamic labels (same widget, different text by state): `shred_button` is
+`Shred All` → `Starting Shredding…` → `Shred All`; `clear_button` is `Clear` →
+`Clear All` after a shred run (upstream never puts `Clear` back —
+`raider-window.c:387`); `abort_button` is `Abort All` → `Aborting…` →
+`Abort All`.
 
-| Widget | × | CSS | Signals | Notes |
-|---|---:|---|---|---|
-| `Adwaita::ActionRow` (self) | 1 | — | — | title basename, subtitle path, `activatable`, `use_markup false` |
-| `Gtk::Box` `controls` | 1 | — | — | `valign :center`, added via `add_suffix` |
-| `Gtk::Revealer` | 2 | — | — | slide-left, remove revealed / progress hidden |
-| `Gtk::Button` `remove_button` | 1 | **`flat`** (+ auto `image-button`) | `clicked` → `close` | `edit-delete-symbolic`, **tooltip 'Remove'** |
-| `Gtk::MenuButton` `progress_button` | 1 | **`flat`** | — (menu button owns the popover) | **upstream is a `Gtk::Button`**, tooltip 'Shredding Progress' |
-| `ProgressInfoPopover` | 1 | — | — | set as the menu button's popover |
-| `Gtk::Overlay` + `Gtk::DrawingArea` + `Gtk::Image` | 1 each | — | `set_draw_func` | the paintable substitute, as the button's child |
-
-## lib/progress_info_popover.rb
+### `src/raider-file-row.blp` + `src/raider-file-row.c` → `lib/file_row.rb` — one file in the list
 
 | Widget | × | CSS | Signals | Notes |
 |---|---:|---|---|---|
-| `Gtk::Popover` (self) | 1 | — | — | |
-| `Gtk::Box` | 1 | — | — | horizontal |
-| `Gtk::ProgressBar` | 1 | — | — | `show_text`, `hexpand`, `pulse_step 0.02` |
+| `Adw.ActionRow` | 1 | — | — | `selectable: false`, `activatable: true`, `use-markup: false`; title = basename, subtitle = full path; `activatable-widget` becomes the progress button while shredding |
+| `Gtk.Box` `controls` | 1 | — | — | `[suffix]`, `valign: center` |
+| `Gtk.Revealer` | 2 | — | — | `remove_revealer` (slide_left, revealed), `progress_revealer` (slide_left, hidden) |
+| `Gtk.Button` `remove_button` | 1 | — | `clicked` → `raider_file_row_close` | icon `edit-delete-symbolic`, no style class, no tooltip |
+| `Gtk.Button` `progress_button` | 1 | — | `clicked` → `gtk_popover_popup` (swapped) | no label, no icon; its child is the progress image. **Port substitutes `Gtk::MenuButton`** (`lib/file_row.rb:144`) |
+| `Gtk.Popover` | 1 | — | — | `RaiderProgressInfoPopover`, parented to the progress button by hand upstream |
+| `Gtk.Image` | 1 | — | — | `gtk_image_new_from_paintable(progress_paintable)`. **Port substitutes a `Gtk::DrawingArea`** (`lib/progress_paintable.rb:61`) |
 
-Driven: `0.0 → "Starting…"`, `0.42 → "42%"`, `1.0 → "Finishing up…"`,
-`pulse → "Estimating…"`. All four states fire.
+### `src/raider-progress-info-popover.blp` + `.c` → `lib/progress_info_popover.rb`
 
-## lib/shortcuts_dialog.rb
+| Widget | × | CSS | Signals | Notes |
+|---|---:|---|---|---|
+| `Gtk.Popover` | 1 | — | — | template root |
+| `Gtk.Box` `popover_box` | 1 | — | — | horizontal (default) |
+| `Gtk.ProgressBar` | 1 | — | — | `show-text`, `hexpand`, `pulse-step .02` |
+
+Four text states, all in the bar's own text: `_("Starting…")` with a
+deliberately **full** bar at 0, `"%d%%"` (unmarked on both sides) in between,
+`_("Finishing up…")` pulsing at 100, and `_("Estimating…")` from
+`raider_progress_info_popover_pulse` — which nothing upstream calls, and
+nothing in the port calls either.
+
+### `src/raider-shortcuts.blp` → `lib/shortcuts_dialog.rb`
 
 | Widget | × | Notes |
 |---|---:|---|
-| `Adwaita::ShortcutsDialog` (self) | 1 | title 'Keyboard Shortcuts' |
-| `Adwaita::ShortcutsSection` | 1 | 'General' |
-| `Adwaita::ShortcutsItem` | 5 | **built with `(title, accelerator)`; upstream builds them with `action-name`** |
+| `Adw.ShortcutsDialog` | 1 | no title set on either side — libadwaita's own translated default |
+| `Adw.ShortcutsSection` | 1 | `_("General")` |
+| `Adw.ShortcutsItem` | 5 | `app.open`/`_("Add Files")`, `app.new-window`/`_("New Window")`, `app.shortcuts`/`_("Keyboard Shortcuts")`, `app.close`/`_("Close Window")`, `app.quit`/`_("Quit")` — each names its action, never a key, so libadwaita resolves the accel from the application |
 
-## lib/exit_dialog.rb
+### `src/raider-progress-paintable.c` → `lib/progress_paintable.rb`
 
-| Widget | × | Signals | Notes |
-|---|---:|---|---|
-| `Adwaita::AlertDialog` (self) | 1 | `response` → abort + destroy | heading 'Stop Shredding?', 2 responses, `exit` destructive, `cancel` default + close |
+No widget upstream: a `GObject` implementing `GdkPaintable` and
+`GtkSymbolicPaintable`, properties `icon-name`, `widget` (construct-only),
+`progress`; `notify::scale-factor` on the host widget re-caches and invalidates
+the size. `snapshot_symbolic` strokes the completed sweep from -π/2 in the
+first symbolic colour and the remainder to 3π/2 at a quarter alpha, both at
+radius `width/2 + 1`, into a Cairo node of `width + 4`.
 
-## lib/main.rb — the application
+`icon-name` is never set by any caller (`raider_progress_paintable_new` passes
+only `widget`) and `check_progress` is never written, so both check-icon
+branches of `snapshot_symbolic` are unreachable upstream.
 
-| Component | × | Notes |
-|---|---:|---|
-| `Gtk::Application` | 1 | `:handles_open`, id `com.github.ADBeveridge.Raider` |
-| `Adwaita::AboutDialog` | 1 | **no `translator_credits`**, **`application_icon = 'edit-delete-symbolic'`**, **`version = '0.1.0'`** |
-| `Gio::SimpleAction` | 7 | open, open-folder, new-window, close, quit, about, shortcuts |
-| `Gtk::FileDialog` | 2 | 'Add Files' / `open_multiple`; 'Add Folders' / `select_multiple_folders` |
+### `src/corrupt.c` → `lib/corrupt.rb`
 
-Accelerators, driven off the live application: `app.open <Control>o`,
-`app.new-window <Control>n`, `app.close <Control>w`, `app.quit <Control>q`,
-`app.shortcuts <Control>question`, `app.open-folder` and `app.about` none.
-Matches upstream (`<Control>question` is GTK's own default for the action GTK
-supplies upstream).
+No UI. Five three-byte patterns, `(size/3)+(size%3)` writes per pass from
+offset 0, cancellable polled after every write, unlink after the last pass.
+Folders: depth-first file list, progress = i/len, then `rmdir` upwards. Six
+`stderr` diagnostics.
 
-## lib/raider/application.rb — not a component of this app
+### `data/meson.build`, `data/icons/meson.build`, `po/meson.build` → `lib/data_files.rb`, `flake.nix`, `Rakefile`
 
-`Raider::Application` is the generated scaffold: a second `Gtk::Application`
-with the id `org.rubygtkproject.Raider`, a window titled `raider`, and an
-`Adwaita::StatusPage` reading "The Ruby port has not been written yet." It
-corresponds to no upstream file, and `lib/raider.rb` still requires it, so
-`require 'raider'` defines it in every process that loads the port. Confirmed
-live: `Raider::Application.new.app.application_id` → `"org.rubygtkproject.Raider"`.
-
-## Opening survey
-
-| Axis | Upstream distinct | Port distinct | In upstream, not in port |
-|---|---:|---:|---:|
-| Widget / object types | 27 | 25 | `Gtk::Button` (as the progress button), `GtkIconPaintable`, `GdkPaintable`/`GtkSymbolicPaintable` impl, `GtkImage` from a paintable |
-| CSS classes | 3 (`boxed-list`, `pill`, `destructive-action`) | 4 | 0 missing, **1 extra** (`flat`, on two row buttons) |
-| Signals connected | 5 (`close-request`, `drop`, `clicked`, `response`, `notify::scale-factor`) | 4 | `notify::scale-factor` |
-| Actions | 7 | 7 | 0 |
-| Marked messages | 37 in source (35 in the shipped `.pot`) | **0** | 37 |
-| Data files | 6 (`.desktop`, metainfo, `.service`, 3 icons) | 0 | 6 |
-| Catalogues | 35 `.po` / 34 shipped | 0 | 35 |
-
-The widget and action rows read as nearly finished. The message row and the
-data-file row are where this port actually is.
-
-## Checks not run
-
-- `on_drop` could not be driven: `Gdk::FileList` has no constructor in
-  gtk4 4.3.9 (`NoMethodError: undefined method 'new_from_array'`), so drag and
-  drop is confirmed only by reading `lib/window.rb:477`.
-- No screenshots. GTK initialises in this environment only under `xvfb-run`
-  with software GL (`libEGL warning: DRI3 error`); widget state was read back
-  instead of rendered.
+Not widgets, but they are where the launcher entry, the AppStream metadata,
+D-Bus activation, the icons and all 34 compiled catalogues come from — and two
+of upstream's three declared `test()`s live here. `flake.nix:140-186` is the
+port's install step; `lib/data_files.rb` is the merge step; the `Rakefile`
+gettext tasks are `po/meson.build`.

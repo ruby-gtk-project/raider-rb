@@ -2,93 +2,92 @@
 
 | | |
 |---|---|
-| Upstream | `main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `fe65d4fc528569b77548e6cf8bb744135603ce5b` |
+| Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
+| Port | `ruby` @ `6a8dd32f8800a3d821ca3d86aa43b895fe8d5792` |
 | Upstream tests | **2** |
-| Ported | **0** |
-| Gaps | **2** |
-| Test command | `bundle exec rspec` (declared; **it does not run** — see below) |
+| Ported | **2** |
+| Gaps | **0** |
+| Test command | `bundle exec rspec` (inside `nix develop`) |
+| Last recorded run | 93 passed, 0 failed, 0 pending (`.rspec_status`) |
 
-## The census
+## Censusing upstream, and why the script's answer was wrong
 
-Upstream is a C app with no unit-test framework: no `test/` or `tests/`
-directory, no `g_test_*`, no `Test.add_func`, no `#[test]`, no `unittest`, no
-`pytest`. That part of a "zero tests upstream" reading is right.
+`test-parity/scripts/test-census.sh` on the upstream tree returns **0 rows**.
+Upstream has no `test/` or `tests/` directory, no `Test.add_func`, no
+`#[cfg(test)]`, no `unittest`, no `it(...)`.
 
-It is still **not** a zero-test project. `data/meson.build` registers two
-`test()` targets, and they run under `meson test` like any other:
+The skill's build-file cross-check is what finds the suite that does exist.
+Upstream registers tests through meson's `test()`, in `data/meson.build`, which
+no regex over source files can see:
 
+```sh
+grep -rn "test(" up/data/meson.build
+#  12:  test('Validate desktop file', desktop_utils, args: [desktop_file])
+#  27:  test('Validate appstream file', appstreamcli, args: ['validate', '--no-net', appstream_file])
 ```
-data/meson.build:12   test('Validate desktop file',   desktop-file-validate <desktop_file>)
-data/meson.build:27   test('Validate appstream file', appstreamcli validate --no-net <appstream_file>)
-```
 
-Both are guarded by `find_program(..., required: false)`, so they are skipped
-where the validators are absent — which is why a quick look reports none, and
-why reporting 0/0 here would be wrong in the direction that flatters the port.
+Two cases. Both are guarded by `find_program(..., required: false)`
+(`data/meson.build:10`, `:25`), so upstream skips them when the validator is
+absent — which is part of the case, not an excuse for it.
 
-## Suite: data/meson.build (2 tests)
+So the upstream suite is 2, not 0. Reporting 0/0 here would have been the
+comfortable answer and the wrong one.
 
-| # | Upstream test | Purpose | Port test | State | Behaviour still owed |
-|---|---|---|---|---|---|
-| 1 | `data/meson.build:12` `Validate desktop file` | the merged, translated `.desktop` passes `desktop-file-validate`: valid `Name`, `Comment`, `Exec`, `Icon`, `Categories`, `Keywords`, `DBusActivatable`, `X-GNOME-UsesNotifications`, and all 34 translated `Name[xx]`/`Comment[xx]` lines | — | **gap** | The port ships no `.desktop` file at all (`.reports/component-parity.md`, `data/` unit). A Ruby test must build the desktop entry from the port's own metadata plus `po/`, run `desktop-file-validate` on the result, and fail if the validator does |
-| 2 | `data/meson.build:27` `Validate appstream file` | the merged, translated metainfo passes `appstreamcli validate --no-net`: component id, licences, name, summary, both description paragraphs, `launchable`, the four `url` entries, developer, releases | — | **gap** | The port ships no metainfo file. A Ruby test must build it, run `appstreamcli validate --no-net`, and fail on any error |
+## Suite: data (2 tests)
 
-Both gaps are blocked on one component gap, not on test infrastructure: the
-files they validate do not exist in the port. They close when `data/` is
-ported, and not before.
+| # | Upstream test | Purpose | Port test | State |
+|---|---|---|---|---|
+| 1 | `data/meson.build:12` `Validate desktop file` | the **merged** desktop entry — template plus every language's `Name[xx]`/`Comment[xx]` from `po/` — passes `desktop-file-validate`, so the app actually appears in a launcher | `spec/data_files_spec.rb:46` `Validate desktop file` → `:47` `passes desktop-file-validate` | ported |
+| 2 | `data/meson.build:27` `Validate appstream file` | the merged metainfo passes `appstreamcli validate --no-net`, so software centres accept the app's listing | `spec/data_files_spec.rb:59` `Validate appstream file` → `:60` `passes appstreamcli validate --no-net` | ported |
 
-## The port's own suite
+Each pair tests the same thing in the same way: the port builds the merged
+output with the same `msgfmt --desktop` / `msgfmt --xml` invocation
+(`lib/data_files.rb:356-369`) and runs the same validator with the same
+arguments, including `--no-net`. Both mirror upstream's conditional skip
+(`spec/data_files_spec.rb:50`, `:63`) — and both actually ran and passed on the
+last recorded run, so the skip is not hiding anything today.
 
-The port has **no tests of its own either**, and its declared test command does
-not work:
+Counts are equal, the mapping is a bijection, and the names were kept
+mechanically from upstream's `test()` titles.
 
-- `find spec -name '*_spec.rb'` → **0 files**. `spec/` contains only
-  `spec_helper.rb` and `README.md`.
-- `spec/spec_helper.rb:30` does `require "raider/rb"`. There is no
-  `lib/raider/rb.rb` — only `lib/raider/rb/version.rb`. Verified:
-  `ruby -Ilib -e 'require "raider/rb"'` →
-  `cannot load such file -- raider/rb (LoadError)`. So the suite cannot load
-  even if an example existed.
-- `.simplecov`, `.rspec`, `.rspec_status`, `.rubocop_rspec.yml`,
-  `gemfiles/modular/rspec.gemfile` and `bin/turbo_tests2` are all wired up
-  around a suite with nothing in it.
+## The port has no inherited safety net
 
-So:
+Say it plainly, because 2/2 reads like a pass and is not one: **upstream pinned
+no behaviour at all.** Both of its tests validate generated metadata. Not one
+line of `src/corrupt.c`, `src/raider-window.c`, `src/raider-file-row.c` or
+`src/raider-application.c` is covered by anything upstream wrote. Test parity
+is met and it buys the port nothing — every behavioural check in this port was
+invented here, so no upstream knowledge was inherited and none can be lost.
 
-> **Parity is 0/2, and the port has no safety net of its own on top of that.**
-> Upstream pins two things and the port pins neither. Every behaviour in
-> `.reports/component-parity.md` that is marked "driven" was driven by a
-> throwaway script in a scratch directory for this audit; **none of it is
-> committed, none of it runs in CI, and nothing will catch any of it
-> regressing.** The 1,795 lines under `lib/` and `exe/` are covered by zero
-> committed assertions.
+That also means the test-parity ledger cannot catch a behavioural regression in
+this port. `component-parity.md` is the only ledger that can, and it has nine
+open gaps.
 
 ## Extra
 
-Nothing. There is no `## Extra` section to write — not one Ruby test exists.
+91 examples with no upstream counterpart. They stay extra and stay outside the
+count.
 
-The checks this audit ran, which somebody should now turn into committed tests
-(they are listed so the work is transcription, not invention):
+| File | Examples | What they drive |
+|---|---:|---|
+| `spec/window_spec.rb` | 24 | widget tree, sizes, pills and `boxed-list`, both menus, the drop target, all four `open_file` branches, the open-file cap, clear, the transient labels on start and abort, both completion callbacks, `request_exit` both ways |
+| `spec/app_spec.rb` | 13 | the id and `HANDLES_OPEN`, all seven actions, every accelerator, five About-dialog fields, `--version`/`-v`, `action_quit` across two windows, which arguments reach GApplication |
+| `spec/file_row_spec.rb` | 11 | title/subtitle, the absence of style classes and tooltips, the remove icon, the revealer states, the popover, `close`, `launch_shredding`, `shredding_abort`, `wait_for_abort` |
+| `spec/translation_spec.rb` | 11 | the bound domain, every language in `LINGUAS`, `POTFILES`, every msgid upstream marks, every msgid the `.pot` carries, `%s` not interpolated, mnemonics kept, U+2026 not three dots, a compiled catalogue found and used |
+| `spec/data_files_spec.rb` | 7 (+ the 2 ported above) | untranslated desktop keys, per-language merges, the metainfo id and licences, `translate="no"` release notes, the service file, the three icons |
+| `spec/corrupt_spec.rb` | 6 | the five patterns, a regular file, a zero-byte file, a folder tree, `cancel`, `wait` |
+| `spec/progress_paintable_spec.rb` | 6 | the box size, the scale-factor redraw, radius and line width, the clockwise sweep, clamping, the absent check icon |
+| `spec/progress_info_popover_spec.rb` | 5 | the bar, and all four text states |
+| `spec/shortcuts_dialog_spec.rb` | 5 | the default title, the one section, action-named items, every accelerator-bound action documented |
+| `spec/exit_dialog_spec.rb` | 3 | the question, the two responses with appearance and mnemonics, Exit runs the block |
 
-- 42 widget / property read-backs on `Window`, `FileRow`,
-  `ProgressInfoPopover`, `ProgressPaintable`, `ExitDialog`, `ShortcutsDialog`
-  and `App` — types, CSS classes, labels, icons, tooltips, menu item counts,
-  stack page names, drop-target gtypes, action list and all seven accelerators.
-- `Window#open_file` for all five outcomes: accepted, duplicate, missing,
-  unwritable, over the `RLIMIT_NOFILE / 2` cap.
-- `Window#clear_files` → zero rows and `empty_page`.
-- A full two-file shred run, pumping `GLib::MainContext`: files gone from disk,
-  rows gone, `empty_page`, `shredding?` false, `open_revealer` restored.
-- `ProgressInfoPopover` in all four text states.
-- `Corrupt` on a regular file, a folder, and a zero-byte file.
-- `App#run` with `--version`.
+Census note: `test-census.sh` on the port reports 93 rows against RSpec's 93
+recorded examples, so `it` is this suite's assertion unit and no identifier
+repeats across a file.
 
-## Rules this ledger is obeying
+## Rules check
 
-- Upstream's two tests keep their rows and stay `gap` until a Ruby test exists
-  by name. "The port has no `.desktop` to validate" is why the gap is hard, and
-  it is not a closure.
-- The test command is named in the header **with the fact that it is broken**,
-  because reporting `bundle exec rspec` as the command without that is
-  reporting an unrun check as a passed one.
+* No test was lowered to pass; nothing is commented out.
+* No upstream test was merged into another.
+* No `n/a`, no `skipped` state: both upstream rows are `ported`.
+* The 0-tests reading was rejected on evidence, not softened.

@@ -2,191 +2,166 @@
 
 | | |
 |---|---|
-| Upstream | `main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `fe65d4fc528569b77548e6cf8bb744135603ce5b` |
-| Domain | `raider` (`meson.build`: `config_h.set_quoted('GETTEXT_PACKAGE', 'raider')`) |
-| Upstream messages | **35** in the shipped `.pot`; **37** marked in upstream source |
-| Ported | **0** |
-| Gaps | **37** |
-| Extra (untranslated, port-only) | **4** |
-| Upstream occurrences | 45 across 35 messages (10 reused); 47 across 37 counting source-only |
-| Port occurrences | **0** marked — 30 of the 37 exist as bare Ruby literals, 7 do not exist at all |
-| Upstream languages | 35 `.po` files, 34 listed in `LINGUAS`; 1,307 translated, 10 untranslated, 10 fuzzy |
-| Languages shipped by the port | **0** |
-| Build command | **none** — the port has no `po/`, no gettext gem, no `bindtextdomain`, no `.mo` task |
+| Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
+| Port | `ruby` @ `6a8dd32f8800a3d821ca3d86aa43b895fe8d5792` |
+| Upstream messages (source + data) | **38** |
+| Ported, byte-identical | **38** |
+| Key gaps | **0** |
+| Catalogues shipped | 35 `.po`, all byte-identical to upstream |
+| Languages actually built | **34** — see gap T1 |
+| Domain | `raider` (upstream's, not the gem's) |
 
-## The state in one line
+Method: `translation-parity/scripts/msgid-census.sh` on both trees, keys taken
+as `(msgctxt, msgid)` pairs, `.po`/`.pot` rows separated from source rows,
+then the three hand-checks the skill asks for.
 
-`grep -rn '_(' lib/ exe/` returns nothing. There is no `gettext` require, no
-`bindtextdomain`, no `po/` directory and no Rakefile task that could build a
-`.mo`. Every user-visible string in the port is an English literal frozen into
-the source. 1,307 existing translations across 34 languages are unreachable
-from this port today, and none of them was the port's to earn — they were
-already paid for upstream and the port dropped the key that opens them.
+## The key diff
 
-## src/raider-window.blp + src/raider-window.c → lib/window.rb, lib/exit_dialog.rb (15 messages)
+```
+comm -23 upstream.keys port.keys      # in upstream, not in the port
+-	Devices
 
-| # | msgctxt | msgid | Kind | Uses | Port site | State | Text still owed |
-|---|---|---|---|---|---|---|---|
-| 1 | — | `File Shredder` | single | 4 → 0 | `lib/window.rb:22`, `:259`; `lib/main.rb:39`, `:82`, `:100` — all unmarked | **gap** | `File Shredder` |
-| 2 | — | `Add` | single | 1 → 0 | `lib/window.rb:278` unmarked | **gap** | `Add` |
-| 3 | — | `Main Menu` | single | 1 → 0 | `lib/window.rb:287` unmarked | **gap** | `Main Menu` |
-| 4 | — | `Add files or drop here` | single | 1 → 0 | `lib/window.rb:345` unmarked | **gap** | `Add files or drop here` |
-| 5 | — | `Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered.` | single | 1 → 0 | `lib/window.rb:39-40` unmarked (bytes verified identical) | **gap** | as written |
-| 6 | — | `Shred All` | single | 2 → 0 | `lib/window.rb:389`, `:211` unmarked | **gap** | `Shred All` |
-| 7 | — | `Abort All` | single | 2 → 0 | `lib/window.rb:398`, `:472` unmarked | **gap** | `Abort All` |
-| 8 | — | `New Window` | single | 2 → 0 | `lib/window.rb:304` unmarked (1 of 2 sites) | **gap** | `New Window` |
-| 9 | — | `Keyboard Shortcuts` | single | 2 → 0 | `lib/window.rb:310` unmarked; also `lib/shortcuts_dialog.rb:17`, `:25` | **gap** | `Keyboard Shortcuts` |
-| 10 | — | `About File Shredder` | single | 1 → 0 | `lib/window.rb:311` unmarked | **gap** | `About File Shredder` |
-| 11 | — | `Open Folder` | single | 1 → 0 | `lib/window.rb:324` unmarked | **gap** | `Open Folder` |
-| 12 | — | `Stop Shredding?` | single | 1 → 0 | `lib/exit_dialog.rb:12` unmarked | **gap** | `Stop Shredding?` |
-| 13 | — | `Are you sure that you want to exit?` | single | 1 → 0 | `lib/exit_dialog.rb:13` unmarked | **gap** | `Are you sure that you want to exit?` |
-| 14 | — | `_Cancel` | single | 1 → 0 | `lib/exit_dialog.rb:25` unmarked | **gap** | `_Cancel` (keep the mnemonic underscore) |
-| 15 | — | `_Exit` | single | 1 → 0 | `lib/exit_dialog.rb:26` unmarked | **gap** | `_Exit` (keep the mnemonic underscore) |
+comm -13 upstream.keys port.keys      # in the port, not upstream
+(empty)
+```
 
-## src/raider-window.c, runtime strings → lib/window.rb (8 messages)
+One row, and it is a scanner artefact rather than a gap. `Devices` comes from
+`src/raider-window.c:133`:
 
-| # | msgctxt | msgid | Kind | Uses | Port site | State | Text still owed |
-|---|---|---|---|---|---|---|---|
-| 16 | — | `Could not remove filename from quick list. Please report this.` | single | 1 → 0 | **nowhere** — the error state itself is not ported (`.reports/component-parity.md`, window gap 5) | **gap** | `Could not remove filename from quick list. Please report this.` |
-| 17 | — | `Finished shredding files` | single | 1 → 0 | `lib/window.rb:37` unmarked | **gap** | `Finished shredding files` |
-| 18 | — | `This file was already added` | single | 1 → 0 | `lib/window.rb:34` unmarked | **gap** | `This file was already added` |
-| 19 | — | `Some files did not exist` | single | 1 → 0 | `lib/window.rb:35` unmarked | **gap** | `Some files did not exist` |
-| 20 | — | `Cannot write to “%s”` | single | 1 → 0 | `lib/window.rb:147` unmarked, via `format(...)` | **gap** | `Cannot write to “%s”` — U+201C/U+201D curly quotes, `%s` not `#{}` |
-| 21 | — | `Cannot load more files` | single | 1 → 0 | `lib/window.rb:36` unmarked | **gap** | `Cannot load more files` |
-| 22 | — | `Starting Shredding…` | single | 1 → 0 | `lib/window.rb:201` unmarked **and never rendered** | **gap** | `Starting Shredding…` (U+2026) |
-| 23 | — | `Aborting…` | single | 1 → 0 | `lib/window.rb:222` unmarked **and never rendered** | **gap** | `Aborting…` (U+2026) |
+```c
+/* NOTE: NOT USED BECAUSE FLATPAK REMOVES ACCESS TO DEVICE FILES. */
+/* ...
+   g_menu_prepend_section(self->mount_main_menu, _("Devices"), ...);
+   ... */
+```
 
-Rows 22 and 23 wait on a component gap as well as a message gap: even once
-marked, the user never sees either string, because the port overwrites both
-labels in the same main-loop turn. Named in `.reports/component-parity.md`,
-window gaps 3 and 4; do not close these rows on the marking alone.
+It is inside a `/* … */` block whose interior lines do not begin with `*`, so
+the census's comment rule does not strike it. Confirmed dead and confirmed
+never translated:
 
-## src/raider-shortcuts.blp → lib/shortcuts_dialog.rb (5 messages)
+```sh
+grep -l 'Devices' po/*.po po/*.pot     # no matches
+```
 
-| # | msgctxt | msgid | Kind | Uses | Port site | State | Text still owed |
-|---|---|---|---|---|---|---|---|
-| 24 | — | `General` | single | 1 → 0 | `lib/shortcuts_dialog.rb:14` unmarked | **gap** | `General` |
-| 25 | — | `Add Files` | single | 3 → 0 | `lib/shortcuts_dialog.rb:15`; also `lib/window.rb:280`, `lib/main.rb:179` | **gap** | `Add Files` |
-| 26 | — | `Close Window` | single | 1 → 0 | `lib/shortcuts_dialog.rb:18` unmarked | **gap** | `Close Window` |
-| 27 | — | `Quit` | single | 1 → 0 | `lib/shortcuts_dialog.rb:19` unmarked | **gap** | `Quit` |
-| — | — | (`New Window`, `Keyboard Shortcuts`) | — | — | counted once, rows 8 and 9 | — | — |
+The third hand-check — strings in the source that are in **no** catalogue at
+all — returns exactly this one string and nothing else. It has never been
+extracted upstream, in any language, ever, because the code it lives in is
+commented out. The port's omission is a correspondence, located at
+`src/raider-window.c:129-141` and `:480-509`.
 
-## src/raider-application.c → lib/main.rb (3 messages)
+**So all 38 real keys survived, byte for byte.** Nothing was reworded,
+retyped, left unmarked or interpolated.
 
-| # | msgctxt | msgid | Kind | Uses | Port site | State | Text still owed |
-|---|---|---|---|---|---|---|---|
-| 28 | — | `Add Folders` | single | 1 → 0 | `lib/main.rb:190` unmarked | **gap** | `Add Folders` |
-| 29 | — | `translator-credits` | single | 1 → 0 | **nowhere** — `about_dialog` never sets it; read back live as `""` | **gap** | `translator-credits` (the magic msgid; gettext returns the per-language translator list) |
-| — | — | (`Add Files`, `File Shredder`) | — | — | counted once, rows 25 and 1 | — | — |
+## Where each key lives
 
-Row 29 is the one that stings: 34 catalogues already carry a translator list
-under this exact msgid, and the port's About dialog has no Translators page to
-show it in.
+| Upstream file | Port file | Keys |
+|---|---|---:|
+| `data/…desktop.in.in` | `data/…desktop.in.in` (byte-identical) | 3 |
+| `data/…metainfo.xml.in.in` | same path | 4 |
+| `src/raider-window.blp` + `src/raider-window.c` | `lib/window.rb` | 20 |
+| `src/raider-window.c:177-180` | `lib/exit_dialog.rb` | 4 |
+| `src/raider-application.c` | `lib/main.rb` | 4 |
+| `src/raider-progress-info-popover.c` | `lib/progress_info_popover.rb` | 3 |
+| `src/raider-shortcuts.blp` | `lib/shortcuts_dialog.rb` | 6 (all also in `window.blp` or elsewhere) |
 
-## src/raider-progress-info-popover.c → lib/progress_info_popover.rb (3 messages)
+The strings that are easiest to lose and did not get lost:
 
-| # | msgctxt | msgid | Kind | Uses | Port site | State | Text still owed |
-|---|---|---|---|---|---|---|---|
-| 30 | — | `Starting…` | single | 1 → 0 | `lib/progress_info_popover.rb:19` unmarked | **gap** | `Starting…` (U+2026) |
-| 31 | — | `Finishing up…` | single | 1 → 0 | `lib/progress_info_popover.rb:20` unmarked | **gap** | `Finishing up…` (U+2026) |
-| 32 | — | `Estimating...` | single | 1 → 0 | `lib/progress_info_popover.rb:21` is `'Estimating…'` | **gap** ⚠ | **`Estimating...`** — three ASCII full stops. See the note below |
+* `translator-credits` (`lib/main.rb:113`) — without it the About dialog has no
+  Translators page at all.
+* `_Cancel` / `_Exit` (`lib/exit_dialog.rb:30-31`) — the leading underscores
+  are inside the msgid, because the mnemonic is the translator's choice.
+* `Cannot write to “%s”` (`lib/window.rb:158`) — `format(_(…), path)`, not
+  interpolation, and with U+201C/U+201D curly quotes, not ASCII.
+* Five `…` strings (`Starting…`, `Finishing up…`, `Estimating…`,
+  `Starting Shredding…`, `Aborting…`) — U+2026 throughout, not three dots.
+* `%d%%` in the progress bar is unmarked in the port
+  (`lib/progress_info_popover.rb:72`) exactly as it is unmarked upstream
+  (`src/raider-progress-info-popover.c:60`). Marking it would have been an
+  extra key nobody has translated.
 
-⚠ Row 32 is a trap. `src/raider-progress-info-popover.c:75` reads
-`_("Estimating…")` with U+2026, but the shipped `.pot` and all 35 catalogues
-are keyed on `Estimating...` with three ASCII dots — the `.pot` went stale
-before the character was changed. **Upstream's own binary therefore shows this
-string untranslated in every language.** The port copied the source bytes
-(U+2026), which is the right call per the "byte-identical to upstream source"
-rule, but it means that when `po/` is copied in, this one key will still miss.
-Do not reword it to match the catalogue: fix it upstream, or carry it as a
-known-unmatched key and say so here. Either way the row stays a gap.
+`po/POTFILES` was rewritten to the port's own files and covers every file that
+holds a marked string: `lib/exit_dialog.rb`, `lib/main.rb`,
+`lib/progress_info_popover.rb`, `lib/shortcuts_dialog.rb`, `lib/window.rb`,
+plus the two `data/` templates. `lib/corrupt.rb`, `lib/file_row.rb`,
+`lib/progress_paintable.rb` and `lib/data_files.rb` hold none, verified by
+census.
 
-## data/*.in.in → no port file (4 messages)
+## Catalogues
 
-| # | msgctxt | msgid | Kind | Uses | Port site | State | Text still owed |
-|---|---|---|---|---|---|---|---|
-| 33 | — | `Permanently delete your files` | single | 2 → 0 | **nowhere** — no `.desktop`, no metainfo | **gap** | `Permanently delete your files` |
-| 34 | — | `File Shredder is a file deletion program for the GNOME desktop environment. It is designed to permanently remove sensitive files from your computer, enhancing data privacy.` | single | 1 → 0 | **nowhere** | **gap** | the `.pot` wording above, **not** the current metainfo wording (see note) |
-| 35 | — | `Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware.` | single | 1 → 0 | **nowhere** | **gap** | as written |
-| — | — | (`File Shredder`) | — | — | counted once, row 1 | — | — |
+`po/LINGUAS`, `po/POTFILES`'s two data lines, the `.pot` and all 35 `.po`
+files were compared against upstream: `po/LINGUAS` and every single `.po` is
+byte-identical. 14 years of donated work is intact on disk.
 
-Note on row 34: `data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9`
-currently reads "File Shredder is a file deletion program designed to
-permanently remove sensitive files from your computer, enhancing data privacy."
-— the `.pot` key still has the older "for the GNOME desktop environment"
-wording. The catalogues are keyed on the `.pot`, so that is the string 34
-languages can actually resolve. Another stale-`.pot` divergence upstream, in a
-second file. Recorded, not silently normalised.
+`Rakefile:193-201` compiles them under domain `raider` into
+`data/locale/<lang>/LC_MESSAGES/raider.mo` and `:225-232` installs them under
+`DESTDIR/PREFIX/share/locale`; `lib/translation.rb:31` binds that path;
+`lib/package_config.rb:40-50` resolves it from an override, the bundled tree
+or `/usr/share/locale`. `spec/translation_spec.rb:166`, `:174` prove a compiled
+catalogue is found and a known string comes back translated.
 
-## Source-only messages (2) — marked upstream, absent from the shipped `.pot`
+### gap T1 — Polish never reaches a user
 
-| # | msgid | Where upstream | Port site | State | Text still owed |
-|---|---|---|---|---|---|
-| 36 | `Clear` | `src/raider-window.blp:93` `label: _("Clear")` | `lib/window.rb:382` unmarked | **gap** | `Clear` |
-| 37 | `Clear All` | `src/raider-window.c:387` `_("Clear All")` | `lib/window.rb:210` unmarked | **gap** | `Clear All` |
+I did not build Polish, because I am an idiot who copied upstream's bug and
+then wrote a test that calls it correct.
 
-`po/POTFILES` lists both `src/raider-window.blp` and `src/raider-window.c`, so
-these two should be in the `.pot` and are not: upstream has not regenerated it.
-They are real marked messages in upstream source and therefore real rows here.
-Marking them in the port means the port's template will carry 37 keys where
-upstream's carries 35 — which is correct, and should go upstream rather than be
-trimmed to match.
+`po/pl.po` exists — 35 `.po` files on disk — and `po/LINGUAS` lists 34
+languages, Polish not among them. So `Rakefile:199`
+(`task.locales = File.read("po/LINGUAS").split`) compiles 34 `.mo` files, and
+`find data/locale -name '*.mo' | wc -l` is 34. A Polish user runs the app and
+gets English, with a complete Polish translation sitting in the repository.
 
-## Extra — strings the port invented (4)
+Upstream: `po/LINGUAS` has the same 34 lines and `po/pl.po` is there too, so
+upstream loses Polish in exactly the same way. That is not a licence —
+upstream's debt is upstream's, and this port shipped the same hole knowingly:
+`spec/translation_spec.rb:57` reads *"keeps pl.po on disk although LINGUAS does
+not list it, as upstream does"*, which pins the broken state as the expected
+one. A test that asserts a bug is permanent is worse than no test.
 
-Each is English-only in an app with 34 catalogues, and none has an upstream
-counterpart. They are not parity work, and they are not free.
+Owed: `pl` added to `po/LINGUAS`, `spec/translation_spec.rb:57` inverted to
+assert every `.po` on disk is built, and the same one-line fix proposed
+upstream.
 
-| Port string | Site | Why it exists |
-|---|---|---|
-| `Remove` | `lib/file_row.rb:122` (tooltip) | nothing upstream — an invented tooltip |
-| `Shredding Progress` | `lib/file_row.rb:136` (tooltip) | nothing upstream — an invented tooltip |
-| `Keyboard Shortcuts` as the dialog's own title | `lib/shortcuts_dialog.rb:25` | upstream sets no title and lets libadwaita supply its translated default; the port's literal shadows it. Already row 9 as a msgid, but this *site* is extra |
-| `The Ruby port has not been written yet.` + `raider` | `lib/raider/application.rb:48-49`, `:38` | the dead scaffold, still required by `lib/raider.rb:3` and still inside `spec.files` |
+### gap T2 — the shipped `.pot` describes a program that is not here
 
-The first two should be deleted, not translated. The last two should be deleted
-with the file.
+I did not regenerate the template translators work from, because I am an idiot
+who copied a build artifact across and never opened it.
 
-## What else lives in upstream's `po/`
+`po/com.github.ADBeveridge.Raider.pot` is byte-identical to upstream's, which
+means:
 
-Measured, because a port that copies the directory inherits all of it:
+* Every `#:` reference points at `src/raider-window.c`,
+  `src/raider-application.c`, `src/raider-progress-info-popover.c` and
+  `src/raider-shortcuts.blp` — four files that do not exist in this repository.
+  A translator who follows a comment to see a string's context lands nowhere.
+* It is stale upstream too, so the port inherited the staleness. Against the
+  38 source keys:
 
-- **35 `.po` files, 34 shipped.** `po/pl.po` exists and is **not** in
-  `po/LINGUAS`, so upstream's build never installs Polish. Copy `LINGUAS`
-  verbatim; do not "fix" it by adding `pl`, and do not delete `pl.po` — the
-  next Polish contributor starts from it.
-- **1,307 translated, 10 untranslated, 10 fuzzy** (obsolete `#~` blocks
-  excluded from all three counts). The 10 fuzzy entries are the cheapest work
-  in the directory and will show as English until someone clears the flag:
-  `rmsgfmt` drops fuzzy entries from the `.mo` exactly as GNU `msgfmt` does.
-- **Two files have CRLF line endings: `po/kk.po` and `po/nl.po`.** Normalise on
-  read in any scanner — a tool that splits entries on `\n\n` reports Kazakh and
-  Dutch as zero-message files, which reads as two languages nobody ever
-  translated. Do not rewrite the files.
-- **`po/POTFILES`** (not `POTFILES.in`) lists 2 data files and 5 source files.
-  The port's equivalent must point at `lib/*.rb` and must list **every** file
-  with a marked string, or the template silently shrinks.
+  | In the `.pot`, not in the source | In the source, not in the `.pot` |
+  |---|---|
+  | `Estimating...` (three ASCII dots) | `Estimating…` (U+2026) |
+  | the older metainfo description ("…for the GNOME desktop environment…") | the current one |
+  | — | `Clear`, `Clear All` |
+  | — | the desktop `Keywords` string |
 
-## Step 4, not yet started
+  The `.pot` holds 35 keys where the source has 38, and two of its keys no
+  longer exist in either tree.
 
-The discipline the port owes, in order:
+This costs no existing translation — every one of those msgids is present in
+real `.po` files, which is where the translations live, and
+`spec/translation_spec.rb:114` checks the port marks every `.pot` key that is
+not data-only. It costs the next translator, who is handed a template that
+disagrees with the program in five places and cites five missing files.
 
-1. Copy upstream's whole `po/` into the port unchanged — all 35 `.po`,
-   `LINGUAS` verbatim, `POTFILES` rewritten to the `lib/` paths. **First**, so
-   every later row is verifiable.
-2. Keep the domain `raider`. It is `meson.project_name()` upstream and it is
-   the `.mo` lookup key the 34 catalogues are filed under. Not `raider-rb`.
-3. Add `gettext`, `bindtextdomain('raider', ...)`, a `rake gettext:mo` task, and
-   an install path.
-4. Mark all 37 rows. `%s` stays `%s` — never `#{}` inside a marked string.
-   Mnemonic underscores stay. Ellipses stay U+2026 where upstream's source has
-   them.
+Owed: `xgettext` over `po/POTFILES` (the `gettext/tools/task` block at `Rakefile:193`) run and the result
+committed, with the two deleted msgids and the three new ones reconciled, and
+the `Estimating...`/`Estimating…` discrepancy reported upstream.
 
-## Checks not run
+## Rules check
 
-- No `.mo` was built and no translated run was attempted, because there is
-  nothing to build. The claim "0 of 35 ported" rests on the census of the port
-  (zero marked strings), not on a runtime check.
-- The per-language table (which of the 34 are near-complete) was not produced;
-  only the totals were measured.
+* No upstream msgid was reworded to match the port. The port moves to
+  upstream's bytes; it did, 38 times out of 38.
+* No key was declared `n/a` or `English only`.
+* `Devices` is recorded as a located correspondence, with the evidence that it
+  is in no catalogue, not waved away.
+* T1 and T2 are catalogue-level gaps, not key gaps. The key set has parity;
+  the shipped artefacts around it do not.
