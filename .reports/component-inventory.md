@@ -9,7 +9,7 @@ then the scan as a cross-check.
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `b359bb1682451fda8da6cf6219a9403092ae0102` |
+| Port | `ruby` @ `f98a795e289c3530ea30fd94cff2c5041e9725f6` |
 | Symbol table | `.claude/skills/component-identification/scripts/symbols.tsv`, 1301 rows |
 | Upstream UI source | 4 blueprints, 1 GResource manifest, no GSettings schema |
 | Catalogues | `po/LINGUAS` = 34 languages over 35 `po/*.po`; the port's `LINGUAS` is byte-identical to upstream's and its `po/*.po` membership is identical |
@@ -29,8 +29,8 @@ then the scan as a cross-check.
 | 9 | `meson.build` `config_h` block | `lib/package_config.rb` | non-UI build constants | yes |
 | 10 | `po/meson.build`, gettext calls in `src/main.c` | `lib/translation.rb` | non-UI i18n binding | yes |
 | 11 | `data/meson.build` (desktop, metainfo, service) | `lib/data_files.rb` | non-UI installable data | yes |
-| — | `src/raider.gresource.xml` | — | GResource manifest; no port file by design (no `.ui` in the house style) | n/a |
-| — | `src/raider-window.c:129-141`, `:453-487`, `raider_application_open_drive` | — | commented-out drive/mount menu. Dead upstream; deliberately not ported | n/a |
+| — | `src/raider.gresource.xml` | — | GResource manifest. Every one of the four `.blp` files it lists is covered by units 2, 4, 5 and 7; it holds no component of its own. Located, not excused | — |
+| — | `src/raider-window.c:129-141`, `:453-487`, `raider_application_open_drive` | — | drive/mount menu inside a `/* … */` block, so nothing it declares is compiled and its one msgid (`Devices`) reaches no `.pot` and no `.po` — evidence in `translation-parity.md`. Located dead block | — |
 
 Nothing in upstream maps to a port file that does not exist, and no
 `lib/*.rb` exists that upstream does not account for.
@@ -58,8 +58,8 @@ builds all seven from a loop over `ACTIONS`, so no name is a literal):
 | `app.close` | `<Ctrl>w` | yes | close active window |
 | `app.quit` | `<Ctrl>q` | yes | `try_exit` — asks every window, quits only if none is shredding |
 | `app.about` | none | yes | About dialog |
-| `app.shortcuts` | — | yes, `<Ctrl>question` | **deviation, deliberate:** upstream gets this action and accel for free from the `shortcuts-dialog.ui` GResource alias; with no GResource the port installs it itself |
-| `app.open-drive` | — | n/a | commented out upstream (Flatpak blocks device files) |
+| `app.shortcuts` | — | yes, `<Ctrl>question` | substitution, located: upstream gets this action and accel from libadwaita's `shortcuts-dialog.ui` GResource alias; the port has no GResource, so it installs the same action name with the same accel itself at `lib/main.rb:51` |
+| `app.open-drive` | — | — | declared only inside the commented-out block above; not compiled in upstream's own build |
 
 CLI options (`handle_local_options`): `--new-window`/`-w` (forwarded to a
 running instance when remote) and `--version`/`-v`. Both ported; everything
@@ -179,7 +179,7 @@ is not clipped.
 
 The `check_paintable` / `check_progress` branch is **dead upstream**:
 `raider_progress_paintable_new` passes only `widget`, so `icon-name` stays
-`NULL` and `check_progress` is never written. Correctly not ported.
+`NULL` and `check_progress` is never written — read at `:248`, `:252`, `:257`, `:261`, assigned nowhere. Absent from the port; the evidence is in `component-parity.md`, unit "progress paintable".
 
 ## 7. `src/raider-shortcuts.blp` — keyboard shortcuts
 
