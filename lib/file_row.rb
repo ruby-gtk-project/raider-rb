@@ -180,15 +180,14 @@ class FileRow < Adwaita::ActionRow
       end
     end
 
-    # Upstream's shredding_finished: the popover goes away, and a run that was
-    # not aborted takes the row with it.
+    # Upstream's shredding_finished: the popover goes away, and a run that
+    # ended without an error takes the row with it. An abort and a failed
+    # write both end with one — upstream's g_task_had_error — so both leave
+    # the row in the list for the user to deal with.
     def shredding_finished(error)
       popover.visible = false
       if error
         warn(error)
-      end
-      if @corrupt.cancelled?
-        nil
       else
         close
       end

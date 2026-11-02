@@ -93,6 +93,21 @@ RSpec.describe FileRow do
 
       GtkSupport.pump_until { window.rows.empty? }
     end
+
+    it "keeps a row whose shredding failed, as upstream's g_task_had_error does" do
+      window.open_file(path)
+      held = window.rows.first
+      File.chmod(0o444, path)
+
+      held.launch_shredding
+      # #wait_for_abort is the join on the Corrupt worker; the finish callback
+      # it queued runs on the next turn of the loop.
+      held.wait_for_abort
+      GtkSupport.pump
+
+      expect(window.rows).to eq([held])
+      expect(File).to exist(path)
+    end
   end
 
   describe "#shredding_abort" do

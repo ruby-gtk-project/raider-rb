@@ -210,6 +210,11 @@ RSpec.describe Window do
         expect(window.clear_button.label).to eq("Clear All")
         expect(window.shred_button).to be_sensitive
         expect(window.shred_revealer).not_to be_reveal_child
+
+        # The rows are still being overwritten; let them finish while the
+        # fixture is on disk, so the worker is not left writing to a
+        # directory this example has already removed.
+        GtkSupport.pump_until { window.rows.empty? }
       end
     end
 

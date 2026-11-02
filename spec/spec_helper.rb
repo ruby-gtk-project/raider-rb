@@ -21,9 +21,22 @@ rescue LoadError => error
   end
 end
 
-# External RSpec & related config
-require "kettle/test/rspec"
-# `kettle/test/rspec` installs harness helpers documented in spec/README.md.
+# External RSpec & related config.
+#
+# kettle-dev's harness lives in the root Gemfile's development bundle. The
+# flake's devshell deliberately carries only the gemspec's runtime
+# dependencies plus RSpec (see nix/Gemfile), so the harness is absent there
+# and the suite has to run without it — same shape as the coverage require
+# above.
+begin
+  require "kettle/test/rspec"
+  # `kettle/test/rspec` installs harness helpers documented in spec/README.md.
+rescue LoadError => error
+  # check the error message and re-raise when unexpected
+  unless error.message.include?("kettle")
+    raise error
+  end
+end
 
 # This library
 require "raider/rb"

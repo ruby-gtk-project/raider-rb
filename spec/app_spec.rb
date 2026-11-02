@@ -93,6 +93,15 @@ RSpec.describe App do
       GtkSupport.pump
     end
 
+    it "lists the windows it holds, in the order they were opened" do
+      # Named first: the two windows are built lazily, and the application
+      # cannot be asked for them before they exist.
+      opened = windows
+
+      expect(shared.windows & opened).to eq(opened)
+      expect(shared.windows.map(&:window)).to all(be_a(Adwaita::ApplicationWindow))
+    end
+
     it "quits when no window is shredding" do
       expect(shared.app).to receive(:quit)
 

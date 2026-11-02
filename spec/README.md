@@ -26,3 +26,31 @@ These helpers are available in specs after `spec/spec_helper.rb` loads:
 Prefer these helpers over ad hoc ENV mutation, direct Timecop setup, or direct
 stdout/stderr plumbing. They keep specs isolated across parallel workers and
 make local runs match CI behavior.
+
+## Running the suite
+
+The suite needs GTK, Libadwaita and a display, which the flake's devshell
+carries:
+
+```sh
+nix develop --command xvfb-run -a \
+  ruby -e 'require "rspec/core"; exit RSpec::Core::Runner.run(["--format", "progress", "--require", "spec_helper", "spec"])'
+```
+
+That shell carries the gemspec's runtime dependencies plus RSpec, not the
+root Gemfile's development bundle, so `kettle/test/rspec` is absent there.
+`spec/spec_helper.rb` therefore requires it the way it requires
+`kettle-soup-cover`: when it is missing the suite runs without the harness
+helpers above, and `bundle exec rspec` from the root Gemfile still gets them.
+
+## Driving the app
+
+The specs assert; `test/drive_main_window.rb` runs the real application,
+takes it through loading, shredding, aborting and the exit dialog, and writes
+a screenshot of each state to `tmp/shots`:
+
+```sh
+nix develop --command xvfb-run -a ruby test/drive_main_window.rb
+```
+
+It exits non-zero if any of its checks fail, so it works as a test command.

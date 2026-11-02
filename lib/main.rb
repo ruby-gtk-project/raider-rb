@@ -98,6 +98,12 @@ class App
   # msgid the window title and the desktop entry's Name carry.
   def program_name = _('File Shredder')
 
+  # The Window objects this application holds, oldest first. GApplication
+  # already answers gtk_application_get_windows with the Adwaita windows; this
+  # is the same list in terms of the objects that built them, which is what
+  # app.quit asks for when it polls every window for shredding.
+  def windows = @windows.dup
+
   def about_dialog
     Adwaita::AboutDialog.new.tap do |about|
       about.application_name = program_name
