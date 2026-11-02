@@ -1,6 +1,16 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Entry point for the Ruby port of Raider (File Shredder).
+#
+# The switches mirror upstream's GOptionEntries:
+#
+#   -w, --new-window     Open a new window
+#   -v, --version        Print version information and exit
+#
+# Any remaining arguments are files or folders to add to the new window, which
+# is what the application's HANDLES_OPEN flag is for.
+
 require "raider"
 
-Raider::Application.new.build.run
+App.new(argv: ARGV).build.run
