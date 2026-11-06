@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `f98a795e289c3530ea30fd94cff2c5041e9725f6` |
+| Port | `ruby` @ `ff5772c81f84cbfd2f2a126483e9bf811d0b0896` |
 | Method | `component-identification/scripts/component-scan.sh` on both trees (upstream extracted with `git archive origin/main`), symbol table present (1301 rows), then every file read |
-| Re-run | this audit. The scan was re-run against the current tip, not inherited from `ad33dea`. |
+| Re-run | this audit, against the current tip. Confirmed against the diff of `ff5772c`: that commit only changes property values and comment text inside existing methods (`lib/main.rb`, `lib/window.rb`, `lib/corrupt.rb`, `lib/file_row.rb`) plus two data files — it adds no widget, no action, no signal connection and removes none, so every row below is unchanged from the previous identification pass except the header's commit reference. |
 
 ## Step 1 — the declarative files
 

@@ -9,7 +9,7 @@ then the scan as a cross-check.
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `f98a795e289c3530ea30fd94cff2c5041e9725f6` |
+| Port | `ruby` @ `ff5772c81f84cbfd2f2a126483e9bf811d0b0896` — re-read this audit; `ff5772c` changes property values, diagnostics and comments inside existing units, adds/removes no unit, so the unit map below is unchanged |
 | Symbol table | `.claude/skills/component-identification/scripts/symbols.tsv`, 1301 rows |
 | Upstream UI source | 4 blueprints, 1 GResource manifest, no GSettings schema |
 | Catalogues | `po/LINGUAS` = 34 languages over 35 `po/*.po`; the port's `LINGUAS` is byte-identical to upstream's and its `po/*.po` membership is identical |
@@ -145,7 +145,7 @@ underscores are part of the msgid.
 | `Gtk.Revealer` (`remove_revealer`) | 1 | — | — | `slide_left`, revealed |
 | `Gtk.Button` (`remove_button`) | 1 | — | `clicked` → `raider_file_row_close` | `edit-delete-symbolic`; no style, no tooltip upstream |
 | `Gtk.Revealer` (`progress_revealer`) | 1 | — | — | `slide_left`, hidden |
-| `Gtk.Button` (`progress_button`) | 1 | — | `clicked` → `gtk_popover_popup` (swapped) | **deviation, deliberate:** the port uses `Gtk::MenuButton` with `always_show_arrow = false`, so the popover is owned rather than hand-parented |
+| `Gtk.Button` (`progress_button`) | 1 | — | `clicked` → `gtk_popover_popup` (swapped) | upstream is a plain `Gtk.Button` that hand-pops a separately-parented popover; the port is a `Gtk::MenuButton` owning the popover, with `always_show_arrow = false` set because a `MenuButton` draws a disclosure arrow by default and upstream's button draws none. Unverified: no screenshot shows this button beside `remove_button` at the same moment, so whether the substitution changes its rendered size is still unmeasured — see `component-parity.md` gap C7 |
 | `Gtk.Image` | 1 | — | — | holds the progress paintable; the port's `ProgressPaintable` is itself a `Gtk::DrawingArea`, so there is no separate image |
 
 The two revealers cross-fade: launching shredding hides remove and shows

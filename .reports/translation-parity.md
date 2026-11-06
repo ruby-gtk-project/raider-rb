@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `f98a795e289c3530ea30fd94cff2c5041e9725f6` |
+| Port | `ruby` @ `ff5772c81f84cbfd2f2a126483e9bf811d0b0896` — re-checked this audit: `git diff f98a795..ff5772c -- po/ data/ lib/translation.rb` touches only `data/…metainfo.xml.in.in`'s developer-id casing and adds `data/raider-screenshot1.png`, neither of which carries a translatable string, so every finding below is unchanged except this header |
 | Domain | `raider` (upstream's `i18n.gettext('raider', preset: 'glib')`, not the gem's name) |
 | Upstream messages (source + data) | **39** scanned, **38** real + 1 from a dead block |
 | Ported, byte-identical | **38 / 38** |

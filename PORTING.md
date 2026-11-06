@@ -6,9 +6,9 @@ Resume point for the next run. Factual only.
 |---|---|
 | Upstream ref | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
 | Port branch | `ruby` (local only — never pushed, never merged with `origin/main`) |
-| Parity units with parity | 5 / 9 |
-| Open gaps from the last audit | 16 (clean = false) |
-| Last recorded test run | 93 passed, 0 failed, 0 pending (`.rspec_status`); `bundle exec rspec` inside `nix develop` |
+| Parity units with parity | 8 / 11 |
+| Open gaps from the last audit | 3 component (C1, C3, C7) + 3 translation (T1, T2, T3) + 12 accountability (A1-A10, A12, A13) (clean = false) |
+| Last recorded test run | 96 passed, 0 failed, 2 pending (`.rspec_status`); `bundle exec rspec` inside `nix develop` |
 
 ## Upstream
 
@@ -49,46 +49,40 @@ and `lib/data_files.rb` carry their work between them.
 
 ## Not started
 
-No upstream source file is without a Ruby counterpart. Two upstream artefacts
-have none:
+No upstream source file is without a Ruby counterpart.
 
-- `data/raider-screenshot1.png` — not copied across (gap C9).
+- `data/raider-screenshot1.png` — copied across as of `ff5772c` (gap C9
+  closed).
 - `GOptionEntry` command-line declaration (`src/raider-application.c:252-260`)
-  — the port scans `ARGV` instead and declares nothing (gap C1).
+  — the port still scans `ARGV` instead and declares nothing (gap C1, open).
 
 ## Open gaps
 
-16 open, from `.reports/` (audited against `ruby` @ `6a8dd32`; clean = false).
-Nine component gaps, two translation gaps, five accountability items.
+As of the audit at `ff5772c` (clean = false). This section is rewritten in
+full at every audit, not patched — a previous version of this table said
+"16 open" and "93 passed, 0 pending" after eight of those gaps had already
+been fixed and the suite had already grown to 96/2-pending; do not trust a
+stale copy of this file over `.reports/`. The reports in `.reports/` are the
+authority; this section is a pointer to them, updated to match on this date.
 
-Component — `.reports/component-parity.md`:
+Commit `ff5772c` closed eight component gaps (C2, C4, C5, C6, C8, C9, C10,
+C11) that were open at the previous audit. Three remain:
 
-- **C1** `--help` lists neither `--version` nor `--new-window`; `lib/main.rb:134-147`
+- **C1** `--help` lists neither `--version` nor `--new-window`; `lib/main.rb:151-153`
   matches four literal spellings off `ARGV`, so a misspelling is taken as a filename.
-- **C2** `lib/window.rb:342` builds `contents_box` as `:vertical`;
-  `src/raider-window.blp:50` sets no orientation, so upstream is horizontal.
-  Invisible with one child. Flagged by a previous review and not fixed.
 - **C3** file loading is synchronous (`lib/window.rb:137-145`); upstream wraps
   the open loop in `g_task_run_in_thread` (`src/raider-window.c:286-292`), so a
   large drop freezes the port's window.
-- **C4** the file dialog resolves `app.active_window` at completion
-  (`lib/main.rb:235-257`) instead of capturing the window before presenting it
-  (`src/raider-application.c:79-84`); with two windows open the files can land
-  in the wrong one.
-- **C5** `lib/corrupt.rb:242-246` swallows the "failed to open directory for
-  removal" diagnostic (`src/corrupt.c:219-224`) and reports the wrong reason.
-- **C6** `lib/file_row.rb:132`, `:145`, `:146` set `valign` on both buttons and
-  `always_show_arrow = false`; upstream sets none of the three.
-- **C7** the running app has never been looked at. Both visible substitutions
-  (`Gtk::MenuButton` for the progress button, `Gtk::DrawingArea` for the
-  paintable) were argued on paper only. No screenshots.
-- **C8** the AppStream developer id was retyped as `io.github.adbeveridge`;
-  upstream's `data/…metainfo.xml.in.in:24` reads `io.github.ADBeveridge`.
-- **C9** `data/raider-screenshot1.png` absent, so the port's AppStream entry
-  points at a file only upstream's tree holds.
+- **C7** the running app has never been compared against a rendered upstream.
+  Both visible substitutions (`Gtk::MenuButton` for the progress button,
+  `Gtk::DrawingArea` for the paintable) are argued on paper only.
+
+Of the eight closed, five (C4, C5, C8, C9, C10) have no regression check —
+see `.reports/accountability-ensurance.md` item A13 before treating them as
+settled.
 
 Translation — `.reports/translation-parity.md` (38/38 msgids byte-identical;
-these two are the open items):
+three open items, T3 new):
 
 - **T1** `po/pl.po` exists but `po/LINGUAS` omits `pl`, so 34 of 35 catalogues
   are built and a Polish user gets English. Upstream has the same hole;
@@ -97,13 +91,16 @@ these two are the open items):
 - **T2** `po/com.github.ADBeveridge.Raider.pot` is upstream's build artefact
   verbatim: every `#:` reference names a C or `.blp` file that does not exist
   in this repository, and it is stale against the 38 source keys.
+- **T3** nothing in the port checks that any language other than C actually
+  reaches the screen; the only end-to-end check (`spec/translation_spec.rb:178`)
+  reads a compiled `.mo` file directly rather than calling `_()` under a
+  non-English locale.
 
-Accountability — `.reports/accountability-ensurance.md`, five comment/test
-rewrites still owed (A1 `spec/support/gtk.rb:11`, A2
-`spec/translation_spec.rb:57`, A3 `lib/progress_paintable.rb:28-30`, A4
-`lib/shortcuts_dialog.rb:15-16`, A5 `lib/translation.rb:20-22`). A5 also owes
-an encoding assertion, since the port makes no
-`bind_textdomain_codeset` equivalent call.
+Accountability — `.reports/accountability-ensurance.md`, A1-A10 carried
+forward unresolved across three or more audits, plus two new items this
+audit: **A12** (this file was stale against the reports it is supposed to
+summarise — being actively corrected right now) and **A13** (the five
+unverified fixes named above).
 
 ## Blockers
 

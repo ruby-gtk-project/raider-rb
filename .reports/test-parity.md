@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `f98a795e289c3530ea30fd94cff2c5041e9725f6` |
+| Port | `ruby` @ `ff5772c81f84cbfd2f2a126483e9bf811d0b0896` |
 | Upstream tests | **2** |
 | Ported (a named port test exists) | **2** |
 | Ported **and executed** | **0** |
@@ -122,22 +122,46 @@ the one to quote.
 
 ## Holes in the extra coverage that let open gaps survive
 
-A component no check exercises is unverified, not done. Three of
-`component-parity.md`'s gaps exist because nothing drives the path:
+A component no check exercises is unverified, not done. This audit re-ran
+this section against `ff5772c`, which closed four of the gaps named below in
+code. **None of the four gained a check.** Re-stating each one with its
+current status rather than quietly dropping it, because a gap that stops
+being mentioned the moment the code changes is exactly the false-green
+pattern `accountability-ensurance.md` exists to catch:
 
-* **`app.open` / `app.open-folder` are never driven.** Both file dialogs are
-  only checked for existence. `load_into_active_window` and
-  `active_port_window` (`lib/main.rb:258-280`) — the code gap C4 is about —
-  have no check at all.
-* **No check passes a file argument through `App#run`.**
+* **`app.open` / `app.open-folder` are still never driven.** Both file
+  dialogs are only checked for existence. `active_port_window`
+  (`lib/main.rb:288-291`) — the code that now fixes gap C4 — has no check at
+  all, before this audit or after it.
+* **No check passes a file argument through `App#run`, still.**
   `spec/app_spec.rb:148`, `:154` assert which strings
-  `application_arguments` returns and stop there. That is why gap C10 —
-  `raider myfile.txt` opening an empty window — survived to this audit with
-  202 green checks on the board.
-* **No check runs the app under a non-English locale.** Driver step `:718`
-  asserts the marker under the **C** locale only. The German case was run by
-  hand in this audit and passes; nothing in the repository runs it.
-* **No check fails a write mid-shred**, which is the path gap C11 is about.
+  `application_arguments` returns and stop one method short of `#run`. Gap
+  C10 — `raider myfile.txt` opening an empty window — is now fixed in
+  `lib/main.rb:170-172`, and the fix is exactly as unverified as the bug was:
+  nothing in this repository launches the app with a file on its simulated
+  command line, so a regression back to the dropped-first-argument bug would
+  pass every existing check.
+* **No check runs the app under a non-English locale, still.** Driver step
+  `:728` asserts the marker under the **C** locale only. The German case was
+  run by hand in this audit again and passes (`LANGUAGE=de LC_ALL=de_DE.UTF-8`
+  → `Aktenvernichter`); nothing in the repository runs it. Gap T3 in
+  `translation-parity.md`.
+* **No check fails a write mid-shred, still.** Gap C11's "row stays in the
+  list on a cancelled run, closes otherwise" behaviour is now fixed and
+  `spec/file_row_spec.rb` was updated for the *missing-file* failure case in
+  the same commit — that half is driven. The *write-fails-mid-shred* half
+  (as opposed to a file missing before shredding starts) still has no
+  example anywhere.
+* **No check asserts `desktop-file-validate`/`appstreamcli` casing or file
+  identity by name** for the `data/com.github.ADBeveridge.Raider.metainfo…`
+  developer-id fix (C8) or the restored screenshot (C9) — both read correct
+  by inspection this audit, neither is pinned by a check that would catch a
+  re-regression.
+
+Four gaps closing in code while their verifying checks stayed at zero is the
+headline finding of this round, not a footnote: it means the drive run's
+"202 of 202" and the spec run's "0 failures" describe the same coverage
+shape as last audit, not a wider one.
 
 ## Rules check
 
