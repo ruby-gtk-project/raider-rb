@@ -126,10 +126,11 @@ class FileRow < Adwaita::ActionRow
     end
   end
 
+  # Upstream's `remove_button` carries no property of its own; `controls`
+  # already centres everything it holds.
   def remove_button
     @remove_button ||= Gtk::Button.new.tap do |button|
       button.icon_name = REMOVE_ICON
-      button.valign = :center
     end
   end
 
@@ -140,9 +141,13 @@ class FileRow < Adwaita::ActionRow
     end
   end
 
+  # Upstream's `progress_button` carries no property either. `always_show_arrow`
+  # only exists because the port substitutes a Gtk::MenuButton for upstream's
+  # plain Gtk.Button with a hand-popped popover (see the class comment); a
+  # MenuButton draws its own disclosure arrow by default, and upstream's
+  # button draws none.
   def progress_button
     @progress_button ||= Gtk::MenuButton.new.tap do |button|
-      button.valign = :center
       button.always_show_arrow = false
     end
   end
@@ -180,15 +185,20 @@ class FileRow < Adwaita::ActionRow
       end
     end
 
-    # Upstream's shredding_finished: the popover goes away, and a run that
-    # ended without an error takes the row with it. An abort and a failed
-    # write both end with one — upstream's g_task_had_error — so both leave
-    # the row in the list for the user to deal with.
+    # Upstream's shredding_finished checks g_task_had_error, which is only
+    # ever TRUE for a cancelled task — corrupt.c sets the task's error in
+    # exactly one place, g_task_return_error_if_cancelled. A failed write or
+    # a missing file is reported to stderr and the function returns normally,
+    # so g_task_had_error stays FALSE and the row closes anyway. Only a
+    # cancellation — this object's own #cancel, called from
+    # Window#abort_shredding — leaves the row in the list.
     def shredding_finished(error)
       popover.visible = false
       if error
         warn(error)
-      else
+      end
+
+      unless error && @corrupt.cancelled?
         close
       end
     end

@@ -94,7 +94,7 @@ RSpec.describe FileRow do
       GtkSupport.pump_until { window.rows.empty? }
     end
 
-    it "keeps a row whose shredding failed, as upstream's g_task_had_error does" do
+    it "closes a row whose shredding failed, matching upstream's g_task_had_error" do
       window.open_file(path)
       held = window.rows.first
       File.chmod(0o444, path)
@@ -105,7 +105,10 @@ RSpec.describe FileRow do
       held.wait_for_abort
       GtkSupport.pump
 
-      expect(window.rows).to eq([held])
+      # g_task_had_error is only ever TRUE for a cancellation — a failed
+      # write reports to stderr and returns normally, so the row closes the
+      # same way a successful shred does.
+      expect(window.rows).to be_empty
       expect(File).to exist(path)
     end
   end

@@ -21,7 +21,7 @@
   <url type="vcs-browser">https://github.com/ADBeveridge/raider</url>
   <url type="translate">https://l10n.gnome.org/module/raider/</url>
   <update_contact>adgbeveridge@proton.me</update_contact>
-  <developer id="io.github.adbeveridge">
+  <developer id="io.github.ADBeveridge">
     <name translate="no">Alan Beveridge</name>
   </developer>
     <kudos>

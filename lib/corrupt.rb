@@ -208,16 +208,32 @@ class Corrupt
     end
 
     # Upstream's corrupt_unlink_folder: recurse into subdirectories, then
-    # remove this one. Anything still holding files is left alone.
+    # remove this one. Anything still holding files is left alone. A folder
+    # that cannot even be opened for listing is reported and left as-is —
+    # upstream's g_dir_open failure returns before ever calling rmdir, so the
+    # port must not call Dir.rmdir in that case either.
     def unlink_folder(folder)
-      entries(folder).each do |entry|
-        if File.directory?(entry)
-          unlink_folder(entry)
-        else
-          warn('directory not empty, some files skipped')
+      children = openable_entries(folder)
+      if children
+        children.each do |entry|
+          if File.directory?(entry)
+            unlink_folder(entry)
+          else
+            warn('directory not empty, some files skipped')
+          end
         end
+        remove_directory(folder)
       end
-      remove_directory(folder)
+    end
+
+    # Like #entries, but a directory this process cannot open for listing is
+    # reported with upstream's own message and distinguished from an empty
+    # directory, which #entries cannot do once it has swallowed the error.
+    def openable_entries(folder)
+      Dir.children(folder).map { |name| File.join(folder, name) }
+    rescue SystemCallError
+      warn('corrupt: failed to open directory for removal')
+      nil
     end
 
     def remove_directory(folder)

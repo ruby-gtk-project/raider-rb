@@ -338,8 +338,10 @@ class Window
 
   def toast_overlay = @toast_overlay ||= Adwaita::ToastOverlay.new
 
+  # Upstream's `Gtk.Box contents_box` sets no `orientation`, so it defaults to
+  # horizontal.
   def contents_box
-    @contents_box ||= Gtk::Box.new(:vertical, 0).tap do |box|
+    @contents_box ||= Gtk::Box.new(:horizontal, 0).tap do |box|
       box.vexpand = true
       box.margin_top = 24
     end

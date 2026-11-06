@@ -83,7 +83,7 @@ class App
     elsif new_window?
       run_new_window
     else
-      app.run(application_arguments)
+      app.run(gapplication_argv)
     end
   end
 
@@ -144,7 +144,7 @@ class App
         app.activate_action('new-window', nil)
         0
       else
-        app.run(application_arguments)
+        app.run(gapplication_argv)
       end
     end
 
@@ -161,6 +161,14 @@ class App
       (VERSION_FLAGS + NEW_WINDOW_FLAGS).then do |consumed|
         @argv.reject { |argument| consumed.include?(argument) }
       end
+    end
+
+    # g_application_run reads argv[0] as the program name and treats every
+    # element after it as the file list GApplication's `open` vfunc receives.
+    # @argv never carried a program name, so it has to be put back here —
+    # upstream's own `argc, argv` from main() always had one.
+    def gapplication_argv
+      [$PROGRAM_NAME, *application_arguments]
     end
 
     # Upstream's activate: present the window there is, or make one.
@@ -209,12 +217,17 @@ class App
 
     # --- Actions ------------------------------------------------------------
 
+    # Upstream takes the active window before presenting the dialog and hands
+    # it to the completion callback as user_data, so the files always land in
+    # the window they were picked from — not whichever window happens to be
+    # active when the dialog closes.
     def action_open
+      target = active_port_window
       Gtk::FileDialog.new.tap do |dialog|
         dialog.modal = true
         dialog.title = _('Add Files')
         dialog.open_multiple(app.active_window, nil) do |_, result|
-          load_into_active_window(dialog.open_multiple_finish(result))
+          load_into_window(target, dialog.open_multiple_finish(result))
         rescue GLib::Error
           nil
         end
@@ -222,11 +235,12 @@ class App
     end
 
     def action_open_folder
+      target = active_port_window
       Gtk::FileDialog.new.tap do |dialog|
         dialog.modal = true
         dialog.title = _('Add Folders')
         dialog.select_multiple_folders(app.active_window, nil) do |_, result|
-          load_into_active_window(dialog.select_multiple_folders_finish(result))
+          load_into_window(target, dialog.select_multiple_folders_finish(result))
         rescue GLib::Error
           nil
         end
@@ -255,11 +269,9 @@ class App
 
     # Both file dialogs finish with a GListModel of GFiles, which the window
     # wants as a plain array.
-    def load_into_active_window(model)
-      active_port_window.then do |win|
-        if win
-          win.open_files(to_array(model))
-        end
+    def load_into_window(win, model)
+      if win
+        win.open_files(to_array(model))
       end
     end
 
