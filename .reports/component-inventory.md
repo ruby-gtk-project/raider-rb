@@ -9,7 +9,7 @@ then the scan as a cross-check.
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `ff5772c81f84cbfd2f2a126483e9bf811d0b0896` — re-read this audit; `ff5772c` changes property values, diagnostics and comments inside existing units, adds/removes no unit, so the unit map below is unchanged |
+| Port | `ruby` @ `a4cb8d0970cdaf6667b2c56869fd2b0e905a1ed1` — re-read this audit; `a4cb8d0` ("Record port status") touches only `PORTING.md`, adds/removes no unit, so the unit map below is unchanged from the `ff5772c` audit |
 | Symbol table | `.claude/skills/component-identification/scripts/symbols.tsv`, 1301 rows |
 | Upstream UI source | 4 blueprints, 1 GResource manifest, no GSettings schema |
 | Catalogues | `po/LINGUAS` = 34 languages over 35 `po/*.po`; the port's `LINGUAS` is byte-identical to upstream's and its `po/*.po` membership is identical |
