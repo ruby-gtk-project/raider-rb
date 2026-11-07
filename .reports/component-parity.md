@@ -3,7 +3,8 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `4c759f350accd7b709978af2afc4dc56d0bc0dc8` |
+| Port | `ruby` @ `485859999051aba397cdc0ae04fe530baad81c9b` |
+| Re-run this audit | `git diff 4c759f3..HEAD -- lib/ exe/` is empty — no widget, action, signal, CSS class or string changed in `lib/` or `exe/` since this ledger was last written. Driven and spec commands re-run live this round, same 204/204 and 101/1 results, so every verdict below is re-confirmed rather than carried forward from the commit message. |
 | Units with parity | **8 / 11** |
 | Stylesheet axis | vacuous: neither tree has a `.css` file or a `Gtk::CssProvider`; every class in play is a platform class |
 | Driven, this audit | `nix develop --command xvfb-run -a ruby test/drive_main_window.rb` → **204 of 204 checks passed, `DRIVE OK`**, 11 components |

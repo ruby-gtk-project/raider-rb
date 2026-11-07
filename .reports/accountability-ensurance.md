@@ -2,7 +2,8 @@
 
 | | |
 |---|---|
-| Port | `ruby` @ `4c759f350accd7b709978af2afc4dc56d0bc0dc8` |
+| Port | `ruby` @ `485859999051aba397cdc0ae04fe530baad81c9b` |
+| Re-run this round | `grep -rniE` re-run over `lib/`, `exe/`, `PORTING.md`, `.reports/*.md`, `KNOWN_LIMITATIONS.md` against the current tree (below) — same zero hits in `lib/`/`exe/`/`KNOWN_LIMITATIONS.md`. The two commits since A14 was written (`a4cb8d0`, `4858599`) touch only `PORTING.md` and `.reports/component-inventory.md`; both re-read in full this round and carry no new excuse construction. |
 | Scope | `grep -rniE` over `lib/`, `exe/`, `PORTING.md`, `.reports/*.md`, `KNOWN_LIMITATIONS.md` for excuse vocabulary; every open and newly-closed item from the prior audit re-read against the current code, not assumed closed from the commit message alone |
 
 ## This round's grep

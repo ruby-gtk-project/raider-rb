@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `4c759f350accd7b709978af2afc4dc56d0bc0dc8` |
+| Port | `ruby` @ `485859999051aba397cdc0ae04fe530baad81c9b` |
 | Method | `component-identification/scripts/component-scan.sh` on both trees (upstream extracted with `git archive origin/main`), then every file read by hand |
-| Re-run this audit | `git diff ff5772c..4c759f3 -- lib/ exe/` touches exactly three files (`lib/progress_paintable.rb`, `lib/shortcuts_dialog.rb`, `lib/translation.rb`) and every changed line is a comment — no widget, action, signal connection, CSS class or string was added, removed or renamed anywhere in `lib/` or `exe/` since the inventory was last taken at `ff5772c`. The rest of this document is therefore unchanged from that pass, re-verified line by line against the current tree rather than carried forward blind. |
+| Re-run this audit | `git diff ff5772c..HEAD -- lib/ exe/` still touches exactly the same three comment-only files as the last pass (`lib/progress_paintable.rb`, `lib/shortcuts_dialog.rb`, `lib/translation.rb`) — the two commits since the last inventory (`a4cb8d0`, `4858599`) touch only `PORTING.md` and `.reports/component-inventory.md`, neither of which is code. No widget, action, signal connection, CSS class or string was added, removed or renamed anywhere in `lib/` or `exe/`. The rest of this document is therefore unchanged, re-verified line by line against the current tree rather than carried forward blind. |
 
 ## Step 1 — the declarative files
 

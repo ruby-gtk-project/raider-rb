@@ -3,7 +3,8 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `4c759f350accd7b709978af2afc4dc56d0bc0dc8` |
+| Port | `ruby` @ `485859999051aba397cdc0ae04fe530baad81c9b` |
+| Re-run this audit | `git diff 4c759f3..HEAD -- lib/ exe/ test/ spec/` is empty — the two commits since then (`a4cb8d0`, `4858599`) touch only `PORTING.md` and `.reports/component-inventory.md`. Both the drive run and the spec suite were re-run live this round (below) and reproduce the exact same counts. |
 | Upstream tests | **2** |
 | Ported (a named port test exists) | **2** |
 | Ported **and executed** | **2** — changed this audit, was 0 |

@@ -3,7 +3,8 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `4c759f350accd7b709978af2afc4dc56d0bc0dc8` |
+| Port | `ruby` @ `485859999051aba397cdc0ae04fe530baad81c9b` |
+| Re-run this audit | `po/` untouched since T2/T4 were written; re-diffed live this round: `grep -c '^msgid "' po/com.github.ADBeveridge.Raider.pot` → 35, upstream's own `.pot` → 36, same 7-key gap. All 35 `.po` files still byte-identical to `origin/main`'s (re-diffed, not sampled). |
 | Domain | `raider` |
 | Upstream messages (source + data) | **39** scanned, **38** real + 1 from a dead `/* */` block (`Devices`, `src/raider-window.c:129-141`, confirmed never emitted and never in any catalogue — not a gap) |
 | Ported, byte-identical, in the `.po`/`.mo` catalogues | **38 / 38**, unchanged from the last audit and re-confirmed this audit |
