@@ -8,8 +8,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: unnamed project\n"
-"Report-Msgid-Bugs-To: https://github.com/ADBeveridge/raider/issues\n"
-"POT-Creation-Date: 2026-02-06 18:27+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2026-03-22 12:27+0100\n"
 "Last-Translator: Irénée Thirion <irenee.thirion@e.email>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -20,15 +20,143 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.9\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:3
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:167 src/raider-application.c:223
-#: src/raider-window.blp:9 src/raider-window.blp:37
+#: ../lib/exit_dialog.rb:24
+msgid "Are you sure that you want to exit?"
+msgstr "Êtes-vous sûr de vouloir quitter ?"
+
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "Interrompre le broyage ?"
+
+#: ../lib/exit_dialog.rb:30
+msgid "_Cancel"
+msgstr "A_nnuler"
+
+#: ../lib/exit_dialog.rb:31
+msgid "_Exit"
+msgstr "_Quitter"
+
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
 msgid "File Shredder"
 msgstr "Broyeur de fichiers"
 
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr "Irénée Thirion"
+
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "Ajouter des fichiers"
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr "Ajouter des dossiers"
+
+#: ../lib/progress_info_popover.rb:49
+msgid "Estimating…"
+msgstr "Estimation…"
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr "Démarrage…"
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr "Finition…"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "Général"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "Nouvelle fenêtre"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "Raccourcis clavier"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "Fermer la fenêtre"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "Quitter"
+
+#: ../lib/window.rb:152
+msgid "This file was already added"
+msgstr "Ce fichier a déjà été ajouté"
+
+#: ../lib/window.rb:155
+msgid "Some files did not exist"
+msgstr "Certains fichiers n’existaient pas"
+
+#: ../lib/window.rb:158
+msgid "Cannot write to “%s”"
+msgstr "Impossible d’écrire dans « %s »"
+
+#: ../lib/window.rb:161
+msgid "Cannot load more files"
+msgstr "Impossible de charger davantage de fichiers"
+
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "Impossible de retirer le nom du fichier de la liste rapide. Merci de le signaler."
+
+#: ../lib/window.rb:218
+msgid "Starting Shredding…"
+msgstr "Démarrage du broyage…"
+
+#: ../lib/window.rb:236
+msgid "Aborting…"
+msgstr "Abandon…"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "Ajouter"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "Menu principal"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "À propos de Broyeur de fichiers"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr "Ouvrir un dossier"
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "Ajoutez ou déposez des fichiers ici"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "Le broyage est le brouillage d’un fichier par des données aléatoires, de sorte que le contenu précédent ne puisse pas être récupéré."
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr "Effacer"
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "Broyer tout"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "Interrompre tout"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr "Tout effacer"
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "Broyage des fichiers terminé"
+
 #: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
 msgid "Permanently delete your files"
 msgstr "Supprimez vos fichiers de manière permanente"
 
@@ -37,179 +165,16 @@ msgid "delete;remove;permanently;files;shred;data;"
 msgstr "supprimer;détruire;permanent;fichiers;broyer;données;"
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program designed to permanently remove "
-"sensitive files from your computer, enhancing data privacy."
-msgstr ""
-"Broyeur de fichiers est un logiciel de suppression de fichiers conçu pour "
-"effacer définitivement les fichiers sensibles de votre ordinateur, "
-"renforçant ainsi la confidentialité de vos données."
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr "Broyeur de fichiers est un logiciel de suppression de fichiers conçu pour effacer définitivement les fichiers sensibles de votre ordinateur, renforçant ainsi la confidentialité de vos données."
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But shredding "
-"significantly increases the difficulty of data recovery since it requires "
-"specialized software and hardware."
-msgstr ""
-"Dans une certaine mesure, cette méthode est efficace. Cependant, les SSD "
-"modernes utilisent certaines technologies pour prolonger leur durée de vie, "
-"ce qui a pour effet secondaire de rendre le broyage des données impossible à "
-"réaliser de manière parfaite, et aucun logiciel ne peut y remédier. Le "
-"broyage des données complique toutefois considérablement la récupération des "
-"données, car il nécessite des logiciels et du matériel spécialisés."
-
-#: src/raider-application.c:83 src/raider-shortcuts.blp:9
-#: src/raider-window.blp:28
-msgid "Add Files"
-msgstr "Ajouter des fichiers"
-
-#: src/raider-application.c:93
-msgid "Add Folders"
-msgstr "Ajouter des dossiers"
-
-#: src/raider-application.c:180
-msgid "translator-credits"
-msgstr "Irénée Thirion"
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr "Démarrage…"
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr "Finition…"
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating…"
-msgstr "Estimation…"
-
-#: src/raider-shortcuts.blp:6
-msgid "General"
-msgstr "Général"
-
-#: src/raider-shortcuts.blp:13 src/raider-window.blp:137
-msgid "New Window"
-msgstr "Nouvelle fenêtre"
-
-#: src/raider-shortcuts.blp:17 src/raider-window.blp:143
-msgid "Keyboard Shortcuts"
-msgstr "Raccourcis clavier"
-
-#: src/raider-shortcuts.blp:21
-msgid "Close Window"
-msgstr "Fermer la fenêtre"
-
-#: src/raider-shortcuts.blp:25
-msgid "Quit"
-msgstr "Quitter"
-
-#: src/raider-window.blp:26
-msgid "Add"
-msgstr "Ajouter"
-
-#: src/raider-window.blp:43
-msgid "Main Menu"
-msgstr "Menu principal"
-
-#: src/raider-window.blp:58
-msgid "Add files or drop here"
-msgstr "Ajoutez ou déposez des fichiers ici"
-
-#: src/raider-window.blp:60
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"Le broyage est le brouillage d’un fichier par des données aléatoires, de "
-"sorte que le contenu précédent ne puisse pas être récupéré."
-
-#: src/raider-window.blp:96
-msgid "Clear"
-msgstr "Effacer"
-
-#: src/raider-window.blp:101 src/raider-window.c:388
-msgid "Shred All"
-msgstr "Broyer tout"
-
-#: src/raider-window.blp:120 src/raider-window.c:441
-msgid "Abort All"
-msgstr "Interrompre tout"
-
-#: src/raider-window.blp:147
-msgid "About File Shredder"
-msgstr "À propos de Broyeur de fichiers"
-
-#: src/raider-window.blp:156
-msgid "Open Folder"
-msgstr "Ouvrir un dossier"
-
-#: src/raider-window.c:177
-msgid "Stop Shredding?"
-msgstr "Interrompre le broyage ?"
-
-#: src/raider-window.c:177
-msgid "Are you sure that you want to exit?"
-msgstr "Êtes-vous sûr de vouloir quitter ?"
-
-#: src/raider-window.c:180
-msgid "_Cancel"
-msgstr "A_nnuler"
-
-#: src/raider-window.c:180
-msgid "_Exit"
-msgstr "_Quitter"
-
-#: src/raider-window.c:229
-msgid "Could not remove filename from quick list. Please report this."
-msgstr ""
-"Impossible de retirer le nom du fichier de la liste rapide. Merci de le "
-"signaler."
-
-#: src/raider-window.c:239
-msgid "Finished shredding files"
-msgstr "Broyage des fichiers terminé"
-
-#: src/raider-window.c:311
-#, c-format
-msgid "This file was already added"
-msgstr "Ce fichier a déjà été ajouté"
-
-#: src/raider-window.c:325
-msgid "Some files did not exist"
-msgstr "Certains fichiers n’existaient pas"
-
-#: src/raider-window.c:337
-#, c-format
-msgid "Cannot write to “%s”"
-msgstr "Impossible d’écrire dans « %s »"
-
-#: src/raider-window.c:349
-msgid "Cannot load more files"
-msgstr "Impossible de charger davantage de fichiers"
-
-#: src/raider-window.c:387
-msgid "Clear All"
-msgstr "Tout effacer"
-
-#: src/raider-window.c:411
-msgid "Starting Shredding…"
-msgstr "Démarrage du broyage…"
-
-#: src/raider-window.c:463
-msgid "Aborting…"
-msgstr "Abandon…"
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "Dans une certaine mesure, cette méthode est efficace. Cependant, les SSD modernes utilisent certaines technologies pour prolonger leur durée de vie, ce qui a pour effet secondaire de rendre le broyage des données impossible à réaliser de manière parfaite, et aucun logiciel ne peut y remédier. Le broyage des données complique toutefois considérablement la récupération des données, car il nécessite des logiciels et du matériel spécialisés."
 
 #, fuzzy
-#~ msgid ""
-#~ "File Shredder is a GNOME application used for securely deleting your "
-#~ "files that you do not want to be recovered."
-#~ msgstr ""
-#~ "Broyeur de fichiers est une application simple, utilisée pour supprimer "
-#~ "de manière sécurisée des fichiers que vous ne souhaitez pas récupérer. "
-#~ "Broyeur de fichiers dispose d’un ensemble complet de paramètres et d’un "
-#~ "suivi de la progression pour chaque fichier."
+#~ msgid "File Shredder is a GNOME application used for securely deleting your files that you do not want to be recovered."
+#~ msgstr "Broyeur de fichiers est une application simple, utilisée pour supprimer de manière sécurisée des fichiers que vous ne souhaitez pas récupérer. Broyeur de fichiers dispose d’un ensemble complet de paramètres et d’un suivi de la progression pour chaque fichier."
 
 #~ msgid "Directories are not supported"
 #~ msgstr "Les répertoires ne sont pas supportés"

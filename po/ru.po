@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: https://github.com/ADBeveridge/raider/issues\n"
-"POT-Creation-Date: 2025-09-07 03:34+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2025-09-07 14:30+0300\n"
 "Last-Translator: Artur So <arturios2005@mail.ru>\n"
 "Language-Team: \n"
@@ -15,19 +15,146 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: Poedit 3.7\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:3
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:168 src/raider-application.c:224
-#: src/raider-window.blp:9 src/raider-window.blp:37
+#: ../lib/exit_dialog.rb:24
+msgid "Are you sure that you want to exit?"
+msgstr "Вы уверены, что хотите выйти?"
+
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "Остановить измельчение?"
+
+#: ../lib/exit_dialog.rb:30
+msgid "_Cancel"
+msgstr "_Отменить"
+
+#: ../lib/exit_dialog.rb:31
+msgid "_Exit"
+msgstr "_Выйти"
+
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
 msgid "File Shredder"
 msgstr "Файловый шредер"
 
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr "Давид Лапшин <ddaudix@gmail.com>"
+
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "Добавить файлы"
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr "Добавить папки"
+
+#: ../lib/progress_info_popover.rb:49
+msgid "Estimating…"
+msgstr "Оценка…"
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr "Начало…"
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr "Окончание…"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "Общие"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "Новое окно"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "Комбинации клавиш"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "Закрыть окно"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "Выйти"
+
+#: ../lib/window.rb:152
+msgid "This file was already added"
+msgstr "Этот файл уже добавлен"
+
+#: ../lib/window.rb:155
+msgid "Some files did not exist"
+msgstr "Некоторые файлы не существуют"
+
+#: ../lib/window.rb:158
+msgid "Cannot write to “%s”"
+msgstr "Не удалось записать в “%s”"
+
+#: ../lib/window.rb:161
+msgid "Cannot load more files"
+msgstr "Невозможно загрузить больше файлов"
+
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "Не удалось удалить файл из быстрого списка. Пожалуйста сообщите об этом."
+
+#: ../lib/window.rb:218
+msgid "Starting Shredding…"
+msgstr "Начало измельчения…"
+
+#: ../lib/window.rb:236
+msgid "Aborting…"
+msgstr "Прерывание…"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "Добавить"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "Главное меню"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "О приложении"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr "Открыть папку"
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "Добавьте файлы или перетащите их сюда"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "Измельчение это сокрытие файла используя случайные данные так, что предыдущие данные не могут быть восстановлены."
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr "Очистить"
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "Измельчить все"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "Прервать все"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr "Очистить все"
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "Измельчение файлов завершено"
+
 #: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
 msgid "Permanently delete your files"
 msgstr "Безвозвратное удаление ваших файлов"
 
@@ -36,170 +163,12 @@ msgid "delete;remove;permanently;files;shred;data;"
 msgstr "удалить;навсегда;безвозвратно;файлы;измельчить;данные;"
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program designed to permanently remove "
-"sensitive files from your computer, enhancing data privacy."
-msgstr ""
-"Файловый шредер — это утилита для удаления файлов, которая позволяет "
-"надёжно очищать компьютер от чувствительных данных, улучшая защиту "
-"конфиденциальности информации."
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr "Файловый шредер — это утилита для удаления файлов, которая позволяет надёжно очищать компьютер от чувствительных данных, улучшая защиту конфиденциальности информации."
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But shredding "
-"significantly increases the difficulty of data recovery since it requires "
-"specialized software and hardware."
-msgstr ""
-"В определенных пределах это эффективно. Однако современные твердотельные "
-"накопители используют определенные технологии для продления срока службы, что "
-"приводит к тому, что процесс измельчения никогда не бывает идеальным, и никакое "
-"программное обеспечение не может это исправить. Но измельчение значительно "
-"усложняет восстановление данных, поскольку для этого требуется специализированное "
-"программное и аппаратное обеспечение."
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "В определенных пределах это эффективно. Однако современные твердотельные накопители используют определенные технологии для продления срока службы, что приводит к тому, что процесс измельчения никогда не бывает идеальным, и никакое программное обеспечение не может это исправить. Но измельчение значительно усложняет восстановление данных, поскольку для этого требуется специализированное программное и аппаратное обеспечение."
 
-#. developer_name tag deprecated with Appstream 1.0
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:29
-msgid "Alan Beveridge"
-msgstr "Alan Beveridge"
-
-#: src/raider-application.c:84 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:28
-msgid "Add Files"
-msgstr "Добавить файлы"
-
-#: src/raider-application.c:94
-msgid "Add Folders"
-msgstr "Добавить папки"
-
-#: src/raider-application.c:181
-msgid "translator-credits"
-msgstr "Давид Лапшин <ddaudix@gmail.com>"
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr "Начало…"
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr "Окончание…"
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating…"
-msgstr "Оценка…"
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr "Общие"
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:137
-msgid "New Window"
-msgstr "Новое окно"
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:143
-msgid "Keyboard Shortcuts"
-msgstr "Комбинации клавиш"
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr "Закрыть окно"
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr "Выйти"
-
-#: src/raider-window.blp:26
-msgid "Add"
-msgstr "Добавить"
-
-#: src/raider-window.blp:43
-msgid "Main Menu"
-msgstr "Главное меню"
-
-#: src/raider-window.blp:58
-msgid "Add files or drop here"
-msgstr "Добавьте файлы или перетащите их сюда"
-
-#: src/raider-window.blp:60
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"Измельчение это сокрытие файла используя случайные данные так, что "
-"предыдущие данные не могут быть восстановлены."
-
-#: src/raider-window.blp:96
-msgid "Clear"
-msgstr "Очистить"
-
-#: src/raider-window.blp:101 src/raider-window.c:389
-msgid "Shred All"
-msgstr "Измельчить все"
-
-#: src/raider-window.blp:120 src/raider-window.c:442
-msgid "Abort All"
-msgstr "Прервать все"
-
-#: src/raider-window.blp:147
-msgid "About File Shredder"
-msgstr "О приложении"
-
-#: src/raider-window.blp:156
-msgid "Open Folder"
-msgstr "Открыть папку"
-
-#: src/raider-window.c:178
-msgid "Stop Shredding?"
-msgstr "Остановить измельчение?"
-
-#: src/raider-window.c:178
-msgid "Are you sure that you want to exit?"
-msgstr "Вы уверены, что хотите выйти?"
-
-#: src/raider-window.c:181
-msgid "_Cancel"
-msgstr "_Отменить"
-
-#: src/raider-window.c:181
-msgid "_Exit"
-msgstr "_Выйти"
-
-#: src/raider-window.c:230
-msgid "Could not remove filename from quick list. Please report this."
-msgstr ""
-"Не удалось удалить файл из быстрого списка. Пожалуйста сообщите об этом."
-
-#: src/raider-window.c:240
-msgid "Finished shredding files"
-msgstr "Измельчение файлов завершено"
-
-#: src/raider-window.c:312
-#, c-format
-msgid "This file was already added"
-msgstr "Этот файл уже добавлен"
-
-#: src/raider-window.c:326
-msgid "Some files did not exist"
-msgstr "Некоторые файлы не существуют"
-
-#: src/raider-window.c:338
-#, c-format
-msgid "Cannot write to “%s”"
-msgstr "Не удалось записать в “%s”"
-
-#: src/raider-window.c:350
-msgid "Cannot load more files"
-msgstr "Невозможно загрузить больше файлов"
-
-#: src/raider-window.c:388
-msgid "Clear All"
-msgstr "Очистить все"
-
-#: src/raider-window.c:412
-msgid "Starting Shredding…"
-msgstr "Начало измельчения…"
-
-#: src/raider-window.c:464
-msgid "Aborting…"
-msgstr "Прерывание…"
+#~ msgid "Alan Beveridge"
+#~ msgstr "Alan Beveridge"

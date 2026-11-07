@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: raider main\n"
-"Report-Msgid-Bugs-To: https://github.com/ADBeveridge/raider/issues\n"
-"POT-Creation-Date: 2026-01-15 01:17+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2026-01-25 22:34+0500\n"
 "Last-Translator: Baurzhan Muftakhidinov <baurthefirst@gmail.com>\n"
 "Language-Team: Kazakh <Kazakh>\n"
@@ -17,15 +17,143 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.8\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:3
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:167 src/raider-application.c:223
-#: src/raider-window.blp:9 src/raider-window.blp:37
+#: ../lib/exit_dialog.rb:24
+msgid "Are you sure that you want to exit?"
+msgstr "Шығуды шынымен қалайсыз ба?"
+
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "Біржола өшіруді тоқтату керек пе?"
+
+#: ../lib/exit_dialog.rb:30
+msgid "_Cancel"
+msgstr "_Бас тарту"
+
+#: ../lib/exit_dialog.rb:31
+msgid "_Exit"
+msgstr "_Шығу"
+
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
 msgid "File Shredder"
 msgstr "Файлды біржола өшіргіш"
 
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr "Baurzhan Muftakhidinov <baurthefirst@gmail.com>"
+
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "Файлдарды қосу"
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr "Бумаларды қосу"
+
+#: ../lib/progress_info_popover.rb:49
+msgid "Estimating…"
+msgstr "Бағалауда…"
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr "Басталуда…"
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr "Аяқталуда…"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "Жалпы"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "Жаңа терезе"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "Пернетақта жарлықтары"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "Терезені жабу"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "Шығу"
+
+#: ../lib/window.rb:152
+msgid "This file was already added"
+msgstr "Бұл файл бұрыннан қосылған"
+
+#: ../lib/window.rb:155
+msgid "Some files did not exist"
+msgstr "Кейбір файлдар табылмады"
+
+#: ../lib/window.rb:158
+msgid "Cannot write to “%s”"
+msgstr "“%s” ішіне жазу мүмкін емес"
+
+#: ../lib/window.rb:161
+msgid "Cannot load more files"
+msgstr "Басқа файлдарды жүктеу мүмкін емес"
+
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "Файл атын жылдам тізімнен өшіру мүмкін болмады. Бұл туралы хабарлауыңызды сұраймыз."
+
+#: ../lib/window.rb:218
+msgid "Starting Shredding…"
+msgstr "Біржола өшіру басталуда…"
+
+#: ../lib/window.rb:236
+msgid "Aborting…"
+msgstr "Тоқтатылуда…"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "Қосу"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "Негізгі мәзір"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "Файлды біржола өшіргіш туралы"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr "Буманы ашу"
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "Файлдарды қосу немесе осында тастау"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "Біржола өшіру — бұл файлды кездейсоқ деректермен толтыру, нәтижесінде оның алдыңғы мазмұнын қалпына келтіру мүмкін болмайды."
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr "Тазарту"
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "Барлығын біржола өшіру"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "Барлығынан бас тарту"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr "Барлығын тазарту"
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "Файлдарды біржола өшіру аяқталды"
+
 #: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
 msgid "Permanently delete your files"
 msgstr "Файлдарыңызды біржола өшіру"
 
@@ -34,170 +162,12 @@ msgid "delete;remove;permanently;files;shred;data;"
 msgstr "өшіру;өшіру;біржола;файлдар;шредер;деректер;"
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program designed to permanently remove "
-"sensitive files from your computer, enhancing data privacy."
-msgstr ""
-"Файлды біржола өшіргіш — деректер жекелігін арттыру мақсатында компьютерден "
-"маңызды файлдарды біржола өшіруге арналған файлдарды өшіру бағдарламасы."
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr "Файлды біржола өшіргіш — деректер жекелігін арттыру мақсатында компьютерден маңызды файлдарды біржола өшіруге арналған файлдарды өшіру бағдарламасы."
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But "
-"shredding significantly increases the difficulty of data recovery since it "
-"requires specialized software and hardware."
-msgstr ""
-"Белгілі бір шектерде бұл тиімді. Дегенмен, заманауи SSD дискілері қызмет "
-"ету мерзімін ұзарту үшін белгілі бір технологияларды қолданады, соның "
-"жанама әсерінен біржола өшіру ешқашан мінсіз болмайды және оны ешқандай "
-"бағдарламалық қамтама түзете алмайды. Бірақ біржола өшіру деректерді "
-"қалпына келтіруді айтарлықтай қиындатады, өйткені бұл үшін арнайы "
-"бағдарламалық қамтама мен аппараттық құралдар қажет."
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "Белгілі бір шектерде бұл тиімді. Дегенмен, заманауи SSD дискілері қызмет ету мерзімін ұзарту үшін белгілі бір технологияларды қолданады, соның жанама әсерінен біржола өшіру ешқашан мінсіз болмайды және оны ешқандай бағдарламалық қамтама түзете алмайды. Бірақ біржола өшіру деректерді қалпына келтіруді айтарлықтай қиындатады, өйткені бұл үшін арнайы бағдарламалық қамтама мен аппараттық құралдар қажет."
 
-#. developer_name tag deprecated with Appstream 1.0
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:25
-msgid "Alan Beveridge"
-msgstr "Alan Beveridge"
-
-#: src/raider-application.c:83 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:28
-msgid "Add Files"
-msgstr "Файлдарды қосу"
-
-#: src/raider-application.c:93
-msgid "Add Folders"
-msgstr "Бумаларды қосу"
-
-#: src/raider-application.c:180
-msgid "translator-credits"
-msgstr "Baurzhan Muftakhidinov <baurthefirst@gmail.com>"
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr "Басталуда…"
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr "Аяқталуда…"
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating…"
-msgstr "Бағалауда…"
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr "Жалпы"
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:137
-msgid "New Window"
-msgstr "Жаңа терезе"
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:143
-msgid "Keyboard Shortcuts"
-msgstr "Пернетақта жарлықтары"
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr "Терезені жабу"
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr "Шығу"
-
-#: src/raider-window.blp:26
-msgid "Add"
-msgstr "Қосу"
-
-#: src/raider-window.blp:43
-msgid "Main Menu"
-msgstr "Негізгі мәзір"
-
-#: src/raider-window.blp:58
-msgid "Add files or drop here"
-msgstr "Файлдарды қосу немесе осында тастау"
-
-#: src/raider-window.blp:60
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"Біржола өшіру — бұл файлды кездейсоқ деректермен толтыру, нәтижесінде оның "
-"алдыңғы мазмұнын қалпына келтіру мүмкін болмайды."
-
-#: src/raider-window.blp:96
-msgid "Clear"
-msgstr "Тазарту"
-
-#: src/raider-window.blp:101 src/raider-window.c:388
-msgid "Shred All"
-msgstr "Барлығын біржола өшіру"
-
-#: src/raider-window.blp:120 src/raider-window.c:441
-msgid "Abort All"
-msgstr "Барлығынан бас тарту"
-
-#: src/raider-window.blp:147
-msgid "About File Shredder"
-msgstr "Файлды біржола өшіргіш туралы"
-
-#: src/raider-window.blp:156
-msgid "Open Folder"
-msgstr "Буманы ашу"
-
-#: src/raider-window.c:177
-msgid "Stop Shredding?"
-msgstr "Біржола өшіруді тоқтату керек пе?"
-
-#: src/raider-window.c:177
-msgid "Are you sure that you want to exit?"
-msgstr "Шығуды шынымен қалайсыз ба?"
-
-#: src/raider-window.c:180
-msgid "_Cancel"
-msgstr "_Бас тарту"
-
-#: src/raider-window.c:180
-msgid "_Exit"
-msgstr "_Шығу"
-
-#: src/raider-window.c:229
-msgid "Could not remove filename from quick list. Please report this."
-msgstr ""
-"Файл атын жылдам тізімнен өшіру мүмкін болмады. Бұл туралы хабарлауыңызды "
-"сұраймыз."
-
-#: src/raider-window.c:239
-msgid "Finished shredding files"
-msgstr "Файлдарды біржола өшіру аяқталды"
-
-#: src/raider-window.c:311
-#, c-format
-msgid "This file was already added"
-msgstr "Бұл файл бұрыннан қосылған"
-
-#: src/raider-window.c:325
-msgid "Some files did not exist"
-msgstr "Кейбір файлдар табылмады"
-
-#: src/raider-window.c:337
-#, c-format
-msgid "Cannot write to “%s”"
-msgstr "“%s” ішіне жазу мүмкін емес"
-
-#: src/raider-window.c:349
-msgid "Cannot load more files"
-msgstr "Басқа файлдарды жүктеу мүмкін емес"
-
-#: src/raider-window.c:387
-msgid "Clear All"
-msgstr "Барлығын тазарту"
-
-#: src/raider-window.c:411
-msgid "Starting Shredding…"
-msgstr "Біржола өшіру басталуда…"
-
-#: src/raider-window.c:463
-msgid "Aborting…"
-msgstr "Тоқтатылуда…"
+#~ msgid "Alan Beveridge"
+#~ msgstr "Alan Beveridge"

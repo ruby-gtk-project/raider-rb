@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: https://github.com/ADBeveridge/raider/issues\n"
-"POT-Creation-Date: 2025-10-20 03:36+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2025-09-04 19:49+0300\n"
 "Last-Translator: Sabri Ünal <yakushabb@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
@@ -19,15 +19,143 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 3.7\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:3
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:168 src/raider-application.c:224
-#: src/raider-window.blp:9 src/raider-window.blp:37
+#: ../lib/exit_dialog.rb:24
+msgid "Are you sure that you want to exit?"
+msgstr "Çıkmak istediğinize emin misiniz?"
+
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "Parçalama Durdurulsun Mu?"
+
+#: ../lib/exit_dialog.rb:30
+msgid "_Cancel"
+msgstr "İ_ptal"
+
+#: ../lib/exit_dialog.rb:31
+msgid "_Exit"
+msgstr "_Çık"
+
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
 msgid "File Shredder"
 msgstr "Dosya Parçalayıcı"
 
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr "Sabri Ünal <yakushabb@gmail.com>"
+
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "Dosya Ekle"
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr "Klasör Ekle"
+
+#: ../lib/progress_info_popover.rb:49
+msgid "Estimating…"
+msgstr "Öngörülüyor…"
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr "Başlatılıyor…"
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr "Bitiriliyor…"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "Genel"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "Yeni Pencere"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "Klavye Kısayolları"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "Pencereyi Kapat"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "Çık"
+
+#: ../lib/window.rb:152
+msgid "This file was already added"
+msgstr "Bu dosya zaten ekli"
+
+#: ../lib/window.rb:155
+msgid "Some files did not exist"
+msgstr "Bazı dosyalar yok"
+
+#: ../lib/window.rb:158
+msgid "Cannot write to “%s”"
+msgstr "“%s” dosyasına yazılamıyor"
+
+#: ../lib/window.rb:161
+msgid "Cannot load more files"
+msgstr "Daha fazla dosya yükleyemez"
+
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "Dosya adı hızlı listeden kaldırılamadı. Lütfen bunu raporlayın."
+
+#: ../lib/window.rb:218
+msgid "Starting Shredding…"
+msgstr "Parçalama Başlatılıyor…"
+
+#: ../lib/window.rb:236
+msgid "Aborting…"
+msgstr "Vazgeçiliyor…"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "Ekle"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "Ana Menü"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "Dosya Parçalayıcı Hakkında"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr "Klasör Aç"
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "Dosyaları ekleyin ya da buraya bırakın"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "Parçalama, bir dosyanın rastgele verilerle karıştırılmasıdır, böylece önceki içerikler kurtarılamaz."
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr "Temizle"
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "Tümünü Parçala"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "Tümünden Vazgeç"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr "Tümünü Temizle"
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "Dosya parçalama tamamlandı"
+
 #: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
 msgid "Permanently delete your files"
 msgstr "Dosyalarınızı kalıcı olarak silin"
 
@@ -36,168 +164,12 @@ msgid "delete;remove;permanently;files;shred;data;"
 msgstr "delete;remove;permanently;files;shred;data;sil;kaldır;kalıcı;dosya;dosyalar;parçala;kıy;buda;dilimle;lime;"
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program designed to permanently remove "
-"sensitive files from your computer, enhancing data privacy."
-msgstr ""
-"Dosya Parçalayıcı, hassas dosyaları bilgisayarınızdan kalıcı olarak "
-"kaldırmak ve veri gizliliğini artırmak için tasarlanmış dosya silme "
-"programıdır."
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr "Dosya Parçalayıcı, hassas dosyaları bilgisayarınızdan kalıcı olarak kaldırmak ve veri gizliliğini artırmak için tasarlanmış dosya silme programıdır."
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But shredding "
-"significantly increases the difficulty of data recovery since it requires "
-"specialized software and hardware."
-msgstr ""
-"Belirli sınırda etkilidir. Çağdaş SSDʼler kullanım ömrünü uzatmak için "
-"belirli teknolojiler kullanmaktadır ve bu da parçalamanın asla mükemmel "
-"olmamasına neden olan yan etkiyi barındırır ve hiçbir yazılım bunu "
-"düzeltemez. Ancak parçalama, özel yazılım ve donanım gerektiren veri "
-"kurtarmanın zorluğunu önemli ölçüde artırır."
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "Belirli sınırda etkilidir. Çağdaş SSDʼler kullanım ömrünü uzatmak için belirli teknolojiler kullanmaktadır ve bu da parçalamanın asla mükemmel olmamasına neden olan yan etkiyi barındırır ve hiçbir yazılım bunu düzeltemez. Ancak parçalama, özel yazılım ve donanım gerektiren veri kurtarmanın zorluğunu önemli ölçüde artırır."
 
-#. developer_name tag deprecated with Appstream 1.0
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:29
-msgid "Alan Beveridge"
-msgstr "Alan Beveridge"
-
-#: src/raider-application.c:84 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:28
-msgid "Add Files"
-msgstr "Dosya Ekle"
-
-#: src/raider-application.c:94
-msgid "Add Folders"
-msgstr "Klasör Ekle"
-
-#: src/raider-application.c:181
-msgid "translator-credits"
-msgstr "Sabri Ünal <yakushabb@gmail.com>"
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr "Başlatılıyor…"
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr "Bitiriliyor…"
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating…"
-msgstr "Öngörülüyor…"
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr "Genel"
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:137
-msgid "New Window"
-msgstr "Yeni Pencere"
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:143
-msgid "Keyboard Shortcuts"
-msgstr "Klavye Kısayolları"
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr "Pencereyi Kapat"
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr "Çık"
-
-#: src/raider-window.blp:26
-msgid "Add"
-msgstr "Ekle"
-
-#: src/raider-window.blp:43
-msgid "Main Menu"
-msgstr "Ana Menü"
-
-#: src/raider-window.blp:58
-msgid "Add files or drop here"
-msgstr "Dosyaları ekleyin ya da buraya bırakın"
-
-#: src/raider-window.blp:60
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"Parçalama, bir dosyanın rastgele verilerle karıştırılmasıdır, böylece önceki "
-"içerikler kurtarılamaz."
-
-#: src/raider-window.blp:96
-msgid "Clear"
-msgstr "Temizle"
-
-#: src/raider-window.blp:101 src/raider-window.c:389
-msgid "Shred All"
-msgstr "Tümünü Parçala"
-
-#: src/raider-window.blp:120 src/raider-window.c:442
-msgid "Abort All"
-msgstr "Tümünden Vazgeç"
-
-#: src/raider-window.blp:147
-msgid "About File Shredder"
-msgstr "Dosya Parçalayıcı Hakkında"
-
-#: src/raider-window.blp:156
-msgid "Open Folder"
-msgstr "Klasör Aç"
-
-#: src/raider-window.c:178
-msgid "Stop Shredding?"
-msgstr "Parçalama Durdurulsun Mu?"
-
-#: src/raider-window.c:178
-msgid "Are you sure that you want to exit?"
-msgstr "Çıkmak istediğinize emin misiniz?"
-
-#: src/raider-window.c:181
-msgid "_Cancel"
-msgstr "İ_ptal"
-
-#: src/raider-window.c:181
-msgid "_Exit"
-msgstr "_Çık"
-
-#: src/raider-window.c:230
-msgid "Could not remove filename from quick list. Please report this."
-msgstr "Dosya adı hızlı listeden kaldırılamadı. Lütfen bunu raporlayın."
-
-#: src/raider-window.c:240
-msgid "Finished shredding files"
-msgstr "Dosya parçalama tamamlandı"
-
-#: src/raider-window.c:312
-#, c-format
-msgid "This file was already added"
-msgstr "Bu dosya zaten ekli"
-
-#: src/raider-window.c:326
-msgid "Some files did not exist"
-msgstr "Bazı dosyalar yok"
-
-#: src/raider-window.c:338
-#, c-format
-msgid "Cannot write to “%s”"
-msgstr "“%s” dosyasına yazılamıyor"
-
-#: src/raider-window.c:350
-msgid "Cannot load more files"
-msgstr "Daha fazla dosya yükleyemez"
-
-#: src/raider-window.c:388
-msgid "Clear All"
-msgstr "Tümünü Temizle"
-
-#: src/raider-window.c:412
-msgid "Starting Shredding…"
-msgstr "Parçalama Başlatılıyor…"
-
-#: src/raider-window.c:464
-msgid "Aborting…"
-msgstr "Vazgeçiliyor…"
+#~ msgid "Alan Beveridge"
+#~ msgstr "Alan Beveridge"

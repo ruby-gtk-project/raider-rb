@@ -61,6 +61,42 @@ RSpec.describe Corrupt do
     end
   end
 
+  # Regression test named in test-parity.md's open gaps: no check (spec or
+  # driver) had ever exercised `step`'s `rescue SystemCallError` branch
+  # (src/corrupt.c's `g_warning` path for a write that fails) actually firing
+  # partway through a pass, as opposed to the file never being openable at
+  # all. This stubs `File.open` to yield an object that raises on its third
+  # `write`, so the failure lands after some of the pass's writes have
+  # already gone out, and asserts the run stops there rather than finishing
+  # the pass, reporting progress for it, or unlinking the file.
+  context "when a write fails partway through a pass" do
+    it "stops the run, reports the step error, and leaves the file in place" do
+      Dir.mktmpdir do |directory|
+        path = File.join(directory, "secret.txt")
+        File.write(path, "the quick brown fox jumps")
+
+        writes = 0
+        failing_io = Object.new
+        failing_io.define_singleton_method(:write) do |_data|
+          writes += 1
+          if writes == 3
+            raise Errno::EIO, "simulated write failure"
+          end
+        end
+        allow(File).to receive(:open).with(path, "r+b").and_yield(failing_io)
+
+        error, progress = shred(path)
+
+        expect(error).to match(/corrupt: failed to perform shredding step/)
+        expect(writes).to eq(3)
+        expect(File).to exist(path)
+        # The pass that failed never finishes, so it never reports — only
+        # the run's initial 0.0 was recorded.
+        expect(progress).to eq([0.0])
+      end
+    end
+  end
+
   context "with a folder" do
     it "shreds every file in the tree and removes the directories" do
       Dir.mktmpdir do |directory|

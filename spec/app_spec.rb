@@ -196,7 +196,52 @@ RSpec.describe App do
 
         completion.call(fake_dialog, double("result"))
 
-        expect(second.rows.map(&:path)).to include(path)
+        expect(GtkSupport.pump_until { second.rows.map(&:path).include?(path) }).to be(true)
+        expect(first.rows.map(&:path)).not_to include(path)
+      end
+    end
+  end
+
+  # Regression test named in test-parity.md's open gaps: action_open_folder
+  # resolves its target window exactly the same way action_open does
+  # (`active_port_window`, called once at dialog-presentation time), but
+  # unlike action_open had no test driving that directly. This is C4's test
+  # above, repeated against action_open_folder's own dialog and finish
+  # method, so a future change that moves the `active_port_window` call
+  # inside the completion block is caught here too, not only for the file
+  # dialog.
+  describe "#action_open_folder targets the window active when the dialog was opened" do
+    let(:shared) { GtkSupport.app }
+    let(:windows) { 2.times.map { shared.send(:open_window, []) } }
+
+    it "loads the folder's files into the second window even if the first becomes active before the dialog finishes" do
+      first, second = windows
+      second.window.present
+      GtkSupport.pump_until { shared.app.active_window == second.window }
+
+      Dir.mktmpdir do |directory|
+        path = GtkSupport.write_file(directory, "open-folder.bin", size: 16)
+        fake_dialog = instance_double(
+          Gtk::FileDialog,
+          "modal=" => nil,
+          "title=" => nil,
+        )
+        allow(Gtk::FileDialog).to receive(:new).and_return(fake_dialog)
+        completion = nil
+        allow(fake_dialog).to receive(:select_multiple_folders) do |_parent, _cancellable, &block|
+          completion = block
+        end
+        allow(fake_dialog).to receive(:select_multiple_folders_finish).and_return([path])
+
+        shared.send(:action_open_folder)
+
+        # The user focuses the other window while the dialog is still open.
+        first.window.present
+        GtkSupport.pump_until { shared.app.active_window == first.window }
+
+        completion.call(fake_dialog, double("result"))
+
+        expect(GtkSupport.pump_until { second.rows.map(&:path).include?(path) }).to be(true)
         expect(first.rows.map(&:path)).not_to include(path)
       end
     end

@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: raider main\n"
-"Report-Msgid-Bugs-To: https://github.com/ADBeveridge/raider/issues\n"
-"POT-Creation-Date: 2025-09-05 03:37+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2025-09-05 08:34+0200\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <ka@li.org>\n"
@@ -17,15 +17,143 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.7\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:3
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:168 src/raider-application.c:224
-#: src/raider-window.blp:9 src/raider-window.blp:37
+#: ../lib/exit_dialog.rb:24
+msgid "Are you sure that you want to exit?"
+msgstr "მართლა გნებავთ გასვლა?"
+
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "გავაჩერო განადგურება?"
+
+#: ../lib/exit_dialog.rb:30
+msgid "_Cancel"
+msgstr "გაუ_ქმება"
+
+#: ../lib/exit_dialog.rb:31
+msgid "_Exit"
+msgstr "_გასვლა"
+
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
 msgid "File Shredder"
 msgstr "ფაილის გამანადგურებელი"
 
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr "თემური დოღონაძე"
+
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "ფაილების დამატება"
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr "საქაღალდეების დამატება"
+
+#: ../lib/progress_info_popover.rb:49
+msgid "Estimating…"
+msgstr "დაახლოებით…"
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr "გაშვება…"
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr "დასრულება…"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "ზოგადი"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "ახალი ფანჯარა"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "კლავიატურის მალსახმობები"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "ფანჯრის დახურვა"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "გასვლა"
+
+#: ../lib/window.rb:152
+msgid "This file was already added"
+msgstr "ეს ფაილი უკვე დამატებულია"
+
+#: ../lib/window.rb:155
+msgid "Some files did not exist"
+msgstr "ზოგიერთი ფაილი არ არსებობს"
+
+#: ../lib/window.rb:158
+msgid "Cannot write to “%s”"
+msgstr "\"%s\"-ში ჩაწერა შეუძლებელია"
+
+#: ../lib/window.rb:161
+msgid "Cannot load more files"
+msgstr "მეტი ფაილის ჩატვირთვა შეუძლებელია"
+
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "ფაილის სახელის სწრაფი სიიდან მოცილება შეუძლებელია. მოგვწერეთ ამის შესახებ."
+
+#: ../lib/window.rb:218
+msgid "Starting Shredding…"
+msgstr "განადგურება იწყება…"
+
+#: ../lib/window.rb:236
+msgid "Aborting…"
+msgstr "გაუქმება…"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "დამატება"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "მთავარი მენიუ"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "ფაილმნადგურებლის შესახებ"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr "საქაღალდის გახსნა"
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "დაამატეთ ფაილები, ან დაყარეთ ისინი აქ"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "განადგურება ფაილის მონაცემების შემთხვევითი მონაცემებით გადაწერაა ისე, რომ მისი შემცველობის აღდგენა შეუძლებელი გახდეს."
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr "გასუფთავება"
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "ყველას განადგურება"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "ყველას გაუქმება"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr "ყველას გასუფთავება"
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "ფაილების განადგურება დასრულდა"
+
 #: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
 msgid "Permanently delete your files"
 msgstr "სამუდამოდ წაშალეთ თქვენი ფაილები"
 
@@ -34,168 +162,12 @@ msgid "delete;remove;permanently;files;shred;data;"
 msgstr "წაშლა;სამუდამოდ;განადგურება;მონაცემები;"
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program designed to permanently remove "
-"sensitive files from your computer, enhancing data privacy."
-msgstr ""
-"File Shredder ფაილების წაშლის პროგრამაა, რომელიც თქვენი კომპიუტერიდან "
-"ფაილების სამუდამოდ წაშლისთვისაა შექმნილი."
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr "File Shredder ფაილების წაშლის პროგრამაა, რომელიც თქვენი კომპიუტერიდან ფაილების სამუდამოდ წაშლისთვისაა შექმნილი."
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But shredding "
-"significantly increases the difficulty of data recovery since it requires "
-"specialized software and hardware."
-msgstr ""
-"რაღაც დონემდე ის ეფექტურია. მაგრამ თანამედროვე SSD-ები იყენებენ გარკვეულ "
-"ტექნოლოგიებს, რომ გაახანგრძლივონ თავიანთი სიცოცხლის დრო, რომლის გვერდითი "
-"ეფექტია ის, რომ ფაილების განადგურება ბოლომდე არასდროს ხდება და ამას პროგრამა "
-"ვერ გაასწორებს. მაგრამ ფაილების განადგურება ამას ძალიან ართულებს და ითხოვს "
-"სპეციალიზებულ პროგრამებს და აპარატურას."
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "რაღაც დონემდე ის ეფექტურია. მაგრამ თანამედროვე SSD-ები იყენებენ გარკვეულ ტექნოლოგიებს, რომ გაახანგრძლივონ თავიანთი სიცოცხლის დრო, რომლის გვერდითი ეფექტია ის, რომ ფაილების განადგურება ბოლომდე არასდროს ხდება და ამას პროგრამა ვერ გაასწორებს. მაგრამ ფაილების განადგურება ამას ძალიან ართულებს და ითხოვს სპეციალიზებულ პროგრამებს და აპარატურას."
 
-#. developer_name tag deprecated with Appstream 1.0
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:29
-msgid "Alan Beveridge"
-msgstr "Alan Beveridge"
-
-#: src/raider-application.c:84 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:28
-msgid "Add Files"
-msgstr "ფაილების დამატება"
-
-#: src/raider-application.c:94
-msgid "Add Folders"
-msgstr "საქაღალდეების დამატება"
-
-#: src/raider-application.c:181
-msgid "translator-credits"
-msgstr "თემური დოღონაძე"
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr "გაშვება…"
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr "დასრულება…"
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating…"
-msgstr "დაახლოებით…"
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr "ზოგადი"
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:137
-msgid "New Window"
-msgstr "ახალი ფანჯარა"
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:143
-msgid "Keyboard Shortcuts"
-msgstr "კლავიატურის მალსახმობები"
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr "ფანჯრის დახურვა"
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr "გასვლა"
-
-#: src/raider-window.blp:26
-msgid "Add"
-msgstr "დამატება"
-
-#: src/raider-window.blp:43
-msgid "Main Menu"
-msgstr "მთავარი მენიუ"
-
-#: src/raider-window.blp:58
-msgid "Add files or drop here"
-msgstr "დაამატეთ ფაილები, ან დაყარეთ ისინი აქ"
-
-#: src/raider-window.blp:60
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"განადგურება ფაილის მონაცემების შემთხვევითი მონაცემებით გადაწერაა ისე, რომ "
-"მისი შემცველობის აღდგენა შეუძლებელი გახდეს."
-
-#: src/raider-window.blp:96
-msgid "Clear"
-msgstr "გასუფთავება"
-
-#: src/raider-window.blp:101 src/raider-window.c:389
-msgid "Shred All"
-msgstr "ყველას განადგურება"
-
-#: src/raider-window.blp:120 src/raider-window.c:442
-msgid "Abort All"
-msgstr "ყველას გაუქმება"
-
-#: src/raider-window.blp:147
-msgid "About File Shredder"
-msgstr "ფაილმნადგურებლის შესახებ"
-
-#: src/raider-window.blp:156
-msgid "Open Folder"
-msgstr "საქაღალდის გახსნა"
-
-#: src/raider-window.c:178
-msgid "Stop Shredding?"
-msgstr "გავაჩერო განადგურება?"
-
-#: src/raider-window.c:178
-msgid "Are you sure that you want to exit?"
-msgstr "მართლა გნებავთ გასვლა?"
-
-#: src/raider-window.c:181
-msgid "_Cancel"
-msgstr "გაუ_ქმება"
-
-#: src/raider-window.c:181
-msgid "_Exit"
-msgstr "_გასვლა"
-
-#: src/raider-window.c:230
-msgid "Could not remove filename from quick list. Please report this."
-msgstr ""
-"ფაილის სახელის სწრაფი სიიდან მოცილება შეუძლებელია. მოგვწერეთ ამის შესახებ."
-
-#: src/raider-window.c:240
-msgid "Finished shredding files"
-msgstr "ფაილების განადგურება დასრულდა"
-
-#: src/raider-window.c:312
-#, c-format
-msgid "This file was already added"
-msgstr "ეს ფაილი უკვე დამატებულია"
-
-#: src/raider-window.c:326
-msgid "Some files did not exist"
-msgstr "ზოგიერთი ფაილი არ არსებობს"
-
-#: src/raider-window.c:338
-#, c-format
-msgid "Cannot write to “%s”"
-msgstr "\"%s\"-ში ჩაწერა შეუძლებელია"
-
-#: src/raider-window.c:350
-msgid "Cannot load more files"
-msgstr "მეტი ფაილის ჩატვირთვა შეუძლებელია"
-
-#: src/raider-window.c:388
-msgid "Clear All"
-msgstr "ყველას გასუფთავება"
-
-#: src/raider-window.c:412
-msgid "Starting Shredding…"
-msgstr "განადგურება იწყება…"
-
-#: src/raider-window.c:464
-msgid "Aborting…"
-msgstr "გაუქმება…"
+#~ msgid "Alan Beveridge"
+#~ msgstr "Alan Beveridge"

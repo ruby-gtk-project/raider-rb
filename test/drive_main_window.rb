@@ -44,6 +44,10 @@ SHRED_SIZE = 256 * 1024
 # Big enough that an abort always lands mid-pass.
 ABORT_SIZE = 4 * 1024 * 1024
 
+# Just needs to exist; the C3 step below opens many of these to show rows
+# arriving one at a time rather than all at once.
+MANY_FILES_SIZE = 64
+
 DIR = Dir.mktmpdir('raider-drive')
 
 def fixture(name, size)
@@ -221,7 +225,7 @@ GtkDriver.drive(App.new, shots: SHOTS, timeout: 600) do |d, app|
   d.step('add three files') do
     win.call.open_files(%w[one.bin two.bin three.bin].map { |name| fixture(name, SHRED_SIZE) })
 
-    d.check('three rows') { win.call.rows.length == 3 }
+    d.check('three rows') { wait_until { win.call.rows.length == 3 } }
     d.check('the rows are titled with the basename') do
       win.call.rows.map(&:title) == %w[one.bin two.bin three.bin]
     end
@@ -324,6 +328,32 @@ GtkDriver.drive(App.new, shots: SHOTS, timeout: 600) do |d, app|
     end
   end
 
+  # Gap C3 (component-parity.md): raider_window_open_files runs on a GTask
+  # worker thread upstream (src/raider-window.c:272-290), so a large drop
+  # does not block the main loop while every file is stat'd. This opens
+  # enough files at once that, were they still examined synchronously on
+  # this thread, the main loop would get no turn between the first row
+  # landing and the last — the check below polls the row count across
+  # several turns and requires it to have grown gradually, which only a
+  # threaded `open_files` can produce.
+  d.step('opening many files at once does not freeze the main loop (C3)') do
+    win.call.clear_files
+    many = 60.times.map { |n| fixture("many#{n}.bin", MANY_FILES_SIZE) }
+
+    win.call.open_files(many)
+
+    counts = []
+    d.check('every file lands, counted across more than one turn of the loop') do
+      wait_until do
+        counts << win.call.rows.length
+        win.call.rows.length == many.length
+      end
+      counts.uniq.length > 1 && win.call.rows.length == many.length
+    end
+
+    win.call.clear_files
+  end
+
   d.step('clearing empties the list and brings the empty state back') do
     win.call.clear_files
 
@@ -350,7 +380,9 @@ GtkDriver.drive(App.new, shots: SHOTS, timeout: 600) do |d, app|
       d.check('the drop is accepted') do
         win.call.send(:on_drop, DroppedFiles.new(paths)) == true
       end
-      d.check('both files are listed') { win.call.rows.map(&:title) == %w[drop-one.bin drop-two.bin] }
+      d.check('both files are listed') do
+        wait_until { win.call.rows.map(&:title) == %w[drop-one.bin drop-two.bin] }
+      end
       d.check('list page') { win.call.window_stack.visible_child_name == Window::LIST_PAGE }
       d.check('the drop target only accepts a copy') do
         win.call.drop_target.actions == Gdk::DragAction::COPY
@@ -397,6 +429,7 @@ GtkDriver.drive(App.new, shots: SHOTS, timeout: 600) do |d, app|
   d.step('start shredding') do
     win.call.clear_files
     win.call.open_files(%w[one.bin two.bin three.bin].map { |name| fixture(name, SHRED_SIZE) })
+    wait_until { win.call.rows.length == 3 }
     win.call.start_shredding
 
     d.check('the window reports shredding') { win.call.shredding? }

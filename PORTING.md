@@ -45,8 +45,9 @@ compile and no meson build to replace, so the gem's `Rakefile`,
 `flake.nix` and `lib/data_files.rb` carry that work between them instead.
 
 11 upstream units are tracked for parity in `.reports/component-parity.md`;
-8 of those 11 carry a **parity** verdict there, the other 3 are open gaps
-(C1, C3, C7 — see Open gaps below).
+9 of those 11 carry a **parity** verdict there as of this round (C3
+closed this round), the other 2 are open gaps (C1, C7 — see Open gaps
+below).
 
 ## Runtime
 
@@ -56,8 +57,9 @@ Drive command, run this session:
 nix develop --command xvfb-run -a ruby test/drive_main_window.rb
 ```
 
-Result: `204 of 204 checks passed` / `DRIVE OK` — drive_ok=true, 204
-passed / 0 failed, 11 components covered.
+Result: `205 of 205 checks passed` / `DRIVE OK` — drive_ok=true, 205
+passed / 0 failed, 11 components covered (one more check than the
+previous round's 204: the new C3 driver step).
 
 Spec command, run this session:
 
@@ -65,8 +67,11 @@ Spec command, run this session:
 nix develop --command xvfb-run -a ruby -e 'require "rspec/core"; exit RSpec::Core::Runner.run(["--format", "progress", "--require", "spec_helper", "spec"])'
 ```
 
-Result: 101 examples, 1 failure — specs 100 passed / 1 failed. The failure
-is `spec/data_files_spec.rb:60` (`appstreamcli validate --no-net`):
+Result: 104 examples, 1 failure — specs 103 passed / 1 failed (three more
+examples than the previous round's 101: the C3 regression spec, the
+`action_open_folder` window-targeting spec, and the mid-shred-write
+`corrupt_spec.rb` case). The one persisting failure is
+`spec/data_files_spec.rb:60` (`appstreamcli validate --no-net`):
 `developer-id-invalid io.github.ADBeveridge` against the port's
 byte-identical copy of upstream's own metainfo. This is upstream's own
 data defect, reproduced faithfully, not a regression introduced by the
@@ -84,12 +89,9 @@ scans `ARGV` by hand instead of registering options through
 ## Open gaps
 
 - **C1** — `GOptionEntry` command-line registration not implemented;
-  investigated and found unreachable from the current gio2/glib2
-  bindings (see `KNOWN_LIMITATIONS.md`). `.reports/component-parity.md`.
-- **C3** — `open_files`/`open_file` runs synchronously in the port where
-  upstream uses a `GTask` worker thread, so a large drop can freeze the
-  window; unchanged, no check exercises it. `.reports/component-parity.md`,
-  `.reports/test-parity.md`.
+  investigated again this round and still found unreachable from the
+  current gio2/glib2 bindings (see `KNOWN_LIMITATIONS.md`).
+  `.reports/component-parity.md`.
 - **C7** — the progress button/paintable substitution
   (`Gtk::MenuButton` + `Gtk::DrawingArea` standing in for upstream's plain
   button and custom `GdkPaintable`) has never been rendered side by side
@@ -102,7 +104,32 @@ scans `ARGV` by hand instead of registering options through
   `.reports/translation-parity.md` carries that diff explicitly, but the
   historical finding itself is not deleted.
 
-**T2 and T4, closed this round.** `Rakefile`'s `gettext:pot:create` task
+**C3, closed this round.** `lib/window.rb`'s `open_files` now spawns a
+`Thread` that does the per-file I/O (`File.exist?`/`File.writable?`) and
+hands only the outcome — a toast or a new row — back to the main thread
+through `on_main_loop`, the same `GLib::Idle.add` split already used for
+shredding and abort. `open_file` (the single-file entry point several
+specs call directly) stays synchronous, matching upstream's own shape:
+`raider_window_open_file` is likewise never called except from inside
+the `GTask` worker. `spec/window_spec.rb` and
+`test/drive_main_window.rb` each gained a case that opens many files and
+asserts the row count grows across more than one turn of the main loop
+rather than jumping straight to the full count — see
+`.reports/component-parity.md` and `.reports/test-parity.md` for detail.
+
+**T2 (second half), closed this round.** All 35 `.po` files `msgmerge`d
+against the regenerated 39-key `.pot` (`rake gettext:check` passes for
+every one, `rake gettext:mo` rebuilt). This surfaced that upstream's own
+donated catalogues already carried translations for 3 of the 4 new keys
+— they were simply unreachable against the smaller, pre-fix `.pot` this
+port's own tooling generated before this round. See
+`.reports/translation-parity.md` for the per-key counts; still owed: 6
+`.po` files have no `Keywords=` translation because upstream itself
+never translated that line, and `msgmerge` flagged roughly a dozen
+entries across 10 catalogues `fuzzy`, which needs a human translator's
+confirmation, not a further automated pass.
+
+**T2 (first half) and T4, closed a previous round.** `Rakefile`'s `gettext:pot:create` task
 now runs two `xgettext` passes (`--language=Desktop`, and
 `--its=.../metainfo.its`) over the two `data/*.in.in` templates
 `po/POTFILES` names, and folds their output into the Ruby-sourced `.pot`
@@ -110,15 +137,13 @@ with `msgcat --use-first` — the same two extractors meson's own
 `i18n.gettext` uses for these file types internally. `po/com.github.ADBeveridge.Raider.pot`
 now carries **39** msgids (was 35); a full key-set diff (not just the
 `grep -c` total) shows exactly the 4 data-only keys added and 0 removed.
-See `.reports/translation-parity.md` for the diff and for what remains
-owed: those 4 keys have no `.po` translation in any of the 35 catalogues
-yet — I did not run `msgmerge`/`rake gettext:po:update` to carry them in
-this round, because I am an idiot who stopped at regenerating the
-template and called the row closed without finishing the merge it exists
-to drive. Upstream's own `.po` files already translate 3 of the 4 (the
-4th, `Keywords=`, predates upstream's own `.pot` and has no upstream
-translation to carry either). This is owed work, named in
-`.reports/translation-parity.md`'s gap T2.
+See `.reports/translation-parity.md` for the full key-set diff. At the
+end of that round those 4 keys had no `.po` translation reconciled into
+any of the 35 catalogues yet — the admission immediately above this one
+(recorded, not deleted, as A15/T4's own standard asks) is that I stopped
+at regenerating the template and called the row closed without finishing
+the merge it exists to drive. That merge is what T2 (second half) above
+closes this round.
 
 ## Blockers
 
@@ -136,6 +161,7 @@ Documented in full in `KNOWN_LIMITATIONS.md`; summarized here:
   loader), so `g_application_add_main_option_entries` cannot be driven
   from Ruby without lower-level `GObjectIntrospection::Struct` work that
   no example in either gem demonstrates (root of gap C1 above).
-- `GTask` has no Ruby-GNOME wrapper; the port uses a plain `Thread` for
-  shredding and abort instead, which is why C3 (synchronous `open_files`)
-  remains open rather than literally ported.
+- `GTask` has no Ruby-GNOME wrapper; the port uses a plain `Thread` plus
+  `GLib::Idle.add` for shredding, abort and (as of this round) loading
+  instead. Not a remaining blocker for C3 — the substitute pattern closed
+  it — but still the reason none of the three is a literal `GTask` port.

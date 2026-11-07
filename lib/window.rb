@@ -132,12 +132,32 @@ class Window
 
   def rows = @rows.dup
 
-  # Upstream's raider_window_open_files. Loading stops at the first file that
-  # reports the window is full.
+  # Upstream's raider_window_open_files: a worker turn that stats and checks
+  # every file (`raider_window_open_files_thread`, run on a `GTask`), so a
+  # large drop does not block the main loop while each one is examined. Only
+  # the outcome of each file — a toast or a new row — is handed back through
+  # the idle queue, the same `Thread` + `on_main_loop` split `launch_rows`
+  # uses for shredding. Loading stops at the first file that reports the
+  # window is full.
+  #
+  # `known`/`count` are a shadow of `filenames`/`@rows.length` kept local to
+  # the thread: a file just queued to be added is reflected in them at once,
+  # so the next file's decision does not wait on the idle callback that adds
+  # the row actually running first.
   def open_files(files)
-    tap do
-      Array(files).each do |file|
-        unless open_file(path_for(file))
+    paths = Array(files).map { |file| path_for(file) }
+    known = filenames
+    count = @rows.length
+    limit = file_limit
+    Thread.new do
+      paths.each do |path|
+        outcome = classify_open(path, known, count, limit)
+        on_main_loop { apply_open_outcome(outcome) }
+        if outcome[:kind] == :added
+          known += [path]
+          count += 1
+        end
+        if outcome[:kind] == :full
           break
         end
       end
@@ -146,23 +166,13 @@ class Window
 
   # Upstream's raider_window_open_file: rejects a duplicate, a file that is
   # gone and one that cannot be written, each with its own toast. Returns
-  # false only when no further file can be loaded at all.
+  # false only when no further file can be loaded at all. Called directly
+  # (not through the worker thread `open_files` uses) when only one file is
+  # being added, so this stays synchronous.
   def open_file(path)
-    if filenames.include?(path)
-      show_toast(_('This file was already added'))
-      true
-    elsif !File.exist?(path)
-      show_toast(_('Some files did not exist'))
-      true
-    elsif !File.writable?(path)
-      show_toast(format(_('Cannot write to “%s”'), path))
-      true
-    elsif @rows.length >= file_limit
-      show_toast(_('Cannot load more files'))
-      false
-    else
-      add_row(path)
-      true
+    classify_open(path, filenames, @rows.length, file_limit).then do |outcome|
+      apply_open_outcome(outcome)
+      outcome[:kind] != :full
     end
   end
 
@@ -442,6 +452,44 @@ class Window
     end
 
     def filenames = @rows.map(&:path)
+
+    # The pure half of `open_file`/`open_files`: which of the four outcomes a
+    # path gets, given a snapshot of what is already loaded. Does the I/O
+    # (`File.exist?`, `File.writable?`) but touches no widget, so it is safe
+    # to run from `open_files`'s worker thread as well as from `open_file`
+    # directly on the main thread.
+    def classify_open(path, known, count, limit)
+      if known.include?(path)
+        { kind: :duplicate, path: path }
+      elsif !File.exist?(path)
+        { kind: :missing, path: path }
+      elsif !File.writable?(path)
+        { kind: :unwritable, path: path }
+      elsif count >= limit
+        { kind: :full, path: path }
+      else
+        { kind: :added, path: path }
+      end
+    end
+
+    # The widget-touching half: a toast for every rejection, a new row for an
+    # acceptance. Only ever called on the main thread — directly from
+    # `open_file`, or via `on_main_loop` from `open_files`'s worker thread.
+    def apply_open_outcome(outcome)
+      path = outcome[:path]
+      case outcome[:kind]
+      when :duplicate
+        show_toast(_('This file was already added'))
+      when :missing
+        show_toast(_('Some files did not exist'))
+      when :unwritable
+        show_toast(format(_('Cannot write to “%s”'), path))
+      when :full
+        show_toast(_('Cannot load more files'))
+      when :added
+        add_row(path)
+      end
+    end
 
     def add_row(path)
       FileRow.new(path, self).tap do |row|

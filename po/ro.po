@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: raider main\n"
-"Report-Msgid-Bugs-To: https://github.com/ADBeveridge/raider/issues\n"
-"POT-Creation-Date: 2025-12-08 03:36+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2025-12-08 16:08+0100\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
@@ -15,19 +15,146 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
-"20)) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
 "X-Generator: Gtranslator 48.0\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:3
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:168 src/raider-application.c:224
-#: src/raider-window.blp:9 src/raider-window.blp:37
+#: ../lib/exit_dialog.rb:24
+msgid "Are you sure that you want to exit?"
+msgstr "Se închide programul?"
+
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "Se oprește distrugerea?"
+
+#: ../lib/exit_dialog.rb:30
+msgid "_Cancel"
+msgstr "_Anulează"
+
+#: ../lib/exit_dialog.rb:31
+msgid "_Exit"
+msgstr "Închid_e"
+
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
 msgid "File Shredder"
 msgstr "Distruge fișiere"
 
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr "Antonio Marin"
+
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "Adaugă fișiere"
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr "Adaugă dosare"
+
+#: ../lib/progress_info_popover.rb:49
+msgid "Estimating…"
+msgstr "Se elaborează…"
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr "Se începe…"
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr "Se termină…"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "Generale"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "Fereastră nouă"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "Scurtături"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "Închide fereastra"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "Închide"
+
+#: ../lib/window.rb:152
+msgid "This file was already added"
+msgstr "Acest fișier a fost deja adăugat"
+
+#: ../lib/window.rb:155
+msgid "Some files did not exist"
+msgstr "Unele fișiere nu existau"
+
+#: ../lib/window.rb:158
+msgid "Cannot write to “%s”"
+msgstr "Nu se poate scrie în „%s”"
+
+#: ../lib/window.rb:161
+msgid "Cannot load more files"
+msgstr "Nu se pot încărca mai multe fișiere"
+
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "Nu s-a putut elimina numele fișierului din lista rapidă. Se poate raporta problema."
+
+#: ../lib/window.rb:218
+msgid "Starting Shredding…"
+msgstr "Se începe distrugerea…"
+
+#: ../lib/window.rb:236
+msgid "Aborting…"
+msgstr "Se anulează…"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "Adaugă"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "Opțiuni"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "Despre Distruge fișiere"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr "Deschide dosarul"
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "Adaugă fișiere trăgându-le aici"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "Distrugerea este procesul de suprascriere a unui fișier cu date aleatorii astfel încât conținutul anterior să nu mai poată fi recuperat."
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr "Anulează"
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "Distruge tot"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "Anulează tot"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr "Anulează tot"
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "Distrugerea s-a terminat"
+
 #: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
 msgid "Permanently delete your files"
 msgstr "Șterge fișierele în mod permanent"
 
@@ -36,170 +163,12 @@ msgid "delete;remove;permanently;files;shred;data;"
 msgstr "delete;remove;permanently;files;shred;data;șterge;elimină;permanent;fișiere;date;raider;distruge;"
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program designed to permanently remove "
-"sensitive files from your computer, enhancing data privacy."
-msgstr ""
-"Programul „Distruge fișiere” este conceput pentru a șterge definitiv "
-"fișierele personale din calculator, protejând astfel intimitatea."
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr "Programul „Distruge fișiere” este conceput pentru a șterge definitiv fișierele personale din calculator, protejând astfel intimitatea."
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But shredding "
-"significantly increases the difficulty of data recovery since it requires "
-"specialized software and hardware."
-msgstr ""
-"Până la o anumită limită, este eficient. Cu toate acestea, SSD-urile moderne "
-"folosesc anumite tehnologii pentru a-și prelungi durata de viață, ceea ce "
-"are ca efect secundar faptul că distrugerea nu este niciodată perfectă și "
-"niciun program nu poate remedia asta. Dar distrugerea crește semnificativ "
-"dificultatea recuperării datelor, deoarece va fi nevoie de programe și "
-"echipamente speciale pentru recuperarea datelor."
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "Până la o anumită limită, este eficient. Cu toate acestea, SSD-urile moderne folosesc anumite tehnologii pentru a-și prelungi durata de viață, ceea ce are ca efect secundar faptul că distrugerea nu este niciodată perfectă și niciun program nu poate remedia asta. Dar distrugerea crește semnificativ dificultatea recuperării datelor, deoarece va fi nevoie de programe și echipamente speciale pentru recuperarea datelor."
 
-#. developer_name tag deprecated with Appstream 1.0
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:25
-msgid "Alan Beveridge"
-msgstr "Alan Beveridge"
-
-#: src/raider-application.c:84 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:28
-msgid "Add Files"
-msgstr "Adaugă fișiere"
-
-#: src/raider-application.c:94
-msgid "Add Folders"
-msgstr "Adaugă dosare"
-
-#: src/raider-application.c:181
-msgid "translator-credits"
-msgstr "Antonio Marin"
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr "Se începe…"
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr "Se termină…"
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating…"
-msgstr "Se elaborează…"
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr "Generale"
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:137
-msgid "New Window"
-msgstr "Fereastră nouă"
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:143
-msgid "Keyboard Shortcuts"
-msgstr "Scurtături"
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr "Închide fereastra"
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr "Închide"
-
-#: src/raider-window.blp:26
-msgid "Add"
-msgstr "Adaugă"
-
-#: src/raider-window.blp:43
-msgid "Main Menu"
-msgstr "Opțiuni"
-
-#: src/raider-window.blp:58
-msgid "Add files or drop here"
-msgstr "Adaugă fișiere trăgându-le aici"
-
-#: src/raider-window.blp:60
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"Distrugerea este procesul de suprascriere a unui fișier cu date aleatorii "
-"astfel încât conținutul anterior să nu mai poată fi recuperat."
-
-#: src/raider-window.blp:96
-msgid "Clear"
-msgstr "Anulează"
-
-#: src/raider-window.blp:101 src/raider-window.c:389
-msgid "Shred All"
-msgstr "Distruge tot"
-
-#: src/raider-window.blp:120 src/raider-window.c:442
-msgid "Abort All"
-msgstr "Anulează tot"
-
-#: src/raider-window.blp:147
-msgid "About File Shredder"
-msgstr "Despre Distruge fișiere"
-
-#: src/raider-window.blp:156
-msgid "Open Folder"
-msgstr "Deschide dosarul"
-
-#: src/raider-window.c:178
-msgid "Stop Shredding?"
-msgstr "Se oprește distrugerea?"
-
-#: src/raider-window.c:178
-msgid "Are you sure that you want to exit?"
-msgstr "Se închide programul?"
-
-#: src/raider-window.c:181
-msgid "_Cancel"
-msgstr "_Anulează"
-
-#: src/raider-window.c:181
-msgid "_Exit"
-msgstr "Închid_e"
-
-#: src/raider-window.c:230
-msgid "Could not remove filename from quick list. Please report this."
-msgstr ""
-"Nu s-a putut elimina numele fișierului din lista rapidă. Se poate raporta "
-"problema."
-
-#: src/raider-window.c:240
-msgid "Finished shredding files"
-msgstr "Distrugerea s-a terminat"
-
-#: src/raider-window.c:312
-#, c-format
-msgid "This file was already added"
-msgstr "Acest fișier a fost deja adăugat"
-
-#: src/raider-window.c:326
-msgid "Some files did not exist"
-msgstr "Unele fișiere nu existau"
-
-#: src/raider-window.c:338
-#, c-format
-msgid "Cannot write to “%s”"
-msgstr "Nu se poate scrie în „%s”"
-
-#: src/raider-window.c:350
-msgid "Cannot load more files"
-msgstr "Nu se pot încărca mai multe fișiere"
-
-#: src/raider-window.c:388
-msgid "Clear All"
-msgstr "Anulează tot"
-
-#: src/raider-window.c:412
-msgid "Starting Shredding…"
-msgstr "Se începe distrugerea…"
-
-#: src/raider-window.c:464
-msgid "Aborting…"
-msgstr "Se anulează…"
+#~ msgid "Alan Beveridge"
+#~ msgstr "Alan Beveridge"

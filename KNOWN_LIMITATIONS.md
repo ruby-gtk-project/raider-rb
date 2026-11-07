@@ -77,12 +77,17 @@ only sees options registered through `add_main_option_entries`.
 Upstream uses `GTask` for the open loop, the shred loop and abort, plus a
 per-row `GMutex` and `g_main_context_invoke` to get results back onto the
 main loop. Ruby-GNOME has no `GTask` wrapper. The port uses a plain Ruby
-`Thread` for the shredding and abort paths, with every UI-touching
-callback marshalled back through `GLib::Idle.add` (`lib/window.rb:458-463`,
-`:477-482`) — the same main-thread-only constraint GTK itself imposes.
-Loading (`open_files`/`open_file`) was left on the calling thread; this is
-gap C3, not a binding limit — the same `Thread` + `GLib::Idle.add` pattern
-already proven for shredding would work for it too.
+`Thread` for the shredding, abort and (as of this round, gap C3 closed)
+loading paths, with every UI-touching callback marshalled back through
+`GLib::Idle.add` (`lib/window.rb`'s `on_main_loop`) — the same
+main-thread-only constraint GTK itself imposes. `open_files` now runs the
+per-file I/O (`File.exist?`/`File.writable?`) on a worker thread and hands
+only the outcome (a toast or a new row) back through the idle queue, the
+same split `launch_rows`/`wait_for_rows` already used for shredding and
+abort; `open_file` (the single-file entry point several specs call
+directly) stays synchronous, matching upstream's own shape — upstream's
+`raider_window_open_file` is likewise never called except from inside the
+`GTask` worker, never on its own as a synchronous API.
 
 ## `app.shortcuts` has no GResource to synthesise it from
 

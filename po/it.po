@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: https://github.com/ADBeveridge/raider/issues\n"
-"POT-Creation-Date: 2025-10-18 03:34+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2025-10-18 10:32+0200\n"
 "Last-Translator: Davide Ferracin <davide.ferracin@protonmail.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -18,15 +18,145 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.1.1\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:3
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:168 src/raider-application.c:224
-#: src/raider-window.blp:9 src/raider-window.blp:37
+#: ../lib/exit_dialog.rb:24
+msgid "Are you sure that you want to exit?"
+msgstr "Uscire?"
+
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "Fermare la distruzione?"
+
+#: ../lib/exit_dialog.rb:30
+msgid "_Cancel"
+msgstr "_Annulla"
+
+#: ../lib/exit_dialog.rb:31
+msgid "_Exit"
+msgstr "_Esci"
+
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
 msgid "File Shredder"
 msgstr "Distruggi file"
 
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr ""
+"Albano Battistella\n"
+"Davide Ferracin <davide.ferracin@protonmail.com>"
+
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "Aggiungi file"
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr "Aggiungi cartelle"
+
+#: ../lib/progress_info_popover.rb:49
+msgid "Estimating…"
+msgstr "Stima in corso"
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr "Avvio operazione in corso"
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr "Termine operazione in corso"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "Generali"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "Nuova finestra"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "Scorciatoie da tastiera"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "Chiude la finestra"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "Esce"
+
+#: ../lib/window.rb:152
+msgid "This file was already added"
+msgstr "File già aggiunto"
+
+#: ../lib/window.rb:155
+msgid "Some files did not exist"
+msgstr "Alcuni file non esistevano"
+
+#: ../lib/window.rb:158
+msgid "Cannot write to “%s”"
+msgstr "Impossibile scrivere su «%s»"
+
+#: ../lib/window.rb:161
+msgid "Cannot load more files"
+msgstr "Impossibile caricare più file"
+
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "Impossibile rimuovere il nome del file dall'elenco rapido. Si prega di segnalare questo errore."
+
+#: ../lib/window.rb:218
+msgid "Starting Shredding…"
+msgstr "Avvio della distruzione…"
+
+#: ../lib/window.rb:236
+msgid "Aborting…"
+msgstr "Interruzione in corso…"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "Aggiungi"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "Menù principale"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "Informazioni su Distruggi file"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr "Apri cartella"
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "Aggiungere un file o trascinarlo qui"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "La distruzione di un file consiste nell'offuscarlo con dati casuali, così che i contenuti precedenti non possano essere recuperati."
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr "Svuota"
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "Distruggi tutto"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "Annulla tutto"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr "Svuota tutto"
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "Distruzione dei file terminata"
+
 #: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
 msgid "Permanently delete your files"
 msgstr "Elimina in modo permanente i file"
 
@@ -35,181 +165,18 @@ msgid "delete;remove;permanently;files;shred;data;"
 msgstr "elimina;rimuovi;permanente;file;distruggi;dati;"
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program designed to permanently remove "
-"sensitive files from your computer, enhancing data privacy."
-msgstr ""
-"Distruggi file è un programma di eliminazione dei file progettato per "
-"rimuovere file dal proprio computer, migliorando la riservatezza dei dati."
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr "Distruggi file è un programma di eliminazione dei file progettato per rimuovere file dal proprio computer, migliorando la riservatezza dei dati."
 
 #: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But shredding "
-"significantly increases the difficulty of data recovery since it requires "
-"specialized software and hardware."
-msgstr ""
-"Entro certi limiti, è efficace. Tuttavia, gli SSD moderni utilizzano "
-"determinate tecnologie per prolungarne la durata che hanno l'effetto "
-"collaterale di garantire che la distruzione dei dati non sia mai perfetta, "
-"e nessun software può risolvere questo problema. Tuttavia, distruggere i dati "
-"aumenta significativamente la difficoltà del loro recupero, poiché richiede "
-"software e hardware specializzati."
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "Entro certi limiti, è efficace. Tuttavia, gli SSD moderni utilizzano determinate tecnologie per prolungarne la durata che hanno l'effetto collaterale di garantire che la distruzione dei dati non sia mai perfetta, e nessun software può risolvere questo problema. Tuttavia, distruggere i dati aumenta significativamente la difficoltà del loro recupero, poiché richiede software e hardware specializzati."
 
-#. developer_name tag deprecated with Appstream 1.0
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:29
-msgid "Alan Beveridge"
-msgstr "Alan Beveridge"
+#~ msgid "Alan Beveridge"
+#~ msgstr "Alan Beveridge"
 
-#: src/raider-application.c:84 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:28
-msgid "Add Files"
-msgstr "Aggiungi file"
-
-#: src/raider-application.c:94
-msgid "Add Folders"
-msgstr "Aggiungi cartelle"
-
-#: src/raider-application.c:181
-msgid "translator-credits"
-msgstr ""
-"Albano Battistella\n"
-"Davide Ferracin <davide.ferracin@protonmail.com>"
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr "Avvio operazione in corso"
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr "Termine operazione in corso"
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating…"
-msgstr "Stima in corso"
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr "Generali"
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:137
-msgid "New Window"
-msgstr "Nuova finestra"
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:143
-msgid "Keyboard Shortcuts"
-msgstr "Scorciatoie da tastiera"
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr "Chiude la finestra"
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr "Esce"
-
-#: src/raider-window.blp:26
-msgid "Add"
-msgstr "Aggiungi"
-
-#: src/raider-window.blp:43
-msgid "Main Menu"
-msgstr "Menù principale"
-
-#: src/raider-window.blp:58
-msgid "Add files or drop here"
-msgstr "Aggiungere un file o trascinarlo qui"
-
-#: src/raider-window.blp:60
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"La distruzione di un file consiste nell'offuscarlo con dati casuali, così che "
-"i contenuti precedenti non possano essere recuperati."
-
-#: src/raider-window.blp:96
-msgid "Clear"
-msgstr "Svuota"
-
-#: src/raider-window.blp:101 src/raider-window.c:389
-msgid "Shred All"
-msgstr "Distruggi tutto"
-
-#: src/raider-window.blp:120 src/raider-window.c:442
-msgid "Abort All"
-msgstr "Annulla tutto"
-
-#: src/raider-window.blp:147
-msgid "About File Shredder"
-msgstr "Informazioni su Distruggi file"
-
-#: src/raider-window.blp:156
-msgid "Open Folder"
-msgstr "Apri cartella"
-
-#: src/raider-window.c:178
-msgid "Stop Shredding?"
-msgstr "Fermare la distruzione?"
-
-#: src/raider-window.c:178
-msgid "Are you sure that you want to exit?"
-msgstr "Uscire?"
-
-#: src/raider-window.c:181
-msgid "_Cancel"
-msgstr "_Annulla"
-
-#: src/raider-window.c:181
-msgid "_Exit"
-msgstr "_Esci"
-
-#: src/raider-window.c:230
-msgid "Could not remove filename from quick list. Please report this."
-msgstr ""
-"Impossibile rimuovere il nome del file dall'elenco rapido. Si prega di "
-"segnalare questo errore."
-
-#: src/raider-window.c:240
-msgid "Finished shredding files"
-msgstr "Distruzione dei file terminata"
-
-#: src/raider-window.c:312
-msgid "This file was already added"
-msgstr "File già aggiunto"
-
-#: src/raider-window.c:326
-msgid "Some files did not exist"
-msgstr "Alcuni file non esistevano"
-
-#: src/raider-window.c:338
-#, c-format
-msgid "Cannot write to “%s”"
-msgstr "Impossibile scrivere su «%s»"
-
-#: src/raider-window.c:350
-msgid "Cannot load more files"
-msgstr "Impossibile caricare più file"
-
-#: src/raider-window.c:388
-msgid "Clear All"
-msgstr "Svuota tutto"
-
-#: src/raider-window.c:412
-msgid "Starting Shredding…"
-msgstr "Avvio della distruzione…"
-
-#: src/raider-window.c:464
-msgid "Aborting…"
-msgstr "Interruzione in corso…"
-
-#~ msgid ""
-#~ "File Shredder is a GNOME application used for securely deleting your "
-#~ "files that you do not want to be recovered."
-#~ msgstr ""
-#~ "File Shredder è un'applicazione GNOME utilizzata per eliminare in modo "
-#~ "sicuro i tuoi file che non vuoi siano recuperati."
+#~ msgid "File Shredder is a GNOME application used for securely deleting your files that you do not want to be recovered."
+#~ msgstr "File Shredder è un'applicazione GNOME utilizzata per eliminare in modo sicuro i tuoi file che non vuoi siano recuperati."
 
 #~ msgid "Directories are not supported"
 #~ msgstr "Le directory non sono supportate"

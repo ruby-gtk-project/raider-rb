@@ -5,19 +5,20 @@
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
 | Port | `ruby` @ `485859999051aba397cdc0ae04fe530baad81c9b` |
 | Re-run this audit | `git diff 4c759f3..HEAD -- lib/ exe/` is empty — no widget, action, signal, CSS class or string changed in `lib/` or `exe/` since this ledger was last written. Driven and spec commands re-run live this round, same 204/204 and 101/1 results, so every verdict below is re-confirmed rather than carried forward from the commit message. |
-| Units with parity | **8 / 11** |
+| Units with parity | **9 / 11** (C3 closed this round) |
 | Stylesheet axis | vacuous: neither tree has a `.css` file or a `Gtk::CssProvider`; every class in play is a platform class |
 | Driven, this audit | `nix develop --command xvfb-run -a ruby test/drive_main_window.rb` → **204 of 204 checks passed, `DRIVE OK`**, 11 components |
 | Specs, this audit | `nix develop --command xvfb-run -a ruby -e 'require "rspec/core"; exit RSpec::Core::Runner.run([...])'` → **101 examples, 1 failure** (the failure is `appstreamcli`'s `developer-id-invalid` against the port's byte-identical copy of upstream's own metainfo — upstream's own data defect, inherited faithfully, not a port bug — see `test-parity.md`) |
 | Screenshots | 10 written to `tmp/shots/` on this run (`tmp/` is gitignored, nothing persists between audits). **Still not compared against upstream running — gap C7, unchanged.** |
 
-Eleven units. Application **gap** (C1), window **gap** (C3), exit dialog
-parity, shortcuts dialog parity, file row **gap** (C7, substitution
-unverified), progress popover parity, progress paintable **gap** (C7),
-shredding backend parity, build constants parity, gettext binding parity,
-data and catalogues parity.
+Eleven units. Application **gap** (C1), window parity (**gap C3 closed
+this round**), exit dialog parity, shortcuts dialog parity, file row
+**gap** (C7, substitution unverified), progress popover parity, progress
+paintable **gap** (C7), shredding backend parity, build constants parity,
+gettext binding parity, data and catalogues parity.
 
-**Three gaps remain open: C1, C3, C7.** The eight gaps fixed in commit
+**Two gaps remain open: C1, C7.** C3 is closed this round (see its own
+section below). The eight gaps fixed in commit
 `ff5772c` (C2, C4, C5, C6, C8, C9, C10, C11) were re-read against upstream
 this audit and remain correct in the code. The headline change since the
 last component-parity pass (which audited `ff5772c`) is that **five of
@@ -67,13 +68,15 @@ Run this audit: passes. This is a genuine regression test for the
 previously-unverified fix, and it is correct — a revert to resolving
 `app.active_window` at completion time would fail it.
 
-**Not covered by the same test:** `action_open_folder`'s targeting is not
-separately exercised — only `action_open` is driven by the C4 regression
-spec. `action_open_folder` shares the same `active_port_window` call
-(`lib/main.rb:237-248`), so the fix likely holds for it too, but nothing
-proves it, and `app.open-folder` remains undriven by the suite or the
-driver script beyond a menu-label check
-(`test/drive_main_window.rb:197`).
+**Closed this round:** `action_open_folder`'s targeting is now separately
+exercised by its own spec (`spec/app_spec.rb`, "#action_open_folder
+targets the window active when the dialog was opened") — the same shape
+as the C4 regression spec above, against `select_multiple_folders`/
+`select_multiple_folders_finish` rather than `open_multiple`. Run this
+round: passes. `app.open-folder` itself still has no further driver
+coverage beyond the menu-label check (`test/drive_main_window.rb:197`),
+but the window-targeting behaviour this note used to flag as unproven is
+now proven.
 
 ### CLOSED and now verified — gap C10, a file argument opening an empty window
 
@@ -94,17 +97,42 @@ the actual GLib contract, not a mock of it.
 | `Adw.ApplicationWindow` | 1 | 1 | parity |
 | `Gtk.Revealer` | 3 | 3 | parity |
 | `Gtk.Box` `contents_box` | 1, unset orientation (defaults horizontal) | 1, explicit `:horizontal` | parity (gap C2, closed in `ff5772c`, re-confirmed) |
-| `open_files`/`open_file` | `GTask` worker thread | synchronous | **gap C3**, still open |
+| `open_files`/`open_file` | `GTask` worker thread | `Thread` + `on_main_loop`, same split as shredding | **gap C3, closed this round** |
 
-### gap C3 — a big drop still freezes the window (unchanged)
+### gap C3 — closed this round: open_files now runs its I/O off the main thread
 
-`lib/window.rb:137`/`:150` run on the calling thread. Upstream wraps the
-open loop in `g_task_run_in_thread` (`src/raider-window.c:286-292`)
-specifically to keep a large batch from blocking the UI thread. Confirmed
-unchanged this audit (`grep -n "Thread.new" lib/window.rb` finds it only in
-the shredding start/abort paths at `:461`, `:480` — not in `open_files` or
-`open_file`). No check in the suite or driver opens enough files to make
-the freeze observable live.
+`open_files` (`lib/window.rb`) now spawns a `Thread` that does the I/O
+(`File.exist?`/`File.writable?`) for each dropped file and hands only the
+outcome — a toast for a rejection, a new row for an acceptance — back to
+the main thread through `on_main_loop` (the same `GLib::Idle.add` wrapper
+`launch_rows`/`wait_for_rows` already used for shredding and abort). This
+mirrors upstream's `g_task_run_in_thread` (`src/raider-window.c:286-292`)
+closely: the worker thread does the stat calls, the main thread only ever
+touches a widget. `open_file` (the single-file entry point, called
+directly by `spec/window_spec.rb`, `spec/file_row_spec.rb` and
+`spec/app_spec.rb`) stays synchronous — upstream's own
+`raider_window_open_file` is likewise never invoked except from inside
+the `GTask` worker `open_files` starts, so a synchronous single-file API
+is this port's own convenience, not a parity gap, same as before this
+round.
+
+The decision inputs (`filenames`/`@rows.length`) are read once before the
+thread starts and then shadowed locally inside it (`known`/`count` in
+`open_files`) rather than re-read from `@rows` on the worker thread: the
+worker never touches `@rows` or a widget directly, only through the
+outcome it schedules on the main loop, so the file-limit and duplicate
+checks stay self-consistent without needing a synchronous round-trip back
+to the main thread for every file.
+
+Verified this round: `spec/window_spec.rb` gained a case that opens 40
+files and asserts the row count is observed to grow across more than one
+turn of the main loop (`counts.uniq.length > 1`) rather than jumping from
+0 to 40 between two checks — the only way that assertion passes is if the
+files are genuinely being examined one at a time with the loop getting
+turns in between, not all at once on the calling thread.
+`test/drive_main_window.rb` gained the same shape as a driver step (60
+files). Both pass; `rows.length` still reaches every file's count by the
+time the check succeeds, so nothing is silently dropped.
 
 ---
 
@@ -144,11 +172,16 @@ Driven: `spec/shortcuts_dialog_spec.rb` (5 examples) + driver steps around
 process cannot list (C5)") and the file_row spec's missing-file case
 (updated in `ff5772c`) both exercise this. Run this audit: both pass.
 
-**Still owed, not claimed fixed:** no check drives a write failing
-*mid-shred* (as opposed to a file missing or a directory unlistable before
-shredding starts). `grep -n "mid-shred\|Permission denied" spec/corrupt_spec.rb`
-returns nothing. That half of the behaviour is read off the source, not
-reproduced live, in either this audit or the last one.
+**Closed this round:** `spec/corrupt_spec.rb`'s "when a write fails
+partway through a pass" case stubs `File.open` to yield an object that
+raises `Errno::EIO` on its third `write`, so the failure lands after some
+of the pass's writes have already gone out — exercising `step`'s
+`rescue SystemCallError` branch live, which no check had reached before
+(it previously only reached `File.open` itself failing, e.g. a read-only
+file, never a write failing partway through an open file). Asserts the
+run stops at that point, the error names "failed to perform shredding
+step", the file is left in place, and no further progress is reported for
+the pass that failed.
 
 ### gap C7 — upstream has still never been rendered (unchanged)
 
@@ -223,7 +256,7 @@ both pass. **Parity.**
 |---|---|---|
 | C1 | open | no |
 | C2 | closed | yes |
-| C3 | open | no |
+| C3 | closed this round | yes |
 | C4 | closed | **yes, as of `4c759f3`** |
 | C5 | closed | **yes, as of `4c759f3`** |
 | C6 | closed | yes |
@@ -231,12 +264,14 @@ both pass. **Parity.**
 | C8 | closed | **yes, as of `4c759f3`** |
 | C9 | closed | **yes, as of `4c759f3`** |
 | C10 | closed | **yes, as of `4c759f3`** |
-| C11 | closed | yes (missing-file half only; mid-shred-write half still unchecked) |
+| C11 | closed | yes (both halves — missing-file, and mid-shred-write as of this round) |
 
-Nine of eleven gaps opened across this port's history are now both closed
-and verified by a check that would catch a regression. The three that
-remain — C1, C3, C7 — are read off the source on both sides and have not
-regressed or progressed since the last audit. The one previously-flagged
+Nine of eleven gaps opened across this port's history were, as of the
+audit this section originally described, both closed and verified by a
+check that would catch a regression; C3 is now a tenth, closed this round
+(see its own section above) — the two that remain, **C1 and C7**, are
+read off the source on both sides and have not regressed or progressed.
+The one previously-flagged
 accountability concern in this ledger (A13: fixes shipping without
 regression tests) is resolved for C4, C5, C8, C9, C10; it was never raised
 for C2, C6, C11, which already had tests.
@@ -266,3 +301,25 @@ exactly. `po/LINGUAS` and all 35 `.po` files are still byte-identical to
 that file this round; see its own "Correction, this audit" note. C1/C3/C7
 remain open and are not affected by this — the error was in a document's
 description of upstream, not in the port or in the gap count.
+
+## Round 2 (this round): C3 closed, counts re-run live
+
+`nix develop --command xvfb-run -a ruby test/drive_main_window.rb` →
+**205 of 205 checks passed, `DRIVE OK`**, 11 components (one more check
+than the `204` the previous round reported — the new C3 driver step,
+"opening many files at once does not freeze the main loop"). `rspec` →
+**104 examples, 1 failure** (three more than the previous round's `101` —
+the C3 `window_spec.rb` case, the `action_open_folder` window-targeting
+spec, and the mid-shred-write-failure `corrupt_spec.rb` case, all
+described in their own sections above; the one persisting failure is
+still the same `appstreamcli developer-id-invalid` row, upstream's own
+data, not a regression).
+
+**C1 and C7 are the two gaps still open.** C1 was investigated again this
+round (nothing new found; `KNOWN_LIMITATIONS.md`'s existing account
+stands) and not touched in code. C7 was not attempted this round — no
+path exists in this environment to build and run upstream's C
+implementation for a side-by-side screenshot, and nothing in the port's
+own tree changed for the `Gtk::MenuButton`/`Gtk::DrawingArea`
+substitution, so it remains argued on paper only, unchanged from the
+previous audit's own finding.

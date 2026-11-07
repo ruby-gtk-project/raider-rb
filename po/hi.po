@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: raider\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-03 13:21+0100\n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2024-05-06 16:45+0530\n"
 "Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
 "Language-Team: Hindi\n"
@@ -19,167 +19,156 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Gtranslator 46.1\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:167 src/raider-window.blp:36
-msgid "File Shredder"
-msgstr "File Shredder"
-
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:5
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
-msgid "Permanently delete your files"
-msgstr "अपनी फाइलें स्थायी रूप से हटाएँ"
-
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program for the GNOME desktop environment. "
-"It is designed to permanently remove sensitive files from your computer, "
-"enhancing data privacy."
-msgstr ""
-"File Shredder GNOME डेस्कटॉप वातावरण के लिए एक फाइल हटाने का प्रोग्राम है। इसे डेटा "
-"गोपनीयता को बढ़ाते हुए, आपके कंप्यूटर से संवेदनशील फाइलों को स्थायी रूप से हटाने के लिए "
-"डिज़ाइन किया गया है।"
-
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:13
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But shredding "
-"significantly increases the difficulty of data recovery since it requires "
-"specialized software and hardware."
-msgstr ""
-"एक निश्चित सीमा के भीतर ही यह प्रभावी होता है। हालांकि, आधुनिक SSDs अपने जीवनकाल को "
-"बढ़ाने के लिए कुछ तकनीकों का उपयोग करते हैं। जिसका यह सुनिश्चित करने का दुष्प्रभाव होता है "
-"कि श्रेडिंग कभी भी सही नहीं होती है, और कोई भी सॉफ़्टवेयर इसे ठीक नहीं कर सकता है। लेकिन "
-"श्रेडिंग से डेटा पुनर्प्राप्ति की कठिनाई काफी बढ़ जाती है क्योंकि इसके लिए विशेष सॉफ़्टवेयर और "
-"हार्डवेयर की आवश्यकता होती है।"
-
-#: src/raider-application.c:83 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:27
-msgid "Add Files"
-msgstr "फाइलें जोड़ें"
-
-#: src/raider-application.c:93
-msgid "Add Folders"
-msgstr "फोल्डरों को जोड़ें"
-
-#: src/raider-application.c:181
-msgid "translator-credits"
-msgstr "Scrambled777 <weblate.scrambled777@simplelogin.com>"
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr "आरंभ कर रहा है…"
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr "खत्म हो रहा है…"
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating..."
-msgstr "अनुमानित..."
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr "सामान्य"
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:131
-msgid "New Window"
-msgstr "नई विंडो"
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:137
-msgid "Keyboard Shortcuts"
-msgstr "कीबोर्ड शॉर्टकट"
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr "विंडो बंद करें"
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr "बंद करें"
-
-#: src/raider-window.blp:25
-msgid "Add"
-msgstr "जोड़ें"
-
-#: src/raider-window.blp:42
-msgid "Main Menu"
-msgstr "मुख्य मेनू"
-
-#: src/raider-window.blp:57
-msgid "Add files or drop here"
-msgstr "फाइलें जोड़ें या यहां छोड़ें"
-
-#: src/raider-window.blp:59
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"श्रेडिंग यादृच्छिक डेटा वाली फाइल का अस्पष्टीकरण है जिससे पिछली सामग्री को पुनर्प्राप्त नहीं "
-"किया जा सकता है।"
-
-#: src/raider-window.blp:95 src/raider-window.c:350
-msgid "Shred All"
-msgstr "सभी कतरें"
-
-#: src/raider-window.blp:114 src/raider-window.c:402
-msgid "Abort All"
-msgstr "सब निरस्त करें"
-
-#: src/raider-window.blp:141
-msgid "About File Shredder"
-msgstr "File Shredder के बारे में"
-
-#: src/raider-window.blp:150
-msgid "Open Folder"
-msgstr "फोल्डर खोलें"
-
-#: src/raider-window.c:151
-msgid "Stop Shredding?"
-msgstr "श्रेडिंग बंद करें?"
-
-#: src/raider-window.c:152
+#: ../lib/exit_dialog.rb:24
 msgid "Are you sure that you want to exit?"
 msgstr "क्या आप वाकई बाहर निकलना चाहते हैं?"
 
-#: src/raider-window.c:155
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "श्रेडिंग बंद करें?"
+
+#: ../lib/exit_dialog.rb:30
 msgid "_Cancel"
 msgstr "रद्द करें (_C)"
 
-#: src/raider-window.c:155
+#: ../lib/exit_dialog.rb:31
 msgid "_Exit"
 msgstr "बाहर निकलें (_E)"
 
-#: src/raider-window.c:203
-msgid "Could not remove filename from quick list. Please report this."
-msgstr "त्वरित सूची से फाइल नाम नहीं हटाया जा सका। कृपया इसकी रिपोर्ट करें।"
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
+msgid "File Shredder"
+msgstr "File Shredder"
 
-#: src/raider-window.c:213
-msgid "Finished shredding files"
-msgstr "फाइलों की श्रेडिंग समाप्त हो गयी"
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr "Scrambled777 <weblate.scrambled777@simplelogin.com>"
 
-#: src/raider-window.c:282
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "फाइलें जोड़ें"
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr "फोल्डरों को जोड़ें"
+
+#: ../lib/progress_info_popover.rb:49
+#, fuzzy
+msgid "Estimating…"
+msgstr "अनुमानित..."
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr "आरंभ कर रहा है…"
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr "खत्म हो रहा है…"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "सामान्य"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "नई विंडो"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "कीबोर्ड शॉर्टकट"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "विंडो बंद करें"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "बंद करें"
+
+#: ../lib/window.rb:152
 msgid "This file was already added"
 msgstr "यह फाइल पहले ही जोड़ी जा चुकी है"
 
-#: src/raider-window.c:295
+#: ../lib/window.rb:155
 msgid "Some files did not exist"
 msgstr "कुछ फाइलें मौजूद नहीं थीं"
 
-#: src/raider-window.c:304
-#, c-format
+#: ../lib/window.rb:158
 msgid "Cannot write to “%s”"
 msgstr "“%s” को नहीं लिख सकते"
 
-#: src/raider-window.c:315
+#: ../lib/window.rb:161
 msgid "Cannot load more files"
 msgstr "अधिक फाइलें लोड नहीं की जा सकतीं"
 
-#: src/raider-window.c:372
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "त्वरित सूची से फाइल नाम नहीं हटाया जा सका। कृपया इसकी रिपोर्ट करें।"
+
+#: ../lib/window.rb:218
 msgid "Starting Shredding…"
 msgstr "श्रेडिंग शुरू कर रहें हैं…"
 
-#: src/raider-window.c:424
+#: ../lib/window.rb:236
 msgid "Aborting…"
 msgstr "निरस्त हो रहा है…"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "जोड़ें"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "मुख्य मेनू"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "File Shredder के बारे में"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr "फोल्डर खोलें"
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "फाइलें जोड़ें या यहां छोड़ें"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "श्रेडिंग यादृच्छिक डेटा वाली फाइल का अस्पष्टीकरण है जिससे पिछली सामग्री को पुनर्प्राप्त नहीं किया जा सकता है।"
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr ""
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "सभी कतरें"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "सब निरस्त करें"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr ""
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "फाइलों की श्रेडिंग समाप्त हो गयी"
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:4
+msgid "Permanently delete your files"
+msgstr "अपनी फाइलें स्थायी रूप से हटाएँ"
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:9
+msgid "delete;remove;permanently;files;shred;data;"
+msgstr ""
+
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
+#, fuzzy
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr "File Shredder GNOME डेस्कटॉप वातावरण के लिए एक फाइल हटाने का प्रोग्राम है। इसे डेटा गोपनीयता को बढ़ाते हुए, आपके कंप्यूटर से संवेदनशील फाइलों को स्थायी रूप से हटाने के लिए डिज़ाइन किया गया है।"
+
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "एक निश्चित सीमा के भीतर ही यह प्रभावी होता है। हालांकि, आधुनिक SSDs अपने जीवनकाल को बढ़ाने के लिए कुछ तकनीकों का उपयोग करते हैं। जिसका यह सुनिश्चित करने का दुष्प्रभाव होता है कि श्रेडिंग कभी भी सही नहीं होती है, और कोई भी सॉफ़्टवेयर इसे ठीक नहीं कर सकता है। लेकिन श्रेडिंग से डेटा पुनर्प्राप्ति की कठिनाई काफी बढ़ जाती है क्योंकि इसके लिए विशेष सॉफ़्टवेयर और हार्डवेयर की आवश्यकता होती है।"

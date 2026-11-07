@@ -126,7 +126,7 @@ RSpec.describe Window do
         accepted = window.send(:on_drop, Struct.new(:files).new(dropped))
 
         expect(accepted).to be(true)
-        expect(window.rows.map(&:path)).to eq(dropped.map(&:path))
+        expect(GtkSupport.pump_until { window.rows.map(&:path) == dropped.map(&:path) }).to be(true)
         expect(window.window_stack.visible_child_name).to eq(described_class::LIST_PAGE)
       end
     end
@@ -141,7 +141,33 @@ RSpec.describe Window do
 
         window.open_files([first, second])
 
-        expect(window.rows.map(&:path)).to eq([first])
+        expect(GtkSupport.pump_until { window.rows.map(&:path) == [first] }).to be(true)
+      end
+    end
+
+    # Regression test for gap C3 (component-parity.md): upstream runs this on
+    # a GTask worker thread (`raider_window_open_files_thread`,
+    # `src/raider-window.c:272-284`) rather than the main thread, so a large
+    # drop does not freeze the window while every file is stat'd. This opens
+    # enough files that, if they were all examined synchronously on the main
+    # thread as before, the main loop would have no turn free to run the
+    # idle check below before every row had already landed — against the
+    # threaded version, the check reliably catches rows arriving one at a
+    # time rather than all at once.
+    it "loads files one at a time through the main loop rather than freezing it for the whole drop (C3)" do
+      Dir.mktmpdir do |directory|
+        paths = 40.times.map { |n| GtkSupport.write_file(directory, "file#{n}.txt") }
+
+        window.open_files(paths)
+
+        counts = []
+        GtkSupport.pump_until do
+          counts << window.rows.length
+          window.rows.length == paths.length
+        end
+
+        expect(counts.uniq.length).to be > 1
+        expect(window.rows.map(&:path)).to eq(paths)
       end
     end
   end
@@ -169,6 +195,7 @@ RSpec.describe Window do
                     GtkSupport.write_file(directory, "two.txt"),
           ],
         )
+        GtkSupport.pump_until { window.rows.length == 2 }
 
         window.clear_files
 
@@ -223,6 +250,7 @@ RSpec.describe Window do
         first = GtkSupport.write_file(directory, "one.txt")
         second = GtkSupport.write_file(directory, "two.txt")
         window.open_files([first, second])
+        GtkSupport.pump_until { window.rows.length == 2 }
 
         window.start_shredding
 

@@ -76,9 +76,10 @@ Both of upstream's tests validate generated metadata. Not one line of
 `src/raider-progress-paintable.c` or `src/raider-application.c` is covered
 by anything upstream wrote. **Closing both rows (which is now done) buys
 this port no behavioural coverage of its own** — `component-parity.md` is
-the only ledger that can catch a regression in behaviour, and it still has
-three open gaps (C1, C3, C7) plus one uncovered sub-case (C11's
-mid-shred-write half).
+the only ledger that can catch a regression in behaviour, and it has two
+open gaps as of this round (C1, C7); C3 closed this round and C11's
+mid-shred-write half closed this round too (see this file's own "Holes"
+section below).
 
 ## Extra
 
@@ -87,13 +88,13 @@ parity work, and the two new specs added in `4c759f3` are among them:
 
 | File | Cases | What they drive |
 |---|---:|---|
-| `test/drive_main_window.rb` | 40 steps, 204 checks | the whole app under a real main loop — see the file's own header comment for the 11-component breakdown |
-| `spec/window_spec.rb` | 24 | widget tree, sizes, both menus, drop target, `open_file` branches, clear, completion callbacks, `request_exit` |
-| `spec/app_spec.rb` | 17 (+2 vs. last audit) | actions, accelerators, About fields, `--version`/`-v`, **and two new regression specs**: the C4 window-targeting race and the C10 `open`-vfunc argv contract |
+| `test/drive_main_window.rb` | 41 steps, 205 checks (+1 step/check this round) | the whole app under a real main loop — see the file's own header comment for the 11-component breakdown, plus the new C3 step |
+| `spec/window_spec.rb` | 25 (+1 this round) | widget tree, sizes, both menus, drop target, `open_file`/`open_files` branches **(`open_files` now async, see C3)**, clear, completion callbacks, `request_exit`, **and a new C3 regression spec** |
+| `spec/app_spec.rb` | 18 (+1 this round, +3 vs. the audit before last) | actions, accelerators, About fields, `--version`/`-v`, the C4 window-targeting race, the C10 `open`-vfunc argv contract, **and a new regression spec**: `action_open_folder`'s own window-targeting |
 | `spec/file_row_spec.rb` | 12 | title/subtitle, revealer states, popover, `launch_shredding`/`shredding_abort`, a failed shred's row |
-| `spec/translation_spec.rb` | 11 (rewritten, same count) | the bound domain, every language in `LINGUAS` **built, not excluded**, `POTFILES`, every msgid, mnemonics, U+2026, a live German-locale round trip (**new**) |
-| `spec/data_files_spec.rb` | 11 (+2 vs. last audit) | the two parity rows above, plus **two new regression specs**: the exact developer-id casing (C8) and the metainfo `<image>`/screenshot pairing (C9) |
-| `spec/corrupt_spec.rb` | 7 (+1 vs. last audit) | the five patterns, a regular/zero-byte file, a folder tree, cancel, wait, **and one new regression spec**: an unlistable directory prints the listing diagnostic and never calls `rmdir` (C5) |
+| `spec/translation_spec.rb` | 11 | the bound domain, every language in `LINGUAS` built, `POTFILES`, every msgid, mnemonics, U+2026, a live German-locale round trip |
+| `spec/data_files_spec.rb` | 11 | the two parity rows above, plus the C8/C9 regression specs |
+| `spec/corrupt_spec.rb` | 8 (+1 this round) | the five patterns, a regular/zero-byte file, a folder tree, cancel, wait, an unlistable directory (C5), **and a new regression spec**: a write failing partway through a pass |
 | `spec/progress_paintable_spec.rb` | 6 | box size, redraw, radius/line width, sweep, clamping |
 | `spec/progress_info_popover_spec.rb` | 5 | the bar and all four text states |
 | `spec/shortcuts_dialog_spec.rb` | 5 | section, action-named items, accelerator-bound actions |
@@ -101,27 +102,46 @@ parity work, and the two new specs added in `4c759f3` are among them:
 
 ## Holes in the extra coverage that still let a gap survive
 
-A component no check exercises is unverified, not done. Re-stated rather
-than dropped now that some of these closed:
+A component no check exercises is unverified, not done. Three of the four
+holes this document named are closed this round; re-stated with that
+status rather than silently dropped:
 
-* **`app.open-folder`'s window-targeting is still never driven.** The new
-  C4 regression spec (`spec/app_spec.rb:168`) drives `action_open` only.
-  `action_open_folder` shares the same `active_port_window` call
-  (`lib/main.rb:237-248`) but has no regression test of its own.
-* **No check fails a write mid-shred, still.** `spec/corrupt_spec.rb`'s new
-  C5 spec covers an unlistable *directory*; a file that opens for writing
-  and then fails partway through a pass has never been driven, before this
-  round or after it.
-* **No check exercises `--help` output.** Gap C1 — the missing
-  `GOptionEntry` registration — could regress in either direction (it
-  could also get silently "fixed" by a change that doesn't actually wire
-  `--help` correctly) and nothing would notice.
-* **No check opens enough files at once to observe gap C3's UI freeze.**
-  Read off the source on both sides, not reproduced live.
+* **CLOSED this round — `action_open_folder`'s window-targeting is now
+  driven.** `spec/app_spec.rb`, "#action_open_folder targets the window
+  active when the dialog was opened", is the C4 regression spec's own
+  shape (`spec/app_spec.rb:168`) repeated against
+  `select_multiple_folders`/`select_multiple_folders_finish` instead of
+  `open_multiple`: two windows, focus switched mid-dialog, the folder's
+  files asserted to land in the window the dialog was opened from. Run
+  this round: passes.
+* **CLOSED this round — a write failing mid-shred is now driven.**
+  `spec/corrupt_spec.rb`, "when a write fails partway through a pass",
+  stubs `File.open` to yield an object whose third `write` raises
+  `Errno::EIO`, landing the failure after some of the pass's writes have
+  already gone out — distinct from the existing C5 spec, which covers an
+  unlistable *directory* before shredding even starts, not a write
+  failing mid-pass on an open file. Asserts the run stops, reports
+  `step`'s error message, and leaves the file in place. Run this round:
+  passes.
+* **CLOSED this round — a check now opens enough files at once to
+  observe gap C3 directly, because C3 itself closed.** `spec/window_spec.rb`
+  (40 files) and `test/drive_main_window.rb` (60 files, new driver step
+  "opening many files at once does not freeze the main loop (C3)") both
+  assert the row count is observed to grow across more than one turn of
+  the main loop rather than jumping straight from zero to the full count —
+  the behaviour that was previously only read off the source. See
+  `component-parity.md`'s own C3 section for the implementation.
+* **Still open — no check exercises `--help` output.** Gap C1 — the
+  missing `GOptionEntry` registration — is unchanged this round (see
+  `component-parity.md`'s C1 section and `KNOWN_LIMITATIONS.md`); adding a
+  `--help` assertion without the registration to back it would only prove
+  the absence, not close the gap, so it stays named here rather than
+  faked with a weaker check.
 
-Two gaps this round's coverage genuinely closed (the German-locale check,
-and the five A13 regression specs) are not re-litigated above; they are
-recorded closed in `component-parity.md` and `accountability-ensurance.md`.
+Two gaps a previous round's coverage genuinely closed (the German-locale
+check, and the five A13 regression specs) are not re-litigated above;
+they are recorded closed in `component-parity.md` and
+`accountability-ensurance.md`.
 
 ## Rules check
 
@@ -153,6 +173,25 @@ counts this document already stated.
 The holes this document lists under "Holes in the extra coverage" (no
 check drives `action_open_folder`'s window targeting, no check fails a
 write mid-shred, no check exercises `--help`, no check opens enough files
-to observe gap C3's freeze) are all still holes — grepped `spec/` and
-`test/drive_main_window.rb` this round for each behaviour named and found
-no new coverage for any of them since this document was last written.
+to observe gap C3's freeze) were all still holes as of that round —
+grepped `spec/` and `test/drive_main_window.rb` that round for each
+behaviour named and found no new coverage for any of them since this
+document was last written.
+
+## Round 2 (this round): three of the four holes closed
+
+Re-run live: `rspec` → **104 examples, 1 failure** (the same
+`appstreamcli developer-id-invalid` row; +3 vs. the previous round's
+101 — one each for the three holes closed below).
+`test/drive_main_window.rb` → **205 of 205 checks passed, `DRIVE OK`**
+(+1 vs. the previous round's 204 — the new C3 driver step).
+
+Of the four holes named above: `action_open_folder`'s window-targeting,
+a write failing mid-shred, and opening enough files to observe C3 are
+now each driven by a named spec or driver step — see the "Holes in the
+extra coverage" section above, which carries the per-hole detail rather
+than repeating it here. The fourth, `--help` output, is unchanged and
+remains open: it is gated on gap C1 (`GOptionEntry` registration), which
+this round did not attempt to close, so asserting on `--help` text now
+would only assert on the absence the gap already documents, not add
+coverage that could catch a real fix regressing.

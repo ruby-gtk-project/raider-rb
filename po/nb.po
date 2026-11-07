@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-29 16:28+0300\n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
 "PO-Revision-Date: 2024-03-15 08:00+0100\n"
 "Last-Translator: Brage <bragefuglseth@gnome.org>\n"
 "Language-Team: \n"
@@ -18,156 +18,166 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.4.2\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:140 src/raider-window.blp:40
-msgid "File Shredder"
-msgstr "File Shredder"
-
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:5
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
-msgid "Permanently delete your files"
-msgstr "Slett sensitive filer fullstendig"
-
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"Raider is a shredding program built for the GNOME desktop. It is meant to "
-"remove files from your computer permanently."
-msgstr ""
-"Når du sletter en fil på vanlig vis, vil det fortsatt ligge igjen nok "
-"spor av den til at den kan rekonstrueres. File Shredder lar deg beskytte "
-"personvernet ditt ved å fjerne spor etter sensitive filer."
-
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
-msgid ""
-"Within a certain limit, it is effective. However, the way data is written "
-"physically to SSDs at the hardware level ensures that shredding is never "
-"perfect, and no software can fix that. However, top-level agencies are "
-"usually the only ones who can recover such data, due to the time, effort, "
-"money, and patience required to extract it effectively."
-msgstr ""
-"På grunn av måten data lagres på, er det fysisk umulig å fjerne absolutt "
-"alle rester, men File Shredder kan gjøre det til et punkt hvor å "
-"gjenopprette filene vil være en lang og svært kostbar prosess."
-
-#: src/raider-application.c:66 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:33
-msgid "Add Files"
-msgstr "Legg til filer"
-
-#: src/raider-application.c:154
-msgid "translator-credits"
-msgstr "Brage Fuglseth https://bragefuglseth.dev"
-
-#: src/raider-progress-info-popover.c:62
-msgid "Finishing up..."
-msgstr "Fullfører"
-
-#: src/raider-progress-info-popover.c:70
-msgid "Estimating..."
-msgstr "Beregner"
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr "Generelt"
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:135
-msgid "New Window"
-msgstr "Nytt vindu"
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:141
-msgid "Keyboard Shortcuts"
-msgstr "Tastatursnarveier"
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr "Lukk vindu"
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr "Avslutt"
-
-#: src/raider-window.blp:31
-msgid "Add"
-msgstr "Legg til"
-
-#: src/raider-window.blp:46
-msgid "Main Menu"
-msgstr "Hovedmeny"
-
-#: src/raider-window.blp:61
-msgid "Add files or drop here"
-msgstr "Legg til filer"
-
-#: src/raider-window.blp:63
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-"Filer som legges til her, vil slettes og byttes ut med tilfeldig data "
-"slik at de ikke kan gjenopprettes"
-
-#: src/raider-window.blp:99 src/raider-window.c:358
-msgid "Shred All"
-msgstr "Slett alt"
-
-#: src/raider-window.blp:118 src/raider-window.c:410
-msgid "Abort All"
-msgstr "Avbryt alt"
-
-#: src/raider-window.blp:145
-msgid "About File Shredder"
-msgstr "Om File Shredder"
-
-#: src/raider-window.c:151
-msgid "Stop Shredding?"
-msgstr "Stoppe sletting?"
-
-#: src/raider-window.c:152
+#: ../lib/exit_dialog.rb:24
 msgid "Are you sure that you want to exit?"
 msgstr "Er du sikker på at du ønsker å avslutte?"
 
-#: src/raider-window.c:155
+#: ../lib/exit_dialog.rb:24
+msgid "Stop Shredding?"
+msgstr "Stoppe sletting?"
+
+#: ../lib/exit_dialog.rb:30
 msgid "_Cancel"
 msgstr "_Avbryt"
 
-#: src/raider-window.c:155
+#: ../lib/exit_dialog.rb:31
 msgid "_Exit"
 msgstr "_Avslutt"
 
-#: src/raider-window.c:203
-msgid "Could not remove filename from quick list. Please report this."
-msgstr "Fjerning av filnavn mislyktes. Meld inn denne feilen."
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
+msgid "File Shredder"
+msgstr "File Shredder"
 
-#: src/raider-window.c:213
-msgid "Finished shredding files"
-msgstr "Sletting fullført"
+#: ../lib/main.rb:130
+msgid "translator-credits"
+msgstr "Brage Fuglseth https://bragefuglseth.dev"
 
-#: src/raider-window.c:281
-msgid "Some files were already loaded"
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr "Legg til filer"
+
+#: ../lib/main.rb:241
+#, fuzzy
+msgid "Add Folders"
+msgstr "Legg til filer"
+
+#: ../lib/progress_info_popover.rb:49
+#, fuzzy
+msgid "Estimating…"
+msgstr "Beregner"
+
+#: ../lib/progress_info_popover.rb:67
+#, fuzzy
+msgid "Starting…"
+msgstr "Avbryter"
+
+#: ../lib/progress_info_popover.rb:77
+#, fuzzy
+msgid "Finishing up…"
+msgstr "Fullfører"
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr "Generelt"
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr "Nytt vindu"
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr "Tastatursnarveier"
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr "Lukk vindu"
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr "Avslutt"
+
+#: ../lib/window.rb:152
+#, fuzzy
+msgid "This file was already added"
 msgstr "Enkelte filer var allerede innlastet"
 
-#: src/raider-window.c:294
+#: ../lib/window.rb:155
 msgid "Some files did not exist"
 msgstr "Enkelte filer eksisterte ikke"
 
-#: src/raider-window.c:302
-msgid "Directories are not supported"
-msgstr "Mapper kan ikke slettes"
-
-#: src/raider-window.c:312
-#, c-format
+#: ../lib/window.rb:158
 msgid "Cannot write to “%s”"
 msgstr "«%s» er skrivebeskyttet"
 
-#: src/raider-window.c:323
+#: ../lib/window.rb:161
 msgid "Cannot load more files"
 msgstr "Maksimalt antall filer nådd"
 
-#: src/raider-window.c:380
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr "Fjerning av filnavn mislyktes. Meld inn denne feilen."
+
+#: ../lib/window.rb:218
 msgid "Starting Shredding…"
 msgstr "Starter sletting"
 
-#: src/raider-window.c:432
+#: ../lib/window.rb:236
 msgid "Aborting…"
 msgstr "Avbryter"
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr "Legg til"
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr "Hovedmeny"
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr "Om File Shredder"
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr ""
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr "Legg til filer"
+
+#: ../lib/window.rb:360
+msgid "Shredding is the obfuscation of a file with random data so the previous contents cannot be recovered."
+msgstr "Filer som legges til her, vil slettes og byttes ut med tilfeldig data slik at de ikke kan gjenopprettes"
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr ""
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr "Slett alt"
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr "Avbryt alt"
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr ""
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
+msgstr "Sletting fullført"
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:4
+msgid "Permanently delete your files"
+msgstr "Slett sensitive filer fullstendig"
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:9
+msgid "delete;remove;permanently;files;shred;data;"
+msgstr ""
+
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
+msgid "File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy."
+msgstr ""
+
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
+#, fuzzy
+msgid "Within a certain limit, it is effective. However, modern SSDs use certain technologies to extend its lifetime, which has the side effect of ensuring that shredding is never perfect, and no software can fix that. But shredding significantly increases the difficulty of data recovery since it requires specialized software and hardware."
+msgstr "På grunn av måten data lagres på, er det fysisk umulig å fjerne absolutt alle rester, men File Shredder kan gjøre det til et punkt hvor å gjenopprette filene vil være en lang og svært kostbar prosess."
+
+#~ msgid "Raider is a shredding program built for the GNOME desktop. It is meant to remove files from your computer permanently."
+#~ msgstr "Når du sletter en fil på vanlig vis, vil det fortsatt ligge igjen nok spor av den til at den kan rekonstrueres. File Shredder lar deg beskytte personvernet ditt ved å fjerne spor etter sensitive filer."
+
+#~ msgid "Directories are not supported"
+#~ msgstr "Mapper kan ikke slettes"
