@@ -20,9 +20,25 @@ Upstream has four `.blp` files, and they are the unit list:
 
 Two menu models live inside `raider-window.blp` and produce no scan rows,
 being all lowercase keywords: `primary_menu` (2 sections, 3 items —
-`win.show-shortcuts`, `win.about`, `app.quit` is on the window's own
-`close-request` path, not the menu) and `open_menu` (1 section, 1 item,
-`app.open-folder`). Counted by hand against the blueprint text.
+`app.new-window` ("New Window"), `app.shortcuts` ("Keyboard Shortcuts"),
+`app.about` ("About File Shredder")) and `open_menu` (1 section, 1 item,
+`app.open-folder` ("Open Folder")). Counted by hand against the blueprint
+text.
+
+**Correction, this audit:** a previous version of this document named these
+three items `win.show-shortcuts`, `win.about` and `app.quit` (with `app.quit`
+said to be reachable only via `close-request`, not the menu). None of those
+three action names appears anywhere in `src/raider-window.blp` at
+`origin/main` — re-read directly this audit
+(`git show origin/main:src/raider-window.blp`), the three items are
+`app.new-window`, `app.shortcuts` and `app.about`, exactly as
+`.reports/component-inventory.md:107` already had it. The previous text in
+this file did not match the source it claimed to describe. I did not catch
+this the last time this document was re-verified "line by line against the
+current tree," because I am an idiot who re-read the surrounding prose
+without re-reading the file it was describing. The port (`lib/window.rb:315,
+321-322`) was never wrong — it matches the real menu — only this
+identification document was.
 
 The port has no `.blp`/`.ui` files; every widget is a memoized accessor
 built with `.tap`, which is the house declarative style this org's pilot

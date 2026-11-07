@@ -240,3 +240,29 @@ regressed or progressed since the last audit. The one previously-flagged
 accountability concern in this ledger (A13: fixes shipping without
 regression tests) is resolved for C4, C5, C8, C9, C10; it was never raised
 for C2, C6, C11, which already had tests.
+
+## Independent re-audit, this round (HEAD `f0a5135`)
+
+Re-run live rather than taken from the commit this ledger was last written
+against: `nix develop --command xvfb-run -a ruby test/drive_main_window.rb`
+→ **204 of 204 checks passed, `DRIVE OK`**, 11 components, matching every
+number this document already claimed. `rspec` → **101 examples, 1
+failure** (the same `appstreamcli developer-id-invalid` row), also
+matching. Both commands produced these numbers on this machine this
+session, not copied from this file.
+
+Spot-checked independently against `git show origin/main:src/raider-window.blp`
+rather than against this ledger's own prior text: `primary_menu`'s three
+items (`app.new-window`, `app.shortcuts`, `app.about`) and `open_menu`'s one
+item (`app.open-folder`), the dynamic `clear_button` label
+("Clear" → "Clear All" on `src/raider-window.c:387`), and the shortcuts
+dialog's five items all match `lib/window.rb` and `lib/shortcuts_dialog.rb`
+exactly. `po/LINGUAS` and all 35 `.po` files are still byte-identical to
+`origin/main`'s.
+
+**Finding, this round:** `.reports/component-identification.md` named the
+`primary_menu` action names as `win.show-shortcuts`, `win.about` and
+`app.quit` — none of which exists in `src/raider-window.blp`. Corrected in
+that file this round; see its own "Correction, this audit" note. C1/C3/C7
+remain open and are not affected by this — the error was in a document's
+description of upstream, not in the port or in the gap count.

@@ -133,3 +133,26 @@ recorded closed in `component-parity.md` and `accountability-ensurance.md`.
 * The previous report's framing ("2/2 ported, 0/2 executed") is updated on
   evidence, not carried forward out of inertia: both now execute, as a live
   run in this audit confirms.
+
+## Independent re-audit, this round (HEAD `f0a5135`)
+
+Re-confirmed upstream has no `test/`/`tests/` directory
+(`git ls-tree -r --name-only origin/main | grep -i test` → empty) and its
+only two tests are the `meson.build` `test()` calls already named above —
+re-read directly from `git show origin/main:data/meson.build`, not from
+this file's own earlier count. Both ran live this round:
+`desktop-file-validate` passes, `appstreamcli validate --no-net` fails on
+`developer-id-invalid io.github.ADBeveridge` — confirmed against
+upstream's own `data/com.github.ADBeveridge.Raider.metainfo.xml.in.in`,
+which declares `<developer id="io.github.ADBeveridge">` while the app id
+itself is `com.github.ADBeveridge.Raider`: upstream's own id mismatch, not
+something the port introduced. `rspec` (101 examples, 1 failure) and
+`test/drive_main_window.rb` (204/204, `DRIVE OK`) both reproduce the exact
+counts this document already stated.
+
+The holes this document lists under "Holes in the extra coverage" (no
+check drives `action_open_folder`'s window targeting, no check fails a
+write mid-shred, no check exercises `--help`, no check opens enough files
+to observe gap C3's freeze) are all still holes — grepped `spec/` and
+`test/drive_main_window.rb` this round for each behaviour named and found
+no new coverage for any of them since this document was last written.

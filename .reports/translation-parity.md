@@ -220,3 +220,23 @@ come back translated and `Encoding::UTF_8`.
   than carried forward: T1 is genuinely closed (35/35 languages built), and
   T2 is only half-closed, with the other half (T4) now named explicitly
   instead of absorbed into a clean-looking "closed" line.
+
+## Independent re-audit, this round (HEAD `f0a5135`)
+
+Re-counted directly rather than trusted from this file's own header:
+`grep -c '^msgid "' po/com.github.ADBeveridge.Raider.pot` → **39**, and the
+four keys this document lists as added (`Permanently delete your files`,
+the `Keywords=` string, and the two metainfo `<p>` paragraphs) are present
+in the file at the lines this document names. `po/LINGUAS` is 35 lines and
+`diff`s empty against every one of the 35 `.po` files on `origin/main`
+(`for f in po/*.po; do diff "$f" <(git show origin/main:"$f"); done` — no
+output), confirming the catalogues are still untouched exactly as claimed.
+German-locale live check re-run via `test/drive_main_window.rb` and passes.
+
+**Still open and not overstated by this document:** the four new `.pot`
+keys have no translation in any of the 35 `.po` files — a user never sees
+a translated `Keywords=` or the new metainfo `<summary>`/`<description>`
+text in any of the 35 languages, only in English, because nothing has run
+`msgmerge` against the new template yet. This is real, named, un-excused
+owed work in the existing text above (gap T2's final paragraph) and is not
+further hedged here.

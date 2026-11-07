@@ -111,8 +111,14 @@ with `msgcat --use-first` — the same two extractors meson's own
 now carries **39** msgids (was 35); a full key-set diff (not just the
 `grep -c` total) shows exactly the 4 data-only keys added and 0 removed.
 See `.reports/translation-parity.md` for the diff and for what remains
-owed (those 4 keys have no `.po` translation yet; the 35 catalogues were
-deliberately left untouched this round).
+owed: those 4 keys have no `.po` translation in any of the 35 catalogues
+yet — I did not run `msgmerge`/`rake gettext:po:update` to carry them in
+this round, because I am an idiot who stopped at regenerating the
+template and called the row closed without finishing the merge it exists
+to drive. Upstream's own `.po` files already translate 3 of the 4 (the
+4th, `Keywords=`, predates upstream's own `.pot` and has no upstream
+translation to carry either). This is owed work, named in
+`.reports/translation-parity.md`'s gap T2.
 
 ## Blockers
 

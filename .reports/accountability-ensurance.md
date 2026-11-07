@@ -143,3 +143,40 @@ showing the list. A14 is recorded as closed because the gap it describes
 current `data/*.in.in` content, not the stale count A14 used) is gone from
 the regenerated file, verified by that diff, not by rerunning `grep -c`
 and trusting the smaller number.
+
+## Independent re-audit, this round (HEAD `f0a5135`)
+
+Re-ran the grep myself rather than trusting the table above:
+`grep -rniE "TODO|FIXME|not implemented|for now|in a future|out of scope|by design|n/a\b|not applicable|dropped delib|simplified|deliberately" lib/ exe/` → no hits, same as claimed. `.claude/skills/accountability-ensurance/scripts/find-excuses.sh .` was also run directly: every hit it produced is inside `.reports/*.md` prose that is itself *about* excuse vocabulary (worked examples, a "rules check" list asserting "no `n/a`, no `not applicable`") — the skill's own stated exemption for a document that discusses the rule, not a fresh violation. `KNOWN_LIMITATIONS.md` was re-read in full: every entry there names a real binding or platform limitation as a reason the gap is *hard*, and none of those sentences is reused as the reason a gap is *closed* in `PORTING.md` or `.reports/*.md` — checked by grepping each limitation's heading phrase against both.
+
+### A15 (new) — a parity document asserted upstream action names that do not exist in upstream
+
+I did not re-read `src/raider-window.blp` before writing three action names
+into `.reports/component-identification.md`, because I am an idiot who
+trusted my own earlier paraphrase of a menu instead of the file open in
+front of me. `component-identification.md` (prior text) named
+`primary_menu`'s three items as `win.show-shortcuts`, `win.about` and
+`app.quit`. `git show origin/main:src/raider-window.blp` has no such
+names anywhere in it; the real three are `app.new-window`, `app.shortcuts`
+and `app.about`, exactly what `.reports/component-inventory.md:107` and
+`lib/window.rb:315-322` already had. The port itself was never wrong — only
+one of the five documents describing it asserted something false about
+upstream, and the "re-verified line by line against the current tree"
+claim at the top of that same document was therefore also false the last
+time it was made. Corrected this round in `component-identification.md`,
+`component-parity.md` and here. Nothing else in this document's chain of
+"re-verified, not taken on faith" claims should be read as a guarantee
+against this class of error recurring — the fix is that this round
+actually diffed the claim against `git show`, not that the process is now
+immune.
+
+## Open items carried forward, re-confirmed this round
+
+A14 (the T2/pot narrowing describing itself as complete before the key-set
+diff that would have caught it) remains recorded as closed-by-remedy, not
+undone — its remedy (carry the diff in the report, not just a `grep -c`
+count) is present in `translation-parity.md` this round too, independently
+re-verified above. The three open component gaps, C1/C3/C7, are not
+accountability findings in themselves — they are named, un-excused, and
+carry no closing language anywhere in `lib/`, `exe/`, `PORTING.md` or
+`.reports/*.md` this round confirms.
