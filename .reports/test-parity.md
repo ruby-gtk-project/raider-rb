@@ -195,3 +195,23 @@ remains open: it is gated on gap C1 (`GOptionEntry` registration), which
 this round did not attempt to close, so asserting on `--help` text now
 would only assert on the absence the gap already documents, not add
 coverage that could catch a real fix regressing.
+
+## Round 3 (this round): re-run live, counts unchanged
+
+`rspec` → **104 examples, 1 failure** (same `appstreamcli
+developer-id-invalid` row, upstream's own data defect, not a port
+regression). `test/drive_main_window.rb` → **205 of 205 checks passed,
+`DRIVE OK`**, 11 components. Both numbers match the previous round's
+report exactly, measured by actually running the commands this session,
+not read off this file. `git log --oneline -1 -- lib/ exe/ test/ spec/`
+still points at `c6b52d7`; no test or driver file changed since the
+previous audit, so no new hole could have opened and none of the three
+holes closed in that commit (`action_open_folder` targeting, mid-shred
+write failure, C3's many-files-at-once check) could have regressed
+silently — each was re-run live above as part of the same two commands.
+
+The upstream test bijection is still **2/2 ported, 2/2 executed** (one
+passing, one failing on upstream's own metainfo defect). The fourth hole
+named in the "Holes in the extra coverage" section — no check exercises
+`--help` output — is still open and still correctly gated on gap C1,
+which was not touched this round.

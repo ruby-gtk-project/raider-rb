@@ -323,3 +323,28 @@ implementation for a side-by-side screenshot, and nothing in the port's
 own tree changed for the `Gtk::MenuButton`/`Gtk::DrawingArea`
 substitution, so it remains argued on paper only, unchanged from the
 previous audit's own finding.
+
+## Round 3 (this round): re-run live, no regression, no new gap
+
+Re-ran both gates live rather than trusting the previous "Parity reports"
+commit's numbers: `nix develop --command xvfb-run -a ruby test/drive_main_window.rb`
+→ **205 of 205 checks passed, `DRIVE OK`**, 11 components — unchanged from
+the previous round. `rspec` → **104 examples, 1 failure** (the same
+`appstreamcli developer-id-invalid` row against upstream's own
+`<developer id="io.github.ADBeveridge">` vs. app id
+`com.github.ADBeveridge.Raider` mismatch) — also unchanged.
+
+Spot-checked `git ls-tree -r --name-only origin/main` against the 11-unit
+mapping this document and `component-identification.md` already carry:
+no file was added to or removed from `src/`/`data/` on `origin/main` since
+the last audit, so the 11-unit count and the per-unit file list both still
+hold without re-deriving them from scratch.
+
+**C1 and C7 remain open, unchanged.** No code in `lib/` or `exe/` was
+touched this round (`git log --oneline -1 -- lib/ exe/` still points at
+`c6b52d7`, the commit that closed C3), so nothing could have newly closed
+or newly broken either gap; both are re-confirmed by re-reading
+`lib/main.rb:151-153` (C1) and `lib/progress_paintable.rb`/`lib/file_row.rb`
+(C7) against the same evidence this document already cites. **Verdict
+unchanged: 9 of 11 units at parity, two open gaps (C1, C7), zero
+regressions.**

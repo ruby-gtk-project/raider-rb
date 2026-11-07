@@ -180,3 +180,27 @@ re-verified above. The three open component gaps, C1/C3/C7, are not
 accountability findings in themselves — they are named, un-excused, and
 carry no closing language anywhere in `lib/`, `exe/`, `PORTING.md` or
 `.reports/*.md` this round confirms.
+
+## Round 3 (this round): grep re-run, no new excuse, no new false green
+
+`grep -rniE "TODO|FIXME|not implemented|for now|in a future|out of scope|by design|n/a\b|not applicable|dropped delib|simplified|deliberately" lib/ exe/`
+→ no hits, same as every prior round. The one hit in `PORTING.md`
+(`C1 — GOptionEntry command-line registration not implemented;`) is a
+factual label on an open gap, not an excuse for it — `PORTING.md` names
+C1 and C7 as open in the same breath, with no closing language attached.
+
+Checked this round's own claims against a live run rather than against
+the previous commit's report text: the `205 of 205`, `DRIVE OK`, `104
+examples, 1 failure`, `39` `.pot` msgids and `35` `.po` files cited in
+this round's additions to `component-parity.md`, `test-parity.md` and
+`translation-parity.md` were each produced by a command run in this
+session (shown in those files' own Round 3 sections), not copied from the
+prior "Parity reports" commit. No file in `lib/`, `exe/`, `test/` or
+`spec/` changed since the commit that closed C3 (`c6b52d7`), so no new
+item needed opening or closing this round, and the open items (C1, C7)
+are re-confirmed, not re-litigated.
+
+The out-of-tree merge-conflict markers in
+`.claude/skills/translation-parity/SKILL.md:723,742,754` are still
+present — re-confirmed this round — and are still a toolchain defect, not
+a port defect, per the prior round's disposition.

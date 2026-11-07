@@ -302,3 +302,25 @@ see gap T2 (second half) and Catalogues above for the counts. The
 catalogues are therefore no longer byte-identical to `origin/main`'s, by
 design: that was exactly the state the previous round's "still open"
 note was naming as owed.
+
+## Round 3 (this round): re-verified, catalogues unchanged
+
+Re-counted live: `grep -c '^msgid "' po/com.github.ADBeveridge.Raider.pot`
+→ **39**, `wc -l po/LINGUAS` → **35**, matching the previous round exactly.
+`diff <(git show origin/main:po/de.po) po/de.po` shows only header-field
+differences (`Report-Msgid-Bugs-To`, `POT-Creation-Date`) — no
+`msgid`/`msgstr` text differs from upstream's donated translation, as the
+previous round's Catalogues section already claimed; re-confirmed by
+running the diff directly this round rather than trusting that claim.
+`git log --oneline -1 -- po/ lib/translation.rb lib/data_files.rb Rakefile`
+still points at `c6b52d7`, the commit that ran the 35-file `msgmerge` — no
+catalogue has moved since. The live German-locale check
+(`test/drive_main_window.rb`'s `:739-744` steps) re-ran as part of this
+round's drive run and passed (`ok the marker answers the msgid in German,
+live`).
+
+**Still open, unchanged:** the `Keywords=` string has no translation in 6
+of the 35 `.po` files (upstream itself never translated that line, so this
+is not a regression), and the `msgmerge` run left `fuzzy` markers on
+entries in 10 catalogues that still need a human translator's confirmation
+rather than an automated fix. Neither is new this round.

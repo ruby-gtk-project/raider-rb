@@ -149,3 +149,17 @@ for the message-level census.
   components in their own right, not silently merged into "the same gap."
 - Menu models and their `item` entries are counted by hand since the scan
   cannot see lowercase blueprint keywords.
+
+## Round 3 (this round): re-verified against origin/main directly
+
+`git ls-tree -r --name-only origin/main | grep -E '^(src|data)/'` re-run
+this round and diffed by eye against the per-unit file list above: no file
+was added, removed or renamed on `origin/main` since the last audit, so
+the 11-unit inventory stands unchanged. The `primary_menu`/`open_menu`
+action names this document corrected last round (A15 in
+`accountability-ensurance.md`) were spot-checked again directly against
+`git show origin/main:src/raider-window.blp` rather than against this
+file's own prior text, and still read `app.new-window`, `app.shortcuts`,
+`app.about` (primary menu) and `app.open-folder` (open menu) — matching
+`lib/window.rb` and this document's current text. No new component was
+found on either side.
