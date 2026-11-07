@@ -119,6 +119,31 @@ RSpec.describe DataFiles do
       expect(contents).to include("<p>GNOME 48 Update</p>")
       expect(contents).not_to match(/<p xml:lang="[a-z_]+">GNOME 48 Update/)
     end
+
+    # Regression test for gap C8 (component-parity.md): the developer id's
+    # casing was once retyped from upstream's "io.github.ADBeveridge" — a
+    # byte-identical-looking but wrong string that a bare File.exist? or
+    # "the file parses" check would never catch.
+    it "keeps upstream's developer id, by name, not just a well-formed one (C8)" do
+      contents = File.read(metainfo_file)
+
+      expect(contents).to include('<developer id="io.github.ADBeveridge">')
+    end
+
+    # Regression test for gap C9 (component-parity.md): the metainfo's
+    # <image> element and the screenshot file it names are asserted together
+    # so they cannot drift apart again — a metainfo pointing at a screenshot
+    # that does not exist is the exact shape of the bug this closes.
+    it "names a screenshot that actually exists on disk (C9)" do
+      contents = File.read(metainfo_file)
+
+      screenshot = contents[%r{<image[^>]*>([^<]*raider-screenshot1\.png)</image>}, 1]
+
+      expect(screenshot).not_to be_nil
+      expect(File).to exist(
+        File.join(described_class::TEMPLATE_DIRECTORY, File.basename(screenshot)),
+      )
+    end
   end
 
   describe "the D-Bus service file" do

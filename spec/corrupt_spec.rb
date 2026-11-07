@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "stringio"
 require "tmpdir"
 
 require "corrupt"
@@ -74,6 +75,47 @@ RSpec.describe Corrupt do
         expect(error).to be_nil
         expect(Dir).not_to exist(tree)
         expect(progress.first).to eq(0.0)
+      end
+    end
+  end
+
+  # Regression test for gap C5 (component-parity.md): a directory that
+  # cannot even be opened for listing (src/corrupt.c:219-224's fprintf) must
+  # be reported with that diagnostic and left alone, distinct from a
+  # directory that fails to be *removed*. A revert that let the listing
+  # error fall through to #remove_directory's "failed to remove folder"
+  # message, or that attempted rmdir on a directory it never listed, would
+  # print the wrong diagnostic and could try to remove a directory whose
+  # contents were never accounted for.
+  describe "#openable_entries with a directory this process cannot list (C5)" do
+    it "prints the listing diagnostic, returns nil, and never calls rmdir" do
+      Dir.mktmpdir do |directory|
+        locked = File.join(directory, "locked")
+        FileUtils.mkdir_p(locked)
+        File.chmod(0o000, locked)
+
+        begin
+          corrupt = described_class.new(locked)
+
+          stderr = StringIO.new
+          result = nil
+          original_stderr = $stderr
+          begin
+            $stderr = stderr
+            result = corrupt.send(:openable_entries, locked)
+          ensure
+            $stderr = original_stderr
+          end
+
+          expect(result).to be_nil
+          expect(stderr.string).to include("corrupt: failed to open directory for removal")
+          expect(stderr.string).not_to include("failed to remove folder")
+          # rmdir was never attempted on a directory #openable_entries could
+          # not even list: it is still there, not merely still full.
+          expect(File).to be_directory(locked)
+        ensure
+          File.chmod(0o755, locked) if File.directory?(locked)
+        end
       end
     end
   end

@@ -157,4 +157,84 @@ RSpec.describe App do
       expect(application.send(:application_arguments)).to eq(["/tmp/a"])
     end
   end
+
+  # Regression test for gap C4 (component-parity.md): action_open resolves
+  # the target window once, at dialog-presentation time
+  # (src/raider-application.c:79-84), not at dialog-completion time. A
+  # revert to resolving app.active_window inside the completion block would
+  # route the file to whichever window the user focused while the dialog was
+  # open — this drives exactly that race and asserts the file still lands in
+  # the window the dialog was opened from.
+  describe "#action_open targets the window active when the dialog was opened (C4)" do
+    let(:shared) { GtkSupport.app }
+    let(:windows) { 2.times.map { shared.send(:open_window, []) } }
+
+    it "loads the file into the second window even if the first becomes active before the dialog finishes" do
+      first, second = windows
+      second.window.present
+      GtkSupport.pump_until { shared.app.active_window == second.window }
+
+      Dir.mktmpdir do |directory|
+        path = GtkSupport.write_file(directory, "c4.bin", size: 16)
+        fake_dialog = instance_double(
+          Gtk::FileDialog,
+          "modal=" => nil,
+          "title=" => nil,
+        )
+        allow(Gtk::FileDialog).to receive(:new).and_return(fake_dialog)
+        completion = nil
+        allow(fake_dialog).to receive(:open_multiple) do |_parent, _cancellable, &block|
+          completion = block
+        end
+        allow(fake_dialog).to receive(:open_multiple_finish).and_return([path])
+
+        shared.send(:action_open)
+
+        # The user focuses the other window while the dialog is still open.
+        first.window.present
+        GtkSupport.pump_until { shared.app.active_window == first.window }
+
+        completion.call(fake_dialog, double("result"))
+
+        expect(second.rows.map(&:path)).to include(path)
+        expect(first.rows.map(&:path)).not_to include(path)
+      end
+    end
+  end
+
+  # Regression test for gap C10 (component-parity.md): gapplication_argv
+  # prepends $PROGRAM_NAME so Gtk::Application#run does not read the first
+  # real filename as its own program name and drop it — g_application_run's
+  # documented contract is that argv[0] is the program name and everything
+  # after it is what GApplication's `open` vfunc receives. A revert to
+  # `[*application_arguments]` without the prepended name would make the
+  # file the program name instead, and `open` would never fire for it.
+  #
+  # This drives that exact contract directly: the argv #run would hand
+  # Gtk::Application#run is fed to a bare, separate Gio::Application (its
+  # own id, so it cannot collide with the shared app the rest of this file
+  # uses) and the file is asserted to arrive through `open`, not consumed as
+  # the program name.
+  describe "a file argument reaches GApplication's open vfunc, not the program name (C10)" do
+    it "the argv #run passes delivers the file through open" do
+      Dir.mktmpdir do |directory|
+        path = GtkSupport.write_file(directory, "c10.bin", size: 16)
+        argv = described_class.new(argv: [path]).send(:gapplication_argv)
+
+        expect(argv).to eq([$PROGRAM_NAME, path])
+
+        probe = Gio::Application.new("io.github.raider-rb.c10-probe", :handles_open)
+        received = nil
+        probe.signal_connect("open") do |_, files, _count, _hint|
+          received = files.map(&:path)
+          probe.quit
+        end
+        probe.signal_connect("activate") { probe.quit }
+
+        probe.run(argv)
+
+        expect(received).to eq([path])
+      end
+    end
+  end
 end

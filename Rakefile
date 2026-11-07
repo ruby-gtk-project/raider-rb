@@ -188,12 +188,29 @@ require "gettext/tools/task"
 
 GETTEXT_DOMAIN = "raider"
 GETTEXT_LOCALE_DIRECTORY = "data/locale"
+GETTEXT_POT_NAME = "com.github.ADBeveridge.Raider"
 
+# GetText::Tools::Task's own per-locale po/mo tasks assume a
+# `po/<locale>/<domain>.po` tree (its Path#po_file), which is meson's layout,
+# not upstream's: this port's catalogues are the flat `po/<locale>.po` files
+# meson's own `i18n.gettext` also reads. `task.locales` has to be non-empty
+# or the task refuses to define itself, but nothing here ever invokes its
+# per-locale `gettext:mo:<locale>:update`/`gettext:po:<locale>:update` tasks
+# — running one against this tree would write an empty, untranslated
+# catalogue into a fresh `po/<locale>/` directory and silently shadow the
+# real one. Only the .pot task (locale-independent) is used from here;
+# `gettext:mo` below, which upstream's per-locale layout has no equivalent
+# of, is this port's own direct `msgfmt` invocation over the flat files.
 GetText::Tools::Task.define do |task|
   task.domain = GETTEXT_DOMAIN
-  task.package_name = GETTEXT_DOMAIN
+  task.package_name = GETTEXT_POT_NAME
   task.package_version = "3.1.0"
-  task.files = Dir.glob("lib/**/*.rb") + Dir.glob("exe/*")
+  # The Ruby files po/POTFILES names, in the order it names them, so the
+  # .pot's source list is the same file read by translation-parity tooling
+  # rather than a second, independently-maintained glob.
+  task.files = File.readlines("po/POTFILES", chomp: true)
+                    .reject(&:empty?)
+                    .grep(/\.rb\z/)
   task.po_base_directory = "po"
   task.mo_base_directory = GETTEXT_LOCALE_DIRECTORY
   task.locales = File.read("po/LINGUAS").split
@@ -201,7 +218,19 @@ GetText::Tools::Task.define do |task|
 end
 
 desc "Compile po/*.po into #{GETTEXT_LOCALE_DIRECTORY}/<lang>/LC_MESSAGES/#{GETTEXT_DOMAIN}.mo"
-task "gettext:mo" => "gettext:mo:update"
+task "gettext:mo" do
+  msgfmt = ENV.fetch("MSGFMT", "msgfmt")
+  File.read("po/LINGUAS").split.each do |locale|
+    directory = File.join(GETTEXT_LOCALE_DIRECTORY, locale, "LC_MESSAGES")
+    require "fileutils"
+    FileUtils.mkdir_p(directory)
+    sh(
+      msgfmt,
+      "--output-file", File.join(directory, "#{GETTEXT_DOMAIN}.mo"),
+      File.join("po", "#{locale}.po"),
+    )
+  end
+end
 
 desc "Check every catalogue with GNU msgfmt -c --check-format"
 task "gettext:check" do

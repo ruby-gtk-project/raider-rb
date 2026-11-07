@@ -12,8 +12,8 @@ require_relative 'translation'
 # the accelerator up on the application, so rebinding an accelerator in
 # lib/main.rb changes what this dialog shows.
 #
-# The dialog's own title is libadwaita's translated default and is deliberately
-# not set here; upstream's blueprint does not set one either.
+# The dialog sets no title, as src/raider-shortcuts.blp:4 sets none;
+# libadwaita supplies its own translated default.
 class ShortcutsDialog < Adwaita::ShortcutsDialog
   include Translation
 

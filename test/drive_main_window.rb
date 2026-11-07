@@ -728,16 +728,34 @@ GtkDriver.drive(App.new, shots: SHOTS, timeout: 600) do |d, app|
       win.call.send(:_, 'File Shredder') == 'File Shredder'
     end
     d.check('the window title came through it') { win.call.window.title == 'File Shredder' }
+
+    # The C-locale check above would still pass with the domain, localedir
+    # or binding entirely broken — C is the one locale where "return the
+    # msgid unchanged" looks correct. This drives the same marker under a
+    # real catalogue instead of reading one as a file.
+    require 'locale'
+    previous_locale = Locale.current
+    begin
+      Locale.current = 'de'
+      d.check('the marker answers the msgid in German, live') do
+        win.call.send(:_, 'File Shredder') == 'Aktenvernichter'
+      end
+      d.check('the translated string is UTF-8') do
+        win.call.send(:_, 'File Shredder').encoding == Encoding::UTF_8
+      end
+    ensure
+      Locale.current = previous_locale
+    end
   end
 
   d.step('the three installable data files build out of their templates') do
     d.check('msgfmt is on PATH') { DataFiles.msgfmt? }
 
     DataFiles.new.then do |data|
-      # Upstream's po/LINGUAS, which the port's is byte-identical to: 34
-      # languages listed, out of the 35 catalogues in po/ — one catalogue is
-      # not listed upstream either, and msgfmt only merges what LINGUAS names.
-      d.check('po/LINGUAS lists 34 languages') { data.languages.length == 34 }
+      # po/LINGUAS lists every catalogue in po/, including pl — msgfmt only
+      # merges what LINGUAS names, so a language missing from this file never
+      # reaches a user regardless of whether its .po exists.
+      d.check('po/LINGUAS lists all 35 languages') { data.languages.length == 35 }
       d.check('and every one of them has a catalogue') do
         data.languages.all? do |language|
           File.exist?(File.join(DataFiles::PO_DIRECTORY, "#{language}.po"))

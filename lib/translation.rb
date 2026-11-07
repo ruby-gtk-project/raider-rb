@@ -16,10 +16,11 @@ require_relative 'package_config'
 #
 # The domain is bound once here, on a module, and the classes that carry
 # msgids include it; the gettext gem resolves a domain by walking the
-# including class's ancestors, so one binding serves the whole port. The
-# codeset is not set: the gettext gem decodes catalogues as UTF-8 and hands
-# back String objects already in Encoding::UTF_8, which is what
-# bind_textdomain_codeset asks the C library for.
+# including class's ancestors, so one binding serves the whole port. No
+# codeset is set here: `spec/translation_spec.rb`'s "non-English locale"
+# example asserts the string `_()` returns under a live German locale is
+# `Encoding::UTF_8`, which is what bind_textdomain_codeset asks the C
+# library for.
 #
 # Marked strings are returned by methods rather than held in constants. A
 # constant is frozen at load time, before the locale is known to anything that

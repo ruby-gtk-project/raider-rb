@@ -37,10 +37,14 @@ RSpec.describe Translation do
     expect(PackageConfig::GETTEXT_PACKAGE).to eq("raider")
   end
 
-  it "ships every language upstream's LINGUAS lists" do
+  it "builds a catalogue for every .po on disk" do
     languages = DataFiles.new.languages
+    po_languages = Dir.glob(File.join(ROOT, "po", "*.po"))
+                       .map { |path| File.basename(path, ".po") }
+                       .sort
 
-    expect(languages.length).to eq(34)
+    expect(languages.length).to eq(35)
+    expect(languages.sort).to eq(po_languages)
     expect(languages).to include(
       "de",
       "fr",
@@ -48,15 +52,11 @@ RSpec.describe Translation do
       "zh_CN",
       "cs",
       "sl",
+      "pl",
     )
     languages.each do |language|
       expect(File).to exist(File.join(ROOT, "po", "#{language}.po"))
     end
-  end
-
-  it "keeps pl.po on disk although LINGUAS does not list it, as upstream does" do
-    expect(File).to exist(File.join(ROOT, "po", "pl.po"))
-    expect(DataFiles.new.languages).not_to include("pl")
   end
 
   it "lists the port's own files in POTFILES" do
@@ -122,9 +122,10 @@ RSpec.describe Translation do
         data_only.any? { |pattern| pattern.is_a?(Regexp) ? pattern.match?(msgid) : pattern == msgid }
       end
 
-      # "Estimating..." is the stale .pot's spelling; the source upstream
-      # extracts it from says "Estimating…", which is what the port marks.
-      expect(code_msgids - marked).to eq(["Estimating..."])
+      # The .pot is generated from the port's own lib/*.rb sources (`rake
+      # gettext:pot:create`), so every code msgid it carries is one the
+      # port actually marks.
+      expect(code_msgids - marked).to eq([])
     end
 
     it "keeps %s rather than interpolating, so the key survives" do
@@ -180,6 +181,36 @@ RSpec.describe Translation do
 
       expect(catalogue["File Shredder"]).to eq("Aktenvernichter")
       expect(catalogue["Starting Shredding…"]).to eq("Vernichten wird gestartet…")
+    end
+  end
+
+  # The two examples above assert the contents of a .mo file. Neither calls
+  # `_()`, so neither would notice a wrong domain, a wrong localedir, or a
+  # binding that does nothing at all. This one goes through the real marker,
+  # under a real non-English locale, the way `_('File Shredder')` does at
+  # every call site in lib/.
+  describe "a marked string under a non-English locale" do
+    include Translation
+
+    around do |example|
+      require "locale"
+      previous = Locale.current
+      example.run
+    ensure
+      Locale.current = previous
+    end
+
+    it "comes back translated and UTF-8, not read off a file" do
+      unless File.exist?(
+        File.join(PackageConfig::BUNDLED_LOCALEDIR, "de", "LC_MESSAGES", "#{PackageConfig::GETTEXT_PACKAGE}.mo"),
+      )
+        skip("run `rake gettext:mo` first")
+      end
+
+      Locale.current = "de"
+
+      expect(_("File Shredder")).to eq("Aktenvernichter")
+      expect(_("File Shredder").encoding).to eq(Encoding::UTF_8)
     end
   end
 end

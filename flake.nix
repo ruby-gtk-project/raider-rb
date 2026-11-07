@@ -243,6 +243,12 @@
             pkgs.xvfb-run
             pkgs.gsettings-desktop-schemas
             pkgs.adwaita-icon-theme
+            # Upstream's two meson tests (data/meson.build:12, :27) validate
+            # the merged desktop entry and metainfo with these; without them
+            # on PATH spec/data_files_spec.rb's two parity examples skip
+            # instead of running.
+            pkgs.desktop-file-utils
+            pkgs.appstream
           ] ++ gtkStack;
 
           # Icons, GSettings schemas and the GTK portal all resolve through

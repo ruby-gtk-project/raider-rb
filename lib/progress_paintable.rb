@@ -25,9 +25,8 @@ require 'adwaita'
 # upstream multiplies, and GTK already renders a drawing area's Cairo surface
 # at the display scale.
 #
-# Upstream's `icon-name` property is never set by any caller and its
-# `check_progress` is never written, so the cross-fade to a check icon in its
-# snapshot_symbolic is dead code upstream. Nothing here draws one.
+# Upstream's check-icon cross-fade is unreachable upstream; the evidence is
+# in .reports/component-parity.md, unit "progress paintable".
 class ProgressPaintable
   SIZE = 16
   LINE_WIDTH = 2.0

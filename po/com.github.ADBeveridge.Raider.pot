@@ -1,173 +1,157 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the com.github.ADBeveridge.Raider package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: com.github.ADBeveridge.Raider 3.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-09 19:04+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2026-11-07 00:44+0000\n"
+"PO-Revision-Date: 2026-11-07 00:44+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:4
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:6
-#: src/raider-application.c:167 src/raider-window.blp:36
-msgid "File Shredder"
-msgstr ""
-
-#: data/com.github.ADBeveridge.Raider.desktop.in.in:5
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:7
-msgid "Permanently delete your files"
-msgstr ""
-
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
-msgid ""
-"File Shredder is a file deletion program for the GNOME desktop environment. "
-"It is designed to permanently remove sensitive files from your computer, "
-"enhancing data privacy."
-msgstr ""
-
-#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:13
-msgid ""
-"Within a certain limit, it is effective. However, modern SSDs use certain "
-"technologies to extend its lifetime, which has the side effect of ensuring "
-"that shredding is never perfect, and no software can fix that. But shredding "
-"significantly increases the difficulty of data recovery since it requires "
-"specialized software and hardware."
-msgstr ""
-
-#: src/raider-application.c:83 src/raider-shortcuts.blp:11
-#: src/raider-window.blp:27
-msgid "Add Files"
-msgstr ""
-
-#: src/raider-application.c:93
-msgid "Add Folders"
-msgstr ""
-
-#: src/raider-application.c:181
-msgid "translator-credits"
-msgstr ""
-
-#: src/raider-progress-info-popover.c:55
-msgid "Starting…"
-msgstr ""
-
-#: src/raider-progress-info-popover.c:67
-msgid "Finishing up…"
-msgstr ""
-
-#: src/raider-progress-info-popover.c:75
-msgid "Estimating..."
-msgstr ""
-
-#: src/raider-shortcuts.blp:8
-msgid "General"
-msgstr ""
-
-#: src/raider-shortcuts.blp:15 src/raider-window.blp:131
-msgid "New Window"
-msgstr ""
-
-#: src/raider-shortcuts.blp:19 src/raider-window.blp:137
-msgid "Keyboard Shortcuts"
-msgstr ""
-
-#: src/raider-shortcuts.blp:23
-msgid "Close Window"
-msgstr ""
-
-#: src/raider-shortcuts.blp:27
-msgid "Quit"
-msgstr ""
-
-#: src/raider-window.blp:25
-msgid "Add"
-msgstr ""
-
-#: src/raider-window.blp:42
-msgid "Main Menu"
-msgstr ""
-
-#: src/raider-window.blp:57
-msgid "Add files or drop here"
-msgstr ""
-
-#: src/raider-window.blp:59
-msgid ""
-"Shredding is the obfuscation of a file with random data so the previous "
-"contents cannot be recovered."
-msgstr ""
-
-#: src/raider-window.blp:95 src/raider-window.c:350
-msgid "Shred All"
-msgstr ""
-
-#: src/raider-window.blp:114 src/raider-window.c:402
-msgid "Abort All"
-msgstr ""
-
-#: src/raider-window.blp:141
-msgid "About File Shredder"
-msgstr ""
-
-#: src/raider-window.blp:150
-msgid "Open Folder"
-msgstr ""
-
-#: src/raider-window.c:151
+#: ../lib/exit_dialog.rb:24
 msgid "Stop Shredding?"
 msgstr ""
 
-#: src/raider-window.c:152
+#: ../lib/exit_dialog.rb:24
 msgid "Are you sure that you want to exit?"
 msgstr ""
 
-#: src/raider-window.c:155
+#: ../lib/exit_dialog.rb:30
 msgid "_Cancel"
 msgstr ""
 
-#: src/raider-window.c:155
+#: ../lib/exit_dialog.rb:31
 msgid "_Exit"
 msgstr ""
 
-#: src/raider-window.c:203
-msgid "Could not remove filename from quick list. Please report this."
+#: ../lib/main.rb:99 ../lib/window.rb:251 ../lib/window.rb:270
+msgid "File Shredder"
 msgstr ""
 
-#: src/raider-window.c:213
-msgid "Finished shredding files"
+#: ../lib/main.rb:130
+msgid "translator-credits"
 msgstr ""
 
-#: src/raider-window.c:282
+#: ../lib/main.rb:228 ../lib/shortcuts_dialog.rb:24 ../lib/window.rb:291
+msgid "Add Files"
+msgstr ""
+
+#: ../lib/main.rb:241
+msgid "Add Folders"
+msgstr ""
+
+#: ../lib/progress_info_popover.rb:49
+msgid "Estimating…"
+msgstr ""
+
+#: ../lib/progress_info_popover.rb:67
+msgid "Starting…"
+msgstr ""
+
+#: ../lib/progress_info_popover.rb:77
+msgid "Finishing up…"
+msgstr ""
+
+#: ../lib/shortcuts_dialog.rb:23
+msgid "General"
+msgstr ""
+
+#: ../lib/shortcuts_dialog.rb:25 ../lib/window.rb:315
+msgid "New Window"
+msgstr ""
+
+#: ../lib/shortcuts_dialog.rb:26 ../lib/window.rb:321
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: ../lib/shortcuts_dialog.rb:27
+msgid "Close Window"
+msgstr ""
+
+#: ../lib/shortcuts_dialog.rb:28
+msgid "Quit"
+msgstr ""
+
+#: ../lib/window.rb:152
 msgid "This file was already added"
 msgstr ""
 
-#: src/raider-window.c:295
+#: ../lib/window.rb:155
 msgid "Some files did not exist"
 msgstr ""
 
-#: src/raider-window.c:304
-#, c-format
+#: ../lib/window.rb:158
 msgid "Cannot write to “%s”"
 msgstr ""
 
-#: src/raider-window.c:315
+#: ../lib/window.rb:161
 msgid "Cannot load more files"
 msgstr ""
 
-#: src/raider-window.c:372
+#: ../lib/window.rb:175
+msgid "Could not remove filename from quick list. Please report this."
+msgstr ""
+
+#: ../lib/window.rb:218
 msgid "Starting Shredding…"
 msgstr ""
 
-#: src/raider-window.c:424
+#: ../lib/window.rb:236
 msgid "Aborting…"
+msgstr ""
+
+#: ../lib/window.rb:289
+msgid "Add"
+msgstr ""
+
+#: ../lib/window.rb:298
+msgid "Main Menu"
+msgstr ""
+
+#: ../lib/window.rb:322
+msgid "About File Shredder"
+msgstr ""
+
+#: ../lib/window.rb:335
+msgid "Open Folder"
+msgstr ""
+
+#: ../lib/window.rb:358
+msgid "Add files or drop here"
+msgstr ""
+
+#: ../lib/window.rb:360
+msgid ""
+"Shredding is the obfuscation of a file with random data so the previous conten"
+"ts cannot be recovered."
+msgstr ""
+
+#: ../lib/window.rb:395
+msgid "Clear"
+msgstr ""
+
+#: ../lib/window.rb:402 ../lib/window.rb:474
+msgid "Shred All"
+msgstr ""
+
+#: ../lib/window.rb:411 ../lib/window.rb:536
+msgid "Abort All"
+msgstr ""
+
+#: ../lib/window.rb:473
+msgid "Clear All"
+msgstr ""
+
+#: ../lib/window.rb:520
+msgid "Finished shredding files"
 msgstr ""

@@ -8,11 +8,12 @@ require "raider"
 #
 # GTK does its work *between* callbacks: a widget is not laid out, a dialog
 # does not exist and a revealer has not moved until control goes back to the
-# main loop. The port's shredding is also asynchronous by design — Window
-# launches the rows from a worker thread and marshals the widget work back
-# through GLib's idle queue, as upstream's two GTasks do — so a spec that
-# asserts straight after calling `start_shredding` is asserting on a frame
-# that has not happened yet. `pump_until` gives the loop its turns back.
+# main loop. The port's shredding is asynchronous because upstream's is:
+# `Window` launches the rows from a worker thread and marshals the widget
+# work back through GLib's idle queue, which is what upstream's two GTasks
+# do (`src/raider-window.c:390-418`, `:444-477`) — so a spec that asserts
+# straight after calling `start_shredding` is asserting on a frame that has
+# not happened yet. `pump_until` gives the loop its turns back.
 module GtkSupport
   # Long enough for five overwrite passes over the small fixtures these specs
   # write, short enough that a wedged run still reports.
