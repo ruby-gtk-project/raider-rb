@@ -59,7 +59,9 @@ nix develop --command xvfb-run -a ruby test/drive_main_window.rb
 
 Result: `205 of 205 checks passed` / `DRIVE OK` — drive_ok=true, 205
 passed / 0 failed, 11 components covered (one more check than the
-previous round's 204: the new C3 driver step).
+previous round's 204: the new C3 driver step). Re-run live again this
+session (no code change): same result, `205 of 205 checks passed`,
+`DRIVE OK`.
 
 Spec command, run this session:
 
