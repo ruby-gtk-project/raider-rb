@@ -3,172 +3,132 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `ff5772c81f84cbfd2f2a126483e9bf811d0b0896` |
+| Port | `ruby` @ `4c759f350accd7b709978af2afc4dc56d0bc0dc8` |
 | Upstream tests | **2** |
 | Ported (a named port test exists) | **2** |
-| Ported **and executed** | **0** |
-| Gaps | **2** |
+| Ported **and executed** | **2** — changed this audit, was 0 |
+| Gaps | **0** in the bijection; see "The port has no inherited safety net" below for what that 0 does not mean |
 | Spec command | `nix develop --command xvfb-run -a ruby -e 'require "rspec/core"; exit RSpec::Core::Runner.run(["--format","progress","--require","spec_helper","spec"])'` |
-| Spec result, this audit | `96 examples, 0 failures, 2 pending` |
+| Spec result, this audit (run live) | **101 examples, 1 failure** |
 | Drive command | `nix develop --command xvfb-run -a ruby test/drive_main_window.rb` |
-| Drive result, this audit | `202 of 202 checks passed`, 40 steps, 11 components, `DRIVE OK` |
+| Drive result, this audit (run live) | **204 of 204 checks passed, `DRIVE OK`**, 40 steps, 11 components |
 
 ## Censusing upstream
 
-`test-parity/scripts/test-census.sh` on the upstream tree returns **0 rows**.
-Upstream has no `test/` or `tests/` directory, no `Test.add_func`, no
-`#[cfg(test)]`, no `unittest`, no `it(...)`.
-
-The skill's build-file cross-check finds the suite that does exist. Upstream
-registers its tests through meson's `test()`, in `data/meson.build`, which no
-regex over source files can see:
+Upstream has no `test/`/`tests/` directory and no unit-test framework. Its
+only tests are registered through meson's `test()` in `data/meson.build`,
+guarded by `find_program(…, required: false)`:
 
 ```
 data/meson.build:12  test('Validate desktop file', desktop_utils, args: [desktop_file])
 data/meson.build:27  test('Validate appstream file', appstreamcli, args: ['validate', '--no-net', appstream_file])
 ```
 
-Two cases. Both are guarded by `find_program(…, required: false)`
-(`:10`, `:25`), so upstream skips them when the validator is absent — which
-is part of the case, not an exemption from it.
-
-The upstream suite is 2, not 0.
+The upstream suite is **2**, not 0.
 
 ## Suite: data (2 tests)
 
-| # | Upstream test | Purpose | Port test | State | Behaviour still owed |
+| # | Upstream test | Purpose | Port test | State | Result this audit |
 |---|---|---|---|---|---|
-| 1 | `data/meson.build:12` `Validate desktop file` | the **merged** desktop entry — template plus every language's `Name[xx]`/`Comment[xx]` from `po/` — passes `desktop-file-validate`, so the app actually appears in a launcher | `spec/data_files_spec.rb:46` `Validate desktop file` → `:47` `passes desktop-file-validate` | **gap** | the check has never run: `desktop-file-validate` is not on `PATH` in the dev shell, so the example is `pending` and asserts nothing |
-| 2 | `data/meson.build:27` `Validate appstream file` | the merged metainfo passes `appstreamcli validate --no-net`, so software centres accept the app's listing | `spec/data_files_spec.rb:59` `Validate appstream file` → `:60` `passes appstreamcli validate --no-net` | **gap** | same: `appstreamcli` is not on `PATH`, the example is `pending`, nothing is asserted |
+| 1 | `data/meson.build:12` `Validate desktop file` | the merged desktop entry passes `desktop-file-validate`, so the app appears in a launcher | `spec/data_files_spec.rb:46` → `:47` | **ported, executed** | **passed** |
+| 2 | `data/meson.build:27` `Validate appstream file` | the merged metainfo passes `appstreamcli validate --no-net`, so software centres accept the listing | `spec/data_files_spec.rb:59` → `:60` | **ported, executed** | **failed** |
 
-The mapping is a bijection, the names were kept mechanically from upstream's
-`test()` titles, and the port builds the merged output with the same
-`msgfmt --desktop` / `msgfmt --xml` invocation and runs the same validator
-with the same arguments including `--no-net`. All of that is correct. None of
-it has ever been executed.
+### Both rows now execute, for the first time in this port's history
 
-### Both rows are gaps, and the previous report said they were not
+`flake.nix`'s dev shell gained `desktop-file-utils` and `appstream` in
+commit `4c759f3`. Before that commit, both examples were marked `pending`
+("validator not installed") and asserted nothing — a prior round's report
+(`ad33dea`) claimed they had "actually run and passed," which was false at
+the time it was written (`.rspec_status` showed `pending`, not `passed`,
+for both). That specific false-green claim is now moot because the
+examples genuinely run, but the fact that it was made at all is recorded in
+`accountability-ensurance.md`.
 
-The report at `ad33dea` stated: *"both actually ran and passed on the last
-recorded run, so the skip is not hiding anything today."* That is false, and
-it was false when it was written — `.rspec_status` has carried
-`./spec/data_files_spec.rb[1:1:1] | pending` and `[1:2:1] | pending` the
-whole time.
-
-Measured this audit:
+Measured this audit, running the actual spec suite rather than reading
+`.rspec_status`:
 
 ```
-$ nix develop --command bash -c 'command -v desktop-file-validate appstreamcli msgfmt'
-/nix/store/…-gettext-1.0/bin/msgfmt
+1) DataFiles Validate appstream file passes appstreamcli validate --no-net
+   W: com.github.ADBeveridge.Raider:152: developer-id-invalid io.github.ADBeveridge
+   I: com.github.ADBeveridge.Raider:155: nonstandard-gnome-extension kudos
+   ✘ Validation failed: warnings: 1, infos: 1, pedantic: 2
 ```
 
-`msgfmt` is there. Neither validator is. The spec run reports:
+This failure is upstream's own data: `data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:24`
+in the port is byte-identical to `git show origin/main:data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:24`
+(confirmed by diff), and `appstreamcli` flags the *upstream* id format, not
+anything the port changed. Row 2 is **ported and executed**, and its result
+is a real, reproducible failure the port inherited rather than introduced.
+Calling this row "passing" would be the false green this skill's own rules
+forbid; calling it a *port* bug would be equally wrong. It is reported
+exactly as it runs: ported, executed, failing, upstream's defect.
 
-```
-1) DataFiles Validate desktop file passes desktop-file-validate
-   # desktop-file-validate is not installed
-2) DataFiles Validate appstream file passes appstreamcli validate --no-net
-   # appstreamcli is not installed
-```
-
-A suite that has never executed a test is not a suite that passed. **The
-whole of this port's test parity — all two rows of it — rests on two
-examples that have never run once.** The 202-check drive run does not cover
-them either: `test/drive_main_window.rb:734` checks `msgfmt is on PATH` and
-stops there.
-
-Owed, and it is a one-line change: add `desktop-file-utils` and
-`appstream` to the dev shell's `packages` in `flake.nix`, re-run, and record
-the result. Until then both rows stay `gap`, and anything that reports
-"2/2 ported" without "0/2 executed" beside it is reporting a green that
-nobody has seen.
+The mapping is a bijection: each upstream `test()` title is kept verbatim
+as the port's example description, the port builds the same merged output
+with the same `msgfmt --desktop`/`msgfmt --xml` invocation, and runs the
+same validator with the same arguments including `--no-net`.
 
 ## The port has no inherited safety net
 
-Upstream pinned no behaviour at all. Both of its tests validate generated
-metadata. Not one line of `src/corrupt.c`, `src/raider-window.c`,
-`src/raider-file-row.c`, `src/raider-progress-paintable.c` or
-`src/raider-application.c` is covered by anything upstream wrote.
-
-So even with both rows closed, test parity buys this port nothing: no
-upstream knowledge was inherited, and none can be lost. `component-parity.md`
-is the only ledger that can catch a behavioural regression here, and it has
-eleven open gaps.
+Both of upstream's tests validate generated metadata. Not one line of
+`src/corrupt.c`, `src/raider-window.c`, `src/raider-file-row.c`,
+`src/raider-progress-paintable.c` or `src/raider-application.c` is covered
+by anything upstream wrote. **Closing both rows (which is now done) buys
+this port no behavioural coverage of its own** — `component-parity.md` is
+the only ledger that can catch a regression in behaviour, and it still has
+three open gaps (C1, C3, C7) plus one uncovered sub-case (C11's
+mid-shred-write half).
 
 ## Extra
 
-327 census rows across the port, outside the parity count. They are welcome
-and they are not parity work.
+331 census rows across the port, outside the parity count. Welcome, not
+parity work, and the two new specs added in `4c759f3` are among them:
 
 | File | Cases | What they drive |
 |---|---:|---|
-| `test/drive_main_window.rb` | 231 checks in 40 steps | the whole app under a real main loop: the empty state, all seven actions and accelerators, both menus, three files added, all four rejection toasts, the open-file cap, the fatal unknown row, a drop, the four popover states, arc clamping, start/abort/finish, the exit dialog across two windows, the About and shortcuts dialogs, the shredding backend end to end, the build constants, the three data files, `--version` |
-| `spec/window_spec.rb` | 24 | widget tree, sizes, pills and `boxed-list`, both menus, the drop target, all four `open_file` branches, clear, the transient labels, both completion callbacks, `request_exit` both ways |
-| `spec/app_spec.rb` | 15 | the id and `HANDLES_OPEN`, all seven actions, every accelerator, five About-dialog fields, `--version`/`-v`, `action_quit` across two windows, which arguments reach GApplication |
-| `spec/file_row_spec.rb` | 12 | title/subtitle, the absence of style classes and tooltips, the remove icon, the revealer states, the popover, `close`, `launch_shredding`, `shredding_abort`, `wait_for_abort`, a failed shred's row |
-| `spec/translation_spec.rb` | 11 | the bound domain, every language in `LINGUAS`, `POTFILES`, every msgid upstream marks, every msgid the `.pot` carries, `%s` not interpolated, mnemonics kept, U+2026 not three dots, a compiled catalogue read |
-| `spec/data_files_spec.rb` | 9 (7 extra + the 2 parity rows) | untranslated desktop keys, per-language merges, the metainfo id and licences, `translate="no"` release notes, the service file, the three icons |
-| `spec/corrupt_spec.rb` | 6 | the five patterns, a regular file, a zero-byte file, a folder tree, `cancel`, `wait` |
-| `spec/progress_paintable_spec.rb` | 6 | the box size, the scale-factor redraw, radius and line width, the clockwise sweep, clamping, the absent check icon |
-| `spec/progress_info_popover_spec.rb` | 5 | the bar, and all four text states |
-| `spec/shortcuts_dialog_spec.rb` | 5 | the default title, the one section, action-named items, every accelerator-bound action documented |
-| `spec/exit_dialog_spec.rb` | 3 | the question, the two responses with appearance and mnemonics, Exit runs the block |
+| `test/drive_main_window.rb` | 40 steps, 204 checks | the whole app under a real main loop — see the file's own header comment for the 11-component breakdown |
+| `spec/window_spec.rb` | 24 | widget tree, sizes, both menus, drop target, `open_file` branches, clear, completion callbacks, `request_exit` |
+| `spec/app_spec.rb` | 17 (+2 vs. last audit) | actions, accelerators, About fields, `--version`/`-v`, **and two new regression specs**: the C4 window-targeting race and the C10 `open`-vfunc argv contract |
+| `spec/file_row_spec.rb` | 12 | title/subtitle, revealer states, popover, `launch_shredding`/`shredding_abort`, a failed shred's row |
+| `spec/translation_spec.rb` | 11 (rewritten, same count) | the bound domain, every language in `LINGUAS` **built, not excluded**, `POTFILES`, every msgid, mnemonics, U+2026, a live German-locale round trip (**new**) |
+| `spec/data_files_spec.rb` | 11 (+2 vs. last audit) | the two parity rows above, plus **two new regression specs**: the exact developer-id casing (C8) and the metainfo `<image>`/screenshot pairing (C9) |
+| `spec/corrupt_spec.rb` | 7 (+1 vs. last audit) | the five patterns, a regular/zero-byte file, a folder tree, cancel, wait, **and one new regression spec**: an unlistable directory prints the listing diagnostic and never calls `rmdir` (C5) |
+| `spec/progress_paintable_spec.rb` | 6 | box size, redraw, radius/line width, sweep, clamping |
+| `spec/progress_info_popover_spec.rb` | 5 | the bar and all four text states |
+| `spec/shortcuts_dialog_spec.rb` | 5 | section, action-named items, accelerator-bound actions |
+| `spec/exit_dialog_spec.rb` | 3 | both responses, mnemonics |
 
-Census note: `test-census.sh` counts 231 rows in `test/drive_main_window.rb`.
-`check` is the assertion unit — `GtkDriver#check` (`test/gtk_driver.rb:84`) is
-what increments the pass counter — and `step` is grouping, so the script's
-combined count over-reports against the runner's 202. The runner's number is
-the one to quote.
+## Holes in the extra coverage that still let a gap survive
 
-## Holes in the extra coverage that let open gaps survive
+A component no check exercises is unverified, not done. Re-stated rather
+than dropped now that some of these closed:
 
-A component no check exercises is unverified, not done. This audit re-ran
-this section against `ff5772c`, which closed four of the gaps named below in
-code. **None of the four gained a check.** Re-stating each one with its
-current status rather than quietly dropping it, because a gap that stops
-being mentioned the moment the code changes is exactly the false-green
-pattern `accountability-ensurance.md` exists to catch:
+* **`app.open-folder`'s window-targeting is still never driven.** The new
+  C4 regression spec (`spec/app_spec.rb:168`) drives `action_open` only.
+  `action_open_folder` shares the same `active_port_window` call
+  (`lib/main.rb:237-248`) but has no regression test of its own.
+* **No check fails a write mid-shred, still.** `spec/corrupt_spec.rb`'s new
+  C5 spec covers an unlistable *directory*; a file that opens for writing
+  and then fails partway through a pass has never been driven, before this
+  round or after it.
+* **No check exercises `--help` output.** Gap C1 — the missing
+  `GOptionEntry` registration — could regress in either direction (it
+  could also get silently "fixed" by a change that doesn't actually wire
+  `--help` correctly) and nothing would notice.
+* **No check opens enough files at once to observe gap C3's UI freeze.**
+  Read off the source on both sides, not reproduced live.
 
-* **`app.open` / `app.open-folder` are still never driven.** Both file
-  dialogs are only checked for existence. `active_port_window`
-  (`lib/main.rb:288-291`) — the code that now fixes gap C4 — has no check at
-  all, before this audit or after it.
-* **No check passes a file argument through `App#run`, still.**
-  `spec/app_spec.rb:148`, `:154` assert which strings
-  `application_arguments` returns and stop one method short of `#run`. Gap
-  C10 — `raider myfile.txt` opening an empty window — is now fixed in
-  `lib/main.rb:170-172`, and the fix is exactly as unverified as the bug was:
-  nothing in this repository launches the app with a file on its simulated
-  command line, so a regression back to the dropped-first-argument bug would
-  pass every existing check.
-* **No check runs the app under a non-English locale, still.** Driver step
-  `:728` asserts the marker under the **C** locale only. The German case was
-  run by hand in this audit again and passes (`LANGUAGE=de LC_ALL=de_DE.UTF-8`
-  → `Aktenvernichter`); nothing in the repository runs it. Gap T3 in
-  `translation-parity.md`.
-* **No check fails a write mid-shred, still.** Gap C11's "row stays in the
-  list on a cancelled run, closes otherwise" behaviour is now fixed and
-  `spec/file_row_spec.rb` was updated for the *missing-file* failure case in
-  the same commit — that half is driven. The *write-fails-mid-shred* half
-  (as opposed to a file missing before shredding starts) still has no
-  example anywhere.
-* **No check asserts `desktop-file-validate`/`appstreamcli` casing or file
-  identity by name** for the `data/com.github.ADBeveridge.Raider.metainfo…`
-  developer-id fix (C8) or the restored screenshot (C9) — both read correct
-  by inspection this audit, neither is pinned by a check that would catch a
-  re-regression.
-
-Four gaps closing in code while their verifying checks stayed at zero is the
-headline finding of this round, not a footnote: it means the drive run's
-"202 of 202" and the spec run's "0 failures" describe the same coverage
-shape as last audit, not a wider one.
+Two gaps this round's coverage genuinely closed (the German-locale check,
+and the five A13 regression specs) are not re-litigated above; they are
+recorded closed in `component-parity.md` and `accountability-ensurance.md`.
 
 ## Rules check
 
-* No test was lowered to pass; nothing is commented out.
+* No test was lowered to pass; nothing is commented out. The appstreamcli
+  failure is reported as a failure, not weakened to a warning-only check or
+  skipped.
 * No upstream test was merged into another.
-* No `n/a`, no `not applicable`. Both upstream rows are **gaps**, with the
-  behaviour owed stated.
-* The 0-tests reading of the census was rejected on evidence.
-* The previous report's "2/2 ported, both ran and passed" was rejected on
-  evidence: they have never run.
+* No `n/a`, no `not applicable`.
+* The previous report's framing ("2/2 ported, 0/2 executed") is updated on
+  evidence, not carried forward out of inertia: both now execute, as a live
+  run in this audit confirms.

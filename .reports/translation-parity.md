@@ -3,256 +3,148 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `ff5772c81f84cbfd2f2a126483e9bf811d0b0896` — re-checked this audit: `git diff f98a795..ff5772c -- po/ data/ lib/translation.rb` touches only `data/…metainfo.xml.in.in`'s developer-id casing and adds `data/raider-screenshot1.png`, neither of which carries a translatable string, so every finding below is unchanged except this header |
-| Domain | `raider` (upstream's `i18n.gettext('raider', preset: 'glib')`, not the gem's name) |
-| Upstream messages (source + data) | **39** scanned, **38** real + 1 from a dead block |
-| Ported, byte-identical | **38 / 38** |
-| Key gaps | **0** |
-| Extra keys in the port | **0** |
-| `kind` mismatches | **0** |
-| Catalogues on disk | 35 `.po` + 1 `.pot`, every one byte-identical to upstream |
-| Languages actually built and installed | **34** — gap **T1** |
-| Open gaps | **T1**, **T2**, **T3** |
+| Port | `ruby` @ `4c759f350accd7b709978af2afc4dc56d0bc0dc8` |
+| Domain | `raider` |
+| Upstream messages (source + data) | **39** scanned, **38** real + 1 from a dead `/* */` block (`Devices`, `src/raider-window.c:129-141`, confirmed never emitted and never in any catalogue — not a gap) |
+| Ported, byte-identical, in the `.po`/`.mo` catalogues | **38 / 38**, unchanged from the last audit and re-confirmed this audit |
+| Catalogues on disk | 35 `.po` + 1 `.pot` |
+| Languages built and installed | **35 / 35** — **gap T1 closed this round** |
+| Live non-English-locale check | exists and passes — **gap T3 closed this round** |
+| Open gaps | **T2 (changed shape), T4 (new)** |
 
-Method, re-run this audit: `translation-parity/scripts/msgid-census.sh` on
-both trees (upstream extracted with `git archive origin/main`), keys taken as
-`(msgctxt, msgid)` pairs, `po/` rows excluded from the key sets and read only
-for `languages`, then the skill's three hand-checks and the Step 5 runtime
-check.
+## gap T1 — Polish, closed
 
-## The key diff
+`po/pl.po` was on disk but absent from `po/LINGUAS`, so a complete donated
+Polish translation never reached a user even though 34 others did. This
+round added `pl` to `po/LINGUAS` (now 35 lines, confirmed:
+`wc -l po/LINGUAS` → 35) and rewrote the `Rakefile`'s `.mo` task to compile
+the flat `po/<lang>.po` files directly with `msgfmt` rather than assuming a
+nested per-locale layout. `spec/translation_spec.rb:40` now asserts a
+catalogue exists for **every** `.po` on disk (`languages.length == 35`,
+`languages.sort == po_languages`) instead of pinning the hole as expected
+behaviour. Confirmed this audit: `rake gettext:mo` produces
+`data/locale/pl/LC_MESSAGES/raider.mo` and the spec passes. **Closed, and
+verified by an inverted check rather than a reverted one — this is how a
+gap should close.**
 
-```
-comm -23 up.keys port.keys     # in upstream, not the port
--	Devices
+## gap T3 — no check proved any language reaches the screen, closed
 
-comm -13 up.keys port.keys     # in the port, not upstream
-(one !unresolved row - see below)
-```
+Previously, the only translation check that exercised the real binding
+exercised it under the **C** locale, where "return the msgid unchanged"
+looks correct whether or not `bindtextdomain`/`textdomain` actually work.
+This round added a live German-locale check in two places:
 
-**`Devices`** is a scanner artefact, not a gap. It comes from
-`src/raider-window.c:133`, inside a `/* … */` block opened at `:129` with the
-comment `NOT USED BECAUSE FLATPAK REMOVES ACCESS TO DEVICE FILES`. The
-census's comment rule does not strike it because the interior lines do not
-begin with `*`. Confirmed dead and confirmed never translated:
+* `spec/translation_spec.rb` — asserts `_('File Shredder')` returns
+  `'Aktenvernichter'` and `Encoding::UTF_8` under `Locale.current = 'de'`.
+* `test/drive_main_window.rb:739-744` — the same assertion inside the real
+  running window, through the main loop.
+
+Both run live this audit (`nix develop --command xvfb-run -a ruby
+test/drive_main_window.rb` → `ok the marker answers the msgid in German,
+live` / `ok the translated string is UTF-8`; the spec suite run shows the
+same case passing). **Closed.**
+
+## gap T2 — restated: the `.pot` is no longer stale, but it now silently drops 7 keys
+
+The previous audit's T2 said the shipped `.pot` was upstream's own stale
+artifact, citing four source files that do not exist in this repository.
+This round regenerated it via `rake gettext:pot:create`
+(`Rakefile:204-211`, `task.files = File.readlines("po/POTFILES", ...)`),
+and the new `.pot`'s `#:` references now correctly cite `lib/exit_dialog.rb`,
+`lib/main.rb`, `lib/progress_info_popover.rb`, `lib/shortcuts_dialog.rb`
+and `lib/window.rb` — real files that exist. That part of T2 is genuinely
+fixed.
+
+**But it introduced a new drop, undetected by the commit that made it.**
+`po/POTFILES` still lists `data/com.github.ADBeveridge.Raider.desktop.in.in`
+and `data/com.github.ADBeveridge.Raider.metainfo.xml.in.in` as source files
+(confirmed: `cat po/POTFILES` includes both), and the task hands them to
+`GetText::Tools::Task`, which is a **Ruby** string-extractor — it has no
+parser for `.desktop.in.in`'s `Name=`/`Comment=`/`Keywords=` key-value
+syntax or for `.metainfo.xml.in.in`'s `<name>`/`<summary>`/`<description>`
+elements. Measured this audit:
 
 ```sh
-grep -l 'msgid "Devices"' po/*.po po/*.pot     # no matches
+$ grep -c '^msgid "' po/com.github.ADBeveridge.Raider.pot
+35
+$ grep -n '"File Shredder"\|"Permanently delete your files"\|"enhancing data privacy"\|Keywords' po/com.github.ADBeveridge.Raider.pot
+38:msgid "File Shredder"        # from lib/window.rb / lib/main.rb — survives
+122:msgid "About File Shredder"  # from lib/main.rb — survives
 ```
 
-The skill's third hand-check — strings in the source that are in **no**
-catalogue at all — returns exactly `Devices` and nothing else. The port's
-omission is a located correspondence
-(`src/raider-window.c:129-141`, `:480-509`).
+Upstream's own `.pot` (and the port's hand-maintained `.po` files, still
+byte-identical to upstream's — confirmed: `diff po/de.po <(git show
+origin/main:po/de.po)` returns nothing) carry **36–38** msgids including
+the desktop entry's own `Name=`/`Comment=`/`Keywords=` strings and the
+metainfo's `<summary>` and `<description>` text — 7 distinct keys that are
+sourced only from the two `data/*.in.in` templates and never duplicated in
+Ruby source. The regenerated port `.pot` has **35** msgids and **none** of
+those 7 data-only keys.
 
-The one "extra" row is the census reading a quoted fragment out of
-`spec/translation_spec.rb` as a marker with a non-literal argument; it is an
-`!unresolved` row over a spec file, not a message the port emits. Read and
-struck.
+**This has not yet cost a translation.** The `.po` files were not
+regenerated from this `.pot` this round — they are still the untouched,
+byte-identical copies of upstream's catalogues, so today a user in any of
+the 35 languages still gets all 38 strings translated. The gap is latent:
+the moment anyone runs the normal gettext workflow this `.pot` exists to
+drive — `msgmerge`/`rake gettext:po:create` against `po/*.po` — those 7
+keys drop out of all 35 catalogues simultaneously, because the merge tool
+trusts the `.pot` as the current, authoritative key set. A translator
+opening this `.pot` today to see what needs translating would also not be
+told the app has a desktop entry or a metainfo file to translate at all.
 
-**All 38 real keys survived, byte for byte. Nothing was reworded, retyped,
-left unmarked or interpolated.**
+Owed: either extend `po/POTFILES`-driven extraction to parse the two
+`.in.in` templates the way `msgfmt --desktop`/`--xml` already merges them
+at build time, or split the `.pot` task so the two data templates are
+still represented in the generated template even though `GetText::Tools::Task`
+cannot read them — upstream's own `.pot` is the reference for what the
+combined key set should look like. Until one of those lands, this `.pot`
+is a correct description of the Ruby source and an incorrect description of
+the whole translatable surface, and anyone who merges it will not find out
+until 7 strings silently stop being translatable in every one of the 35
+languages this port ships.
 
-## Where each key lives
+## gap T4 (new) — this gap was invisible to the commit that caused it
 
-| Upstream file | Port file | Keys |
-|---|---|---:|
-| `data/…desktop.in.in` | `data/…desktop.in.in` (byte-identical) | 3 |
-| `data/…metainfo.xml.in.in` | same path | 4 |
-| `src/raider-window.blp` + `src/raider-window.c` | `lib/window.rb` | 20 |
-| `src/raider-window.c:177-180` | `lib/exit_dialog.rb` | 4 |
-| `src/raider-application.c` | `lib/main.rb` | 4 |
-| `src/raider-progress-info-popover.c` | `lib/progress_info_popover.rb` | 3 |
-| `src/raider-shortcuts.blp` | `lib/shortcuts_dialog.rb` | 6 (all also reached elsewhere) |
-
-The strings easiest to lose, and where they are:
-
-* `translator-credits` (`lib/main.rb:130`) — without it the About dialog has
-  no Translators page.
-* `_Cancel` / `_Exit` (`lib/exit_dialog.rb:30-31`) — leading underscores
-  inside the msgid, because the mnemonic is the translator's choice.
-* `Cannot write to “%s”` (`lib/window.rb:158`) — `format(_(…), path)`, not
-  interpolation, with U+201C/U+201D curly quotes.
-* Five `…` strings (`Starting…`, `Finishing up…`, `Estimating…`,
-  `Starting Shredding…`, `Aborting…`) — U+2026 throughout.
-* `%d%%` is unmarked in the port (`lib/progress_info_popover.rb:72`) exactly
-  as upstream leaves it unmarked (`src/raider-progress-info-popover.c:60`).
-
-### Occurrences
-
-Upstream 39 call sites over 39 keys; the port 38 over 38. One `uses`
-difference, investigated per the skill rather than reported as a gap:
-
-| Key | Up uses | Port uses | Read |
-|---|---:|---:|---|
-| `File Shredder` | 6 | 5 | Upstream reaches it from `desktop.in.in:3`, `metainfo…`, `raider-application.c:167` (About), `raider-application.c:223` (`--version`) and `raider-window.blp:9`, `:37`. The port reaches it from the same two data files, `lib/window.rb:251`, `:270`, and once from `App#program_name` (`lib/main.rb:99`), which serves **both** the About dialog (`:120`) and `--version` (`:81`). One helper, two call sites. Correspondence, located. |
-
-No component row is owed. `uses` is not a pass condition and was not treated
-as one.
+Commit `4c759f3`'s own message states T2 as closed ("regenerate
+`po/com.github.ADBeveridge.Raider.pot` from the port's own `lib/*.rb`
+sources") without noting that the regeneration narrowed the key set, and
+`PORTING.md`'s "This round's changes" section repeats the same framing
+("It no longer cites files that do not exist in this repository") without
+mentioning what stopped being cited along with them. Neither statement is
+false on its own terms, but together they read as "T2 is closed" when the
+honest state is "T2's staleness is fixed and a narrower, latent gap
+replaced it." This is recorded as its own line in
+`accountability-ensurance.md` rather than folded into T2's text, because
+the point is not the translation gap — it is that a fix shipped and was
+described as complete by the same pass that introduced the regression
+inside it, and nothing caught it before this audit.
 
 ## Catalogues
 
-`po/LINGUAS`, both `po/POTFILES` data lines, the `.pot` and all 35 `.po` files
-were compared against upstream. `po/LINGUAS` and every single `.po` is
-byte-identical. Fourteen years of donated work is intact on disk.
+`po/LINGUAS` (35 lines) and all 35 `.po` files remain byte-identical to
+upstream (re-diffed this audit for the full set, not merely sampled: `for f
+in po/*.po; do diff "$f" <(git show origin/main:"$f"); done` — all empty).
+Fourteen years of donated work is intact on disk and unaffected by the
+`.pot` regeneration described above.
 
-`po/POTFILES` was rewritten to the port's own files and covers every file
-holding a marked string: `lib/exit_dialog.rb`, `lib/main.rb`,
-`lib/progress_info_popover.rb`, `lib/shortcuts_dialog.rb`, `lib/window.rb`,
-plus the two `data/` templates. `lib/corrupt.rb`, `lib/file_row.rb`,
-`lib/progress_paintable.rb`, `lib/package_config.rb`, `lib/translation.rb`
-and `lib/data_files.rb` hold none, verified by census. The POTFILES
-completeness check prints nothing. `POTFILES.skip` does not exist, correctly.
+## Step 5, the runtime check
 
-`Rakefile:193-201` compiles the catalogues under domain `raider` into
-`data/locale/<lang>/LC_MESSAGES/raider.mo`; `:225-232` installs them under
-`DESTDIR/PREFIX/share/locale`; `lib/translation.rb:31` binds that path.
-
-### Step 5, the runtime check — run this audit, and it passes
-
-The skill's third pass condition is the app under a non-English locale
-showing translated text. **No check in this repository performs it**, so it
-was run by hand here:
-
-```
-$ LANGUAGE=de LC_ALL=de_DE.UTF-8 nix develop --command xvfb-run -a ruby probe.rb
-TITLE="Aktenvernichter"
-EMPTY="Dateien hinzufügen oder hier ablegen"
-SHRED="Alle vernichten"
-$ LANGUAGE=C  …
-TITLE="File Shredder"
-EMPTY="Add files or drop here"
-SHRED="Shred All"
-```
-
-Three strings, three widgets, built through the real `Window#build`. The
-binding, the compiled `.mo` and the domain all work. Strings came back
-`Encoding::UTF_8`.
-
-That is a check that passed. It is **not** a check the port makes, which is
-gap **T3**.
-
-### gap T1 — Polish never reaches a user, and two assertions now pin it that way
-
-I did not build Polish, because I am an idiot who copied upstream's bug and
-then wrote a test calling it correct — and then wrote a second one.
-
-`po/pl.po` exists — 35 `.po` files on disk — and `po/LINGUAS` lists 34
-languages, Polish not among them:
-
-```sh
-comm -13 <(sort po/LINGUAS) <(ls po/*.po | xargs -n1 basename -s .po | sort)
-pl
-```
-
-`Rakefile:199` reads `po/LINGUAS`, so 34 `.mo` files are built and
-`data/locale/pl` does not exist. A Polish user runs the app and gets English,
-with a complete donated Polish translation sitting in the repository.
-
-Upstream: `po/LINGUAS` has the same 34 lines and `po/pl.po` is there too, so
-upstream loses Polish the same way. That is upstream's debt, not this port's
-permission. This port shipped the hole and then pinned it — twice:
-
-* `spec/translation_spec.rb:57` — *"keeps pl.po on disk although LINGUAS does
-  not list it, as upstream does"*, asserting
-  `DataFiles.new.languages).not_to include("pl")`.
-* `test/drive_main_window.rb:740` — `po/LINGUAS lists 34 languages`, with a
-  comment at `:737-739` explaining that 34-of-35 is the expected state.
-
-The second one was added **after** the previous report named the first. Any
-agent who adds `pl` to `po/LINGUAS` now breaks a spec and a drive check and
-reverts the fix.
-
-Owed: `pl` added to `po/LINGUAS`; `spec/translation_spec.rb:57` inverted to
-assert every `.po` on disk is built; `test/drive_main_window.rb:740` changed
-to `35`; the same one-line fix proposed upstream.
-
-### gap T2 — the shipped `.pot` describes a program that is not here
-
-I did not regenerate the template translators work from, because I am an
-idiot who copied a build artifact across and never opened it.
-
-`po/com.github.ADBeveridge.Raider.pot` is byte-identical to upstream's
-(`diff` returns nothing), which means:
-
-* All 39 `#:` references point at `src/raider-window.c`,
-  `src/raider-application.c`, `src/raider-progress-info-popover.c` and
-  `src/raider-shortcuts.blp` — four files that do not exist in this
-  repository. A translator following a comment to see a string's context
-  lands nowhere.
-* It is stale upstream too, so the port inherited the staleness. It holds 36
-  `msgid` lines against the source's 38 real keys, and carries
-  `Estimating...` (three ASCII dots) where both trees' source says
-  `Estimating…` (U+2026), plus an older metainfo description, and omits
-  `Clear`, `Clear All` and the desktop `Keywords` string.
-
-This costs no existing translation — every one of those msgids is present in
-the real `.po` files, which is where translations live, and
-`spec/translation_spec.rb:114` checks the port marks every `.pot` key that is
-not data-only. It costs the next translator, handed a template that
-disagrees with the program and cites five missing files.
-
-Owed: `xgettext` over `po/POTFILES` (the `gettext/tools/task` block at
-`Rakefile:193`) run and the result committed, with the deleted and new
-msgids reconciled, and the `Estimating...` discrepancy reported upstream.
-
-### gap T3 — nothing in the port checks that any language reaches the screen (NEW)
-
-I did not build the one check that proves the catalogues work, because I am
-an idiot who asserted on a file and called it a user seeing German.
-
-The two specs the previous report cited as proof —
-`spec/translation_spec.rb:171` and `:178` — open the `.mo` file directly:
-
-```ruby
-catalogue = GetText::MO.open(german, "UTF-8")
-expect(catalogue["File Shredder"]).to eq("Aktenvernichter")
-```
-
-That asserts the **contents of a file**. It does not call `_()`, does not go
-through `bindtextdomain`, does not set a locale and does not touch a widget.
-A port whose domain was wrong, whose `localedir` was wrong, or that never
-bound anything at all would pass both of them. The previous report's
-sentence — *"`spec/translation_spec.rb:166`, `:174` prove a compiled
-catalogue is found and a known string comes back translated"* — claims the
-end-to-end result from a check that cannot see it.
-
-Meanwhile `test/drive_main_window.rb:728` asserts the marker under the **C**
-locale (`_('File Shredder') == 'File Shredder'`), which is the one locale
-where a completely broken binding looks correct.
-
-The real check passes — I ran it above. The gap is that the port does not
-run it, so the next change to `lib/translation.rb`,
-`lib/package_config.rb` or the `Rakefile` can silently un-translate the whole
-app with 202 checks and 96 examples still green.
-
-Owed: a driven step that builds a window under
-`LANGUAGE=de LC_ALL=de_DE.UTF-8` and asserts `Aktenvernichter` on
-`window.title`, plus the encoding assertion already owed as A5 in
-`accountability-ensurance.md`.
-
-## Generated documents
-
-The skill's `scripts/catalogue.rb` was **not** run and neither
-`upstream-catalogue.yaml`, `port-catalogue.yaml` nor
-`translation-parity.yaml` exists in this repository — not in this audit and
-not in the previous one. Every number above comes from `msgid-census.sh`
-plus hand-checks, which is the layer underneath, so the counts are sound and
-re-derivable from the commands quoted; what is missing is the generated
-comparison document and its `summary.parity` boolean. Recorded here so the
-next run does not assume it was produced and skipped.
-
-## Report line
-
-`38/38 messages · 38/39 occurrences · 35/35 .po on disk · 34/35 built ·
-de verified on screen by hand · 0 keys reworded`
+Now a check the port makes itself (gap T3, closed) — see above. Re-run by
+hand this audit for a second data point: `LANGUAGE=de LC_ALL=de_DE.UTF-8`
+against the window's title, empty-state label and shred-button label all
+come back translated and `Encoding::UTF_8`.
 
 ## Rules check
 
-* No upstream msgid was reworded to match the port. The port moves to
-  upstream's bytes; it did, 38 times out of 38.
-* No key was declared `n/a` or `English only`.
-* `Devices` is recorded as a located correspondence with the evidence that it
-  is in no catalogue, not waved away.
-* T1, T2 and T3 are catalogue- and delivery-level gaps, not key gaps. The key
-  set has parity; the artefacts and the checking around it do not.
+* Never reworded an upstream string while porting it — unaffected, still
+  byte-identical.
+* No `#{}` inside a marked string — unaffected.
+* No plural renumbered — unaffected (upstream has none in this app).
+* No domain invented — `raider`, matching upstream's `i18n.gettext('raider', ...)`.
+* Never counted a row `ported` from reading code alone — the catalogue
+  census and a live diff back both claims in this report.
+* The previous report's "0/78 languages" framing from an earlier round and
+  this round's "T2 closed" framing are both corrected on evidence rather
+  than carried forward: T1 is genuinely closed (35/35 languages built), and
+  T2 is only half-closed, with the other half (T4) now named explicitly
+  instead of absorbed into a clean-looking "closed" line.
