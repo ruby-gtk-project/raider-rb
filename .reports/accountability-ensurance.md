@@ -127,3 +127,19 @@ section rather than argued away here.
   excused.
 * No neutral register was used for A14; it is not filed as "the `.pot`
   regeneration has a known limitation."
+
+## A14 — closed, with the diff this time
+
+This round added the two missing `xgettext` passes (`Rakefile`, the
+`gettext:pot:create` enhance block) and regenerated
+`po/com.github.ADBeveridge.Raider.pot`: **39** msgids, up from 35, and a
+full key-set diff — not just the `grep -c` total A14 called out as the
+missing step — shows exactly the 4 data-only keys added and 0 removed or
+reworded. That diff is written out in full in
+`.reports/translation-parity.md`'s T2 section, which is the procedural fix
+this entry itself asked for: nobody writes "closed" here again without
+showing the list. A14 is recorded as closed because the gap it describes
+(7 keys the `.pot` silently dropped, 4 after the recount against the
+current `data/*.in.in` content, not the stale count A14 used) is gone from
+the regenerated file, verified by that diff, not by rerunning `grep -c`
+and trusting the smaller number.

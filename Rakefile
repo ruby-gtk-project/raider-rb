@@ -217,6 +217,95 @@ GetText::Tools::Task.define do |task|
   task.xgettext_options = ["--add-comments=TRANSLATORS"]
 end
 
+# po/POTFILES also names the two data/*.in.in templates (gap T2/T4:
+# `.reports/translation-parity.md`), but `GetText::Tools::Task` above only
+# ever hands it `.rb` files — `GetText::Tools::Task` is a pure-Ruby string
+# extractor with no parser for a `.desktop.in.in`'s `Name=`/`Comment=`/
+# `Keywords=` lines or a `.metainfo.xml.in.in`'s `<name>`/`<summary>`/
+# `<description>` elements, so handing it either file raises rather than
+# silently skipping it. Upstream's own meson build reaches those same
+# strings through two other extractors — `xgettext --language=Desktop` for
+# the desktop entry, and `xgettext --its=.../metainfo.its` for the AppStream
+# XML, the ITS rule file gettext itself ships for exactly this file type —
+# and this task runs both and folds their output into the one .pot the Ruby
+# extraction already produced, so the four keys that live only in those two
+# templates (`Permanently delete your files`, the two metainfo description
+# paragraphs, and the desktop entry's `Keywords=` line) are not silently
+# dropped from the generated template the way they were when this ran as a
+# single `GetText::Tools::Task` pass.
+GETTEXT_DATA_TEMPLATES = {
+  "data/#{GETTEXT_POT_NAME}.desktop.in.in" => :desktop,
+  "data/#{GETTEXT_POT_NAME}.metainfo.xml.in.in" => :metainfo,
+}.freeze
+
+# gettext ships the AppStream extraction rules as a data file, not a CLI
+# flag, under its own share directory rather than xgettext's. Its location
+# moves with the gettext package (and its version number), so it is found
+# relative to the `xgettext` binary this environment actually has rather
+# than hardcoded, the same way `pkg-config --variable` would resolve it.
+def metainfo_its_file
+  xgettext = ENV.fetch("XGETTEXT", "xgettext")
+  which = `which #{xgettext} 2>/dev/null`.strip
+  if which.empty?
+    nil
+  else
+    prefix = File.dirname(File.dirname(which))
+    Dir.glob(File.join(prefix, "share", "gettext*", "its", "metainfo.its")).first
+  end
+end
+
+# Runs after `GetText::Tools::Task`'s own `gettext:pot:create` action (Rake
+# actions on one task run in the order they were added), so `po/raider.pot`
+# — the domain-named file that task writes — already exists when this runs.
+Rake::Task["gettext:pot:create"].enhance do
+  require "fileutils"
+  require "tmpdir"
+
+  xgettext = ENV.fetch("XGETTEXT", "xgettext")
+  its_file = metainfo_its_file
+  unless its_file
+    raise "gettext's metainfo.its ITS rules were not found next to " \
+          "#{xgettext.inspect} on PATH; cannot extract " \
+          "#{GETTEXT_DATA_TEMPLATES.key(:metainfo)}"
+  end
+
+  Dir.mktmpdir do |dir|
+    desktop_pot = File.join(dir, "desktop.pot")
+    metainfo_pot = File.join(dir, "metainfo.pot")
+
+    sh(
+      xgettext,
+      "--language=Desktop",
+      "--from-code=UTF-8",
+      "--no-wrap",
+      "--output=#{desktop_pot}",
+      GETTEXT_DATA_TEMPLATES.key(:desktop),
+    )
+    sh(
+      xgettext,
+      "--its=#{its_file}",
+      "--from-code=UTF-8",
+      "--no-wrap",
+      "--output=#{metainfo_pot}",
+      GETTEXT_DATA_TEMPLATES.key(:metainfo),
+    )
+
+    # --use-first keeps the Ruby-sourced .pot's header (package name,
+    # version, creation date) rather than letting msgcat merge three
+    # conflicting ones; it also keeps the first copy of any msgid the three
+    # files share, such as "File Shredder", rather than duplicating it.
+    sh(
+      "msgcat",
+      "--use-first",
+      "--sort-by-file",
+      "-o", "po/#{GETTEXT_POT_NAME}.pot",
+      "po/raider.pot", desktop_pot, metainfo_pot,
+    )
+  end
+
+  File.delete("po/raider.pot")
+end
+
 desc "Compile po/*.po into #{GETTEXT_LOCALE_DIRECTORY}/<lang>/LC_MESSAGES/#{GETTEXT_DOMAIN}.mo"
 task "gettext:mo" do
   msgfmt = ENV.fetch("MSGFMT", "msgfmt")

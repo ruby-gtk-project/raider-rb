@@ -83,9 +83,6 @@ scans `ARGV` by hand instead of registering options through
 
 ## Open gaps
 
-The last audit (`.reports/accountability-ensurance.md`, this `ruby`
-HEAD) reported 6 open gap(s) across `.reports/`, clean=false:
-
 - **C1** — `GOptionEntry` command-line registration not implemented;
   investigated and found unreachable from the current gio2/glib2
   bindings (see `KNOWN_LIMITATIONS.md`). `.reports/component-parity.md`.
@@ -99,19 +96,23 @@ HEAD) reported 6 open gap(s) across `.reports/`, clean=false:
   with upstream; unverified whether it changes rendered size or symbolic
   colour under hover/active/insensitive states.
   `.reports/component-parity.md`, `.reports/component-inventory.md`.
-- **T2** — the regenerated `.pot` (`po/com.github.ADBeveridge.Raider.pot`)
-  no longer cites nonexistent files, but it silently drops 7
-  data-file-sourced keys that upstream's `.pot` carries.
-  `.reports/translation-parity.md`.
-- **T4** — a new, narrower gap discovered while re-checking T2: the fix
-  that regenerated the `.pot` was declared complete without diffing its
-  key set against the prior `.pot`, so a real gap shipped undetected
-  inside a commit that described itself as closing one.
-  `.reports/translation-parity.md`.
-- **A14** — accountability finding: the commit that produced T2 asserted
-  completion without the diff that would have caught T2/T4; recorded as
-  open in `.reports/accountability-ensurance.md`, not yet closed by a
-  process change.
+- **A14** — accountability finding: a past commit asserted T2 complete
+  without the diff that would have caught the regression recorded as T4;
+  recorded as closed in `.reports/accountability-ensurance.md` now that
+  `.reports/translation-parity.md` carries that diff explicitly, but the
+  historical finding itself is not deleted.
+
+**T2 and T4, closed this round.** `Rakefile`'s `gettext:pot:create` task
+now runs two `xgettext` passes (`--language=Desktop`, and
+`--its=.../metainfo.its`) over the two `data/*.in.in` templates
+`po/POTFILES` names, and folds their output into the Ruby-sourced `.pot`
+with `msgcat --use-first` — the same two extractors meson's own
+`i18n.gettext` uses for these file types internally. `po/com.github.ADBeveridge.Raider.pot`
+now carries **39** msgids (was 35); a full key-set diff (not just the
+`grep -c` total) shows exactly the 4 data-only keys added and 0 removed.
+See `.reports/translation-parity.md` for the diff and for what remains
+owed (those 4 keys have no `.po` translation yet; the 35 catalogues were
+deliberately left untouched this round).
 
 ## Blockers
 

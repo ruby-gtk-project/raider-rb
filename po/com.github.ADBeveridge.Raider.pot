@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.ADBeveridge.Raider 3.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 00:44+0000\n"
-"PO-Revision-Date: 2026-11-07 00:44+0000\n"
+"POT-Creation-Date: 2026-11-07 12:38+0000\n"
+"PO-Revision-Date: 2026-11-07 12:38+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -19,11 +19,11 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #: ../lib/exit_dialog.rb:24
-msgid "Stop Shredding?"
+msgid "Are you sure that you want to exit?"
 msgstr ""
 
 #: ../lib/exit_dialog.rb:24
-msgid "Are you sure that you want to exit?"
+msgid "Stop Shredding?"
 msgstr ""
 
 #: ../lib/exit_dialog.rb:30
@@ -132,8 +132,8 @@ msgstr ""
 
 #: ../lib/window.rb:360
 msgid ""
-"Shredding is the obfuscation of a file with random data so the previous conten"
-"ts cannot be recovered."
+"Shredding is the obfuscation of a file with random data so the previous "
+"contents cannot be recovered."
 msgstr ""
 
 #: ../lib/window.rb:395
@@ -154,4 +154,27 @@ msgstr ""
 
 #: ../lib/window.rb:520
 msgid "Finished shredding files"
+msgstr ""
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:4
+msgid "Permanently delete your files"
+msgstr ""
+
+#: data/com.github.ADBeveridge.Raider.desktop.in.in:9
+msgid "delete;remove;permanently;files;shred;data;"
+msgstr ""
+
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:9
+msgid ""
+"File Shredder is a file deletion program designed to permanently remove "
+"sensitive files from your computer, enhancing data privacy."
+msgstr ""
+
+#: data/com.github.ADBeveridge.Raider.metainfo.xml.in.in:12
+msgid ""
+"Within a certain limit, it is effective. However, modern SSDs use certain "
+"technologies to extend its lifetime, which has the side effect of ensuring "
+"that shredding is never perfect, and no software can fix that. But shredding "
+"significantly increases the difficulty of data recovery since it requires "
+"specialized software and hardware."
 msgstr ""

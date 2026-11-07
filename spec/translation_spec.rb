@@ -115,6 +115,7 @@ RSpec.describe Translation do
       marked = self.class.marked_msgids
       data_only = [
         "Permanently delete your files",
+        "delete;remove;permanently;files;shred;data;",
         /\AFile Shredder is a file deletion program/,
         /\AWithin a certain limit/,
       ]

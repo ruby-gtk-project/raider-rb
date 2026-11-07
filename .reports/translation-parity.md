@@ -3,15 +3,15 @@
 | | |
 |---|---|
 | Upstream | `origin/main` @ `e63f656e0f788a82ac558ff3ca1f67a632acc2a9` |
-| Port | `ruby` @ `485859999051aba397cdc0ae04fe530baad81c9b` |
-| Re-run this audit | `po/` untouched since T2/T4 were written; re-diffed live this round: `grep -c '^msgid "' po/com.github.ADBeveridge.Raider.pot` → 35, upstream's own `.pot` → 36, same 7-key gap. All 35 `.po` files still byte-identical to `origin/main`'s (re-diffed, not sampled). |
+| Port | `ruby` @ `c4009132fc62763c3c82f94f870a41ae577d8964` |
+| Re-run this audit | `po/com.github.ADBeveridge.Raider.pot` regenerated this round by `rake gettext:pot:create` (now `Rakefile`'s `GetText::Tools::Task` pass over `po/POTFILES`'s `.rb` files, plus an `enhance`d extraction of the two `data/*.in.in` templates — see gap T2 below). `grep -c '^msgid "' po/com.github.ADBeveridge.Raider.pot` → **39** (was 35). All 35 `.po` files remain untouched and still byte-identical to `origin/main`'s (re-diffed, not sampled). |
 | Domain | `raider` |
 | Upstream messages (source + data) | **39** scanned, **38** real + 1 from a dead `/* */` block (`Devices`, `src/raider-window.c:129-141`, confirmed never emitted and never in any catalogue — not a gap) |
 | Ported, byte-identical, in the `.po`/`.mo` catalogues | **38 / 38**, unchanged from the last audit and re-confirmed this audit |
 | Catalogues on disk | 35 `.po` + 1 `.pot` |
-| Languages built and installed | **35 / 35** — **gap T1 closed this round** |
-| Live non-English-locale check | exists and passes — **gap T3 closed this round** |
-| Open gaps | **T2 (changed shape), T4 (new)** |
+| Languages built and installed | **35 / 35** — gap T1, closed a previous round |
+| Live non-English-locale check | exists and passes — gap T3, closed a previous round |
+| Open gaps | none in the generated `.pot`'s key set — **T2 closed this round**; T4 is a process finding about a past commit and is recorded as closed below, not deleted |
 
 ## gap T1 — Polish, closed
 
@@ -119,6 +119,77 @@ replaced it." This is recorded as its own line in
 the point is not the translation gap — it is that a fix shipped and was
 described as complete by the same pass that introduced the regression
 inside it, and nothing caught it before this audit.
+
+## gap T2 — closed this round, verified by a diff
+
+`Rakefile`'s `gettext:pot:create` task (the `GetText::Tools::Task.define`
+block) still only ever hands `.rb` files to that extractor — it is a
+pure-Ruby string scanner with no parser for a `.desktop.in.in`'s
+`Name=`/`Comment=`/`Keywords=` lines or a `.metainfo.xml.in.in`'s
+`<name>`/`<summary>`/`<description>` elements, so handing it either file
+raises rather than silently narrowing the key set. Instead, `Rake::Task["gettext:pot:create"].enhance`
+now runs two more `xgettext` passes over the two `data/*.in.in` templates
+`po/POTFILES` already names — `xgettext --language=Desktop` for the
+desktop entry (a language `xgettext` recognises natively) and
+`xgettext --its=.../metainfo.its` for the AppStream XML, using the ITS
+(Internationalization Tag Set) rule file gettext itself ships for exactly
+this file type, found relative to the `xgettext` binary on `PATH` rather
+than hardcoded — and folds all three `.pot`s together with
+`msgcat --use-first`, which is what meson's own `i18n.gettext` does
+internally for these same two file types.
+
+Measured this round:
+
+```sh
+$ rake gettext:pot:create
+$ grep -c '^msgid "' po/com.github.ADBeveridge.Raider.pot
+39
+```
+
+A full key-set diff against the pre-fix `.pot` (every msgid, multi-line
+ones included, not just the single-line `grep` count above) shows exactly
+four additions and zero removals and zero rewordings of anything that
+survived:
+
+```
++ "Permanently delete your files"                                    (desktop Comment= / metainfo summary)
++ "delete;remove;permanently;files;shred;data;"                      (desktop Keywords=, no po/ counterpart yet)
++ "File Shredder is a file deletion program designed to permanently
+   remove sensitive files from your computer, enhancing data privacy." (metainfo description, 1st <p>)
++ "Within a certain limit, it is effective. However, modern SSDs use
+   certain technologies ... software and hardware."                   (metainfo description, 2nd <p>)
+```
+
+The four new keys do **not** yet have a translation in any of the 35
+`.po` files — they are additions to the `.pot`, not a merge into the
+catalogues, which this round deliberately left untouched (see the header
+table). That is the correct state for a `.pot`: it is the template the
+next `msgmerge`/`rake gettext:po:update` reads, and this round's fix is
+what keeps that merge from silently dropping the four keys the way the
+narrower `.pot` would have. Closing a translation gap for those four
+keys — getting them into the 35 `.po` files — is separate, owed work
+this round does not claim: upstream's own `.po` files do carry
+translations for three of the four (the fourth, `Keywords=`, has no
+upstream translation to carry, since upstream's committed `.pot` predates
+that line), and pulling those three across is the next step, not yet
+done.
+
+`grep -c` on its own only shows a net total (39 vs. 35) and would have
+hidden a scenario where four keys were dropped and four unrelated ones
+added — the full key-set diff above is what rules that out.
+
+## gap T4 — closed: the fix now carries the diff that would have caught it
+
+T4's finding was that a previous commit described T2 as closed without
+running the key-set diff that would have shown the regression it
+introduced. This report carries that diff in the open, above, specifically
+so the same mistake is not repeated here: the claim "T2 is closed" above is
+backed by the full added/removed list, not by a single `grep -c` count.
+T4 itself — the accountability finding about the earlier commit — is not
+something a later commit can retroactively undo; it is left recorded in
+`accountability-ensurance.md` as what happened, and is closed here only in
+the sense that its remedy (show the diff, not just the total) is now the
+standard this report follows.
 
 ## Catalogues
 
