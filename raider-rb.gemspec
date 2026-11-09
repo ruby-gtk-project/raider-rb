@@ -96,14 +96,9 @@ Gem::Specification.new do |spec|
   spec.executables = ["raider"]
   spec.require_paths = ["lib"]
 
-  # Runtime
-  # GTK4 / Libadwaita bindings.
   spec.add_dependency("adwaita", "~> 4.3")                                        # ruby >= 3.1
-  spec.add_dependency("gtk4", "~> 4.3")                                           # ruby >= 3.1
-  # Translation. glib2 only exposes bindtextdomain for GTK's own strings; the
-  # app's 37 msgids go through this pure-Ruby gettext, which reads the .mo
-  # files `rake gettext:mo` compiles from po/.
   spec.add_dependency("gettext", "~> 3.5")                                        # ruby >= 2.5
+  spec.add_dependency("gtk4", "~> 4.3")                                           # ruby >= 3.1
 
   # NOTE: It is preferable to list development dependencies in the gemspec due to increased
   #       visibility and discoverability.
